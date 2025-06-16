@@ -15,7 +15,6 @@
     "@testing-library/user-event": "^13.5.0",
     "@twa-dev/types": "^8.0.2",
     "@types/jest": "^27.5.2",
-    "@types/node": "^20.0.0",
     "@types/telegram-web-app": "^7.0.0",
     "axios": "^1.6.8",
     "date-fns": "^4.1.0",
@@ -56,6 +55,11 @@
     ]
   },
   "devDependencies": {
+    "@types/babel__generator": "^7.27.0",
+    "@types/babel__traverse": "^7.20.7",
+    "@types/estree": "^1.0.8",
+    "@types/history": "^4.7.11",
+    "@types/node": "^24.0.3",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
     "@types/react-router-dom": "^5.3.3",
