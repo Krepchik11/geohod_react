@@ -391,6 +391,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                   onChange={handleDateChange}
                   onAccept={handleDateChange}
                   format="dd.MM.yyyy"
+                  enableAccessibleFieldDOMStructure={false}
                   slots={{
                     textField: TextField,
                   }}
