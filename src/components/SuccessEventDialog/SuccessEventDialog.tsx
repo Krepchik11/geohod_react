@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogActions, Button, Typography, Box } from '@mui/material';
 import TodayIcon from '@mui/icons-material/Today';
 import LinkIcon from '@mui/icons-material/Link';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Toast from '../Toast/Toast';
 
 interface SuccessEventDialogProps {

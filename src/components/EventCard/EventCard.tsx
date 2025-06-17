@@ -60,11 +60,6 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const isOrganizer = user && user.id && status !== EventStatus.CANCELED && status !== EventStatus.FINISHED && isToday;
 
-  const formatNumber = (num: number) => {
-    const str = num.toString();
-    return <span style={{ color: '#007AFF' }}>{str}</span>;
-  };
-
   const formatDateTime = (dateStr: string) => {
     if (dateStr.includes('.')) {
       const [day, month, year] = dateStr.split('.');

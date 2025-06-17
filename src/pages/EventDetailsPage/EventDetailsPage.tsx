@@ -19,7 +19,6 @@ import {
 import {
   Event as EventIcon,
   PeopleAlt as PeopleAltIcon,
-  ChatBubbleOutline as ChatBubbleOutlineIcon,
 } from '@mui/icons-material';
 import { api, Event, EventStatus, User } from '../../api';
 import TopBar from '../../components/TopBar/TopBar';
@@ -54,7 +53,6 @@ const EventDetailsPage: React.FC = () => {
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelParticipants, setCancelParticipants] = useState<User[]>([]);
-  const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelSuccessToast, setCancelSuccessToast] = useState(false);
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState(false);
   const [iamParticipant, setIamParticipant] = useState(false);
@@ -91,21 +89,6 @@ const EventDetailsPage: React.FC = () => {
     };
     fetchEventAndParticipants();
   }, [id, user?.id]);
-
-  const loadParticipants = async () => {
-    if (!id) return;
-
-    try {
-      setOperationInProgress(true);
-      const response = await api.events.getEventParticipants(id);
-      setParticipants(response.participants);
-      setParticipantsDialogOpen(true);
-    } catch (err: any) {
-      setError(err.message || 'Ошибка при загрузке участников');
-    } finally {
-      setOperationInProgress(false);
-    }
-  };
 
   const handleRegister = async () => {
     if (!id) return;
@@ -173,32 +156,6 @@ const EventDetailsPage: React.FC = () => {
     });
   };
 
-  const getStatusColor = (status: EventStatus) => {
-    switch (status) {
-      case EventStatus.ACTIVE:
-        return '#4caf50'; // green
-      case EventStatus.CANCELED:
-        return '#f44336'; // red
-      case EventStatus.FINISHED:
-        return '#9e9e9e'; // grey
-      default:
-        return '#2196f3'; // blue
-    }
-  };
-
-  const getStatusText = (status: EventStatus) => {
-    switch (status) {
-      case EventStatus.ACTIVE:
-        return 'Активно';
-      case EventStatus.CANCELED:
-        return 'Отменено';
-      case EventStatus.FINISHED:
-        return 'Завершено';
-      default:
-        return status;
-    }
-  };
-
   const handleCopyLink = async () => {
     if (!event?.registrationLink) return;
     try {
@@ -219,7 +176,6 @@ const EventDetailsPage: React.FC = () => {
 
   const handleOpenCancelDialog = async () => {
     if (!event) return;
-    setCancelLoading(true);
     try {
       const response = await api.events.getEventParticipants(event.id);
       setCancelParticipants(response.participants || []);
@@ -227,14 +183,11 @@ const EventDetailsPage: React.FC = () => {
     } catch (e) {
       setCancelParticipants([]);
       setCancelDialogOpen(true);
-    } finally {
-      setCancelLoading(false);
     }
   };
 
   const handleCancelEvent = async (notify: boolean) => {
     if (!event) return;
-    setCancelLoading(true);
     try {
       await api.events.cancelEvent(event.id);
       setCancelDialogOpen(false);
@@ -243,8 +196,6 @@ const EventDetailsPage: React.FC = () => {
       setEvent((prev) => (prev ? { ...prev, status: EventStatus.CANCELED } : prev));
     } catch (e) {
       setCancelDialogOpen(false);
-    } finally {
-      setCancelLoading(false);
     }
   };
 

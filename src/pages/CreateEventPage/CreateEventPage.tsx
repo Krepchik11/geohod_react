@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import EventForm from '../../components/EventForm/EventForm';
 import { api } from '../../api';
-import TopBar from '../../components/TopBar/TopBar';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
 import BottomNavigation from '../../components/BottomNavigation/BottomNavigation';
 

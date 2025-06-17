@@ -5,7 +5,6 @@ import EventCard from '../../components/EventCard/EventCard';
 import { api } from '../../api/telegramApi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Toast from '../../components/Toast/Toast';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 
 interface Author {
@@ -24,16 +23,6 @@ interface Event {
   maxParticipants: number;
   currentParticipants: number;
   status: string;
-}
-
-interface EventsResponse {
-  content: Event[];
-  page: {
-    size: number;
-    number: number;
-    totalElements: number;
-    totalPages: number;
-  };
 }
 
 const EventsPage: React.FC = () => {

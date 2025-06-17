@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Event, EventStatus, EventsResponse, User } from '../models/api';
+// import { Event, EventStatus, EventsResponse, User } from './types'; // Удалено, не используется
 
 export const telegramWebApp = window.Telegram?.WebApp;
 export const isTelegramWebApp = Boolean(telegramWebApp);

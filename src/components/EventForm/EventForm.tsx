@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, Collapse } from '@mui/material';
+import { Box, Typography, TextField, Button } from '@mui/material';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
@@ -124,7 +124,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
 
   useEffect(() => {
     validateForm();
-  }, [formState, touched]);
+  }, [formState, touched, validateForm]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
