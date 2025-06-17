@@ -80,51 +80,50 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
     }, 3000);
   };
 
-  const validateForm = () => {
-    const newErrors: FormErrors = {};
-    let hasErrors = false;
+  useEffect(() => {
+    const validateForm = () => {
+      const newErrors: FormErrors = {};
+      let hasErrors = false;
 
-    const participants = Number(formState.maxParticipants);
-    if (participants < 1 || participants > 100) {
-      newErrors.maxParticipants = `Макс. кол-во участников 100`;
-      hasErrors = true;
-      if (touched.maxParticipants && participants > 100) {
-        showError('Превышено количество участников');
-      }
-    }
-
-    if (formState.date && formState.time) {
-      const selectedDateTime = new Date(formState.date + 'T' + formState.time);
-      const now = new Date();
-
-      // Устанавливаем время now к 00:00:00 для сравнения только дат
-      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const selectedDate = new Date(selectedDateTime.getFullYear(), selectedDateTime.getMonth(), selectedDateTime.getDate());
-
-      if (selectedDate < nowDate) {
-        newErrors.date = 'Дата должна быть сегодня или в будущем';
+      const participants = Number(formState.maxParticipants);
+      if (participants < 1 || participants > 100) {
+        newErrors.maxParticipants = `Макс. кол-во участников 100`;
         hasErrors = true;
-        if (touched.date && touched.time) {
-          showError('Дата должна быть сегодня или в будущем');
+        if (touched.maxParticipants && participants > 100) {
+          showError('Превышено количество участников');
         }
       }
-    }
 
-    setErrors(newErrors);
+      if (formState.date && formState.time) {
+        const selectedDateTime = new Date(formState.date + 'T' + formState.time);
+        const now = new Date();
 
-    const isFormValid =
-      formState.title.trim() !== '' &&
-      formState.maxParticipants !== '' &&
-      formState.date !== '' &&
-      formState.time !== '' &&
-      !hasErrors;
+        // Устанавливаем время now к 00:00:00 для сравнения только дат
+        const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const selectedDate = new Date(selectedDateTime.getFullYear(), selectedDateTime.getMonth(), selectedDateTime.getDate());
 
-    setIsValid(isFormValid);
-  };
+        if (selectedDate < nowDate) {
+          newErrors.date = 'Дата должна быть сегодня или в будущем';
+          hasErrors = true;
+          if (touched.date && touched.time) {
+            showError('Дата должна быть сегодня или в будущем');
+          }
+        }
+      }
 
-  useEffect(() => {
+      setErrors(newErrors);
+
+      const isFormValid =
+        formState.title.trim() !== '' &&
+        formState.maxParticipants !== '' &&
+        formState.date !== '' &&
+        formState.time !== '' &&
+        !hasErrors;
+
+      setIsValid(isFormValid);
+    };
     validateForm();
-  }, [formState, touched, validateForm]);
+  }, [formState, touched]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

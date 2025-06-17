@@ -42,7 +42,7 @@ const EventDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [event, setEvent] = useState<Event | null>(null);
-  const [participants, setParticipants] = useState<User[]>([]);
+  const [participants, _setParticipants] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [participantsDialogOpen, setParticipantsDialogOpen] = useState<boolean>(false);
