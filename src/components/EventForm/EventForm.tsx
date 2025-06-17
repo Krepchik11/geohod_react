@@ -389,8 +389,8 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 <DatePicker
                   value={formState.date ? new Date(formState.date) : null}
                   onChange={handleDateChange}
+                  onAccept={handleDateChange}
                   format="dd.MM.yyyy"
-                  enableAccessibleFieldDOMStructure={false}
                   slots={{
                     textField: TextField,
                   }}
@@ -399,7 +399,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                       error: touched.date && !!errors.date,
                       helperText: touched.date && errors.date ? errors.date : undefined,
                       fullWidth: true,
-                      InputProps: { readOnly: true, onFocus: handleFocus, onBlur: handleBlur },
+                      InputProps: { readOnly: true, tabIndex: -1, onFocus: handleFocus, onBlur: handleBlur },
                       FormHelperTextProps: {
                         sx: {
                           textAlign: 'right',
