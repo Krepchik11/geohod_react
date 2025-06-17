@@ -1,4 +1,4 @@
-// import { telegramApi } from './telegramApi'; // Удалено, не используется
+import { eventsApi } from './telegramApi';
 
 export const api = {
   events: eventsApi,
