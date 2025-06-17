@@ -4,6 +4,7 @@ import EventForm from '../../components/EventForm/EventForm';
 import { api } from '../../api';
 import TopBar from '../../components/TopBar/TopBar';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
+import BottomNavigation from '../../components/BottomNavigation/BottomNavigation';
 
 interface EventResponse {
   id: string;
@@ -18,6 +19,7 @@ const CreateEventPage: React.FC = () => {
   const initialTitle = location.state?.title || '';
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [createdEvent, setCreatedEvent] = useState<EventResponse | null>(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const formatDate = (dateString: string) => {
     try {
@@ -64,7 +66,8 @@ const CreateEventPage: React.FC = () => {
 
   return (
     <>
-      <EventForm onSubmit={handleSubmit} initialTitle={initialTitle} />
+      <EventForm onSubmit={handleSubmit} initialTitle={initialTitle} onInputFocusChange={setIsInputFocused} />
+      {!isInputFocused && <BottomNavigation />}
       {createdEvent && (
         <SuccessEventDialog
           open={successDialogOpen}

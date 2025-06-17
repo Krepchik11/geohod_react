@@ -3,12 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm/EventForm';
 import { api } from '../api';
 import TopBar from '../components/TopBar/TopBar';
+import BottomNavigation from '../components/BottomNavigation/BottomNavigation';
 
 const EditEventPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState<any>(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -42,7 +44,9 @@ const EditEventPage: React.FC = () => {
         initialDate={event.date}
         initialMaxParticipants={event.maxParticipants}
         submitLabel="Сохранить"
+        onInputFocusChange={setIsInputFocused}
       />
+      {!isInputFocused && <BottomNavigation />}
     </>
   );
 };

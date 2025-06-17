@@ -43,9 +43,10 @@ interface EventFormProps {
   initialDate?: string;
   initialMaxParticipants?: number;
   submitLabel?: string;
+  onInputFocusChange?: (focused: boolean) => void;
 }
 
-const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', initialDate, initialMaxParticipants, submitLabel }) => {
+const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', initialDate, initialMaxParticipants, submitLabel, onInputFocusChange }) => {
   const user = useUserStore((state) => state.user);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -56,7 +57,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
 
   const [formState, setFormState] = useState<FormState>({
     title: initialTitle,
-    maxParticipants: initialMaxParticipants ? String(initialMaxParticipants) : '',
+    maxParticipants: initialMaxParticipants !== undefined ? String(initialMaxParticipants) : '30',
     date: initialDate ? initialDate.split('T')[0] : defaultDate,
     time: initialDate ? (initialDate.split('T')[1]?.slice(0, 5) || defaultTime) : defaultTime,
   });
@@ -96,11 +97,15 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
       const selectedDateTime = new Date(formState.date + 'T' + formState.time);
       const now = new Date();
 
-      if (selectedDateTime < now) {
-        newErrors.date = 'Дата должна быть в будущем';
+      // Устанавливаем время now к 00:00:00 для сравнения только дат
+      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const selectedDate = new Date(selectedDateTime.getFullYear(), selectedDateTime.getMonth(), selectedDateTime.getDate());
+
+      if (selectedDate < nowDate) {
+        newErrors.date = 'Дата должна быть сегодня или в будущем';
         hasErrors = true;
         if (touched.date && touched.time) {
-          showError('Дата должна быть в будущем');
+          showError('Дата должна быть сегодня или в будущем');
         }
       }
     }
@@ -198,6 +203,14 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
       maxParticipants: Number(formState.maxParticipants),
       date: isoString,
     });
+  };
+
+  // Фокусировка для скрытия меню
+  const handleFocus = () => {
+    if (onInputFocusChange) onInputFocusChange(true);
+  };
+  const handleBlur = () => {
+    if (onInputFocusChange) onInputFocusChange(false);
   };
 
   if (!user) return null;
@@ -334,6 +347,8 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 helperText={touched.maxParticipants ? errors.maxParticipants : ''}
                 inputProps={{ min: 1, max: 100 }}
                 variant="outlined"
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 FormHelperTextProps={{
                   sx: {
                     textAlign: 'right',
@@ -385,6 +400,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                       error: touched.date && !!errors.date,
                       helperText: touched.date && errors.date ? errors.date : undefined,
                       fullWidth: true,
+                      InputProps: { readOnly: true, onFocus: handleFocus, onBlur: handleBlur },
                       FormHelperTextProps: {
                         sx: {
                           textAlign: 'right',
