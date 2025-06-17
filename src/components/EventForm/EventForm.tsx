@@ -400,7 +400,19 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                       error: touched.date && !!errors.date,
                       helperText: touched.date && errors.date ? errors.date : undefined,
                       fullWidth: true,
-                      InputProps: { readOnly: true, tabIndex: -1, onFocus: handleFocus, onBlur: handleBlur },
+                      InputProps: { 
+                        readOnly: true, 
+                        tabIndex: -1, 
+                        onFocus: handleFocus, 
+                        onBlur: handleBlur,
+                        inputProps: {
+                          readOnly: true,
+                          autoComplete: 'off',
+                          onKeyDown: (e: React.KeyboardEvent) => {
+                            e.preventDefault();
+                          }
+                        }
+                      },
                       FormHelperTextProps: {
                         sx: {
                           textAlign: 'right',
