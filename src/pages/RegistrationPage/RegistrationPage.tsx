@@ -17,6 +17,7 @@ import {
 import Layout from '../../components/Layout/Layout';
 import { telegramWebApp } from '../../api/telegramApi';
 import { api } from '../../api';
+import { useTelegramBackButton } from '../../hooks/useTelegramBackButton';
 
 interface Event {
   id: string;
@@ -42,6 +43,9 @@ const RegistrationPage: React.FC = () => {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Включаем кнопку "Назад" Telegram
+  useTelegramBackButton(true);
 
   // Обработка параметра startapp из Telegram
   useEffect(() => {
@@ -114,7 +118,10 @@ const RegistrationPage: React.FC = () => {
 
   const handleBack = () => {
     if (activeStep === 0) {
-      navigate(`/event/${eventId}`);
+      navigate('/events');
+      if (telegramWebApp?.BackButton) {
+        telegramWebApp.BackButton.hide();
+      }
     } else {
       setActiveStep((prevStep) => prevStep - 1);
     }
@@ -144,7 +151,10 @@ const RegistrationPage: React.FC = () => {
   };
 
   const handleComplete = () => {
-    navigate(`/event/${eventId}`);
+    navigate('/events');
+    if (telegramWebApp?.BackButton) {
+      telegramWebApp.BackButton.hide();
+    }
   };
 
   const steps = ['Информация', 'Данные', 'Подтверждение', 'Готово'];
