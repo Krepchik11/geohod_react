@@ -49,7 +49,7 @@ const EventDetailsPage: React.FC = () => {
   const [operationInProgress, setOperationInProgress] = useState<boolean>(false);
   const [customDialogOpen, setCustomDialogOpen] = useState(false);
   const user = useUserStore((state) => state.user);
-  const isOrganizer = event && user && event.author.id === String(user.id);
+  const isOrganizer = event && user && String(event.author.id) === String(user.id);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelParticipants, setCancelParticipants] = useState<User[]>([]);
@@ -66,9 +66,10 @@ const EventDetailsPage: React.FC = () => {
       setLoading(true);
       try {
         const eventData = await api.events.getEventById(id);
+        console.log('Event data:', eventData);
         setEvent({
           ...eventData,
-          registrationLink: `/register/${eventData.id}`,
+          registrationLink: `#/register/${eventData.id}`,
           participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
           author: {
             ...eventData.author,
@@ -79,9 +80,20 @@ const EventDetailsPage: React.FC = () => {
         });
         // Получаем участников и вычисляем iamParticipant
         const participantsData = await api.events.getEventParticipants(id);
+        console.log('Participants data:', participantsData);
+        console.log('Current user ID:', user.id);
         const isParticipant = participantsData.participants.some(
           (p: any) => String(p.tgUserId) === String(user.id)
         );
+        console.log('Debug button state:', {
+          operationInProgress,
+          eventStatus: eventData.status,
+          isCanceled: eventData.status === EventStatus.CANCELED,
+          isParticipant,
+          isPast: new Date(eventData.date).getTime() < new Date().getTime(),
+          currentUser: user.id,
+          isOrganizer: eventData.author.id === String(user.id)
+        });
         setIamParticipant(isParticipant);
       } finally {
         setLoading(false);
@@ -103,7 +115,7 @@ const EventDetailsPage: React.FC = () => {
       const eventData = await api.events.getEventById(id);
       setEvent({
         ...eventData,
-        registrationLink: `/register/${eventData.id}`,
+        registrationLink: `#/register/${eventData.id}`,
         participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
         author: {
           ...eventData.author,
