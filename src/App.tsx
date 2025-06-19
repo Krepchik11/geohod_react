@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -24,6 +24,10 @@ const TelegramRouter: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const initUser = useUserStore((state) => state.initUser);
+  const [lastRedirect, setLastRedirect] = useState<string | null>(null);
+
+  // Список путей, где редирект не должен срабатывать
+  const safeRoutes = ['/profile', '/create-event', '/events'];
 
   useEffect(() => {
     initUser();
@@ -75,20 +79,34 @@ const TelegramRouter: React.FC = () => {
         console.log('Init params:', {
           startParam,
           currentPath: location.pathname,
-          webAppStartParam: webApp.initDataUnsafe?.start_param
+          webAppStartParam: webApp.initDataUnsafe?.start_param,
+          lastRedirect,
+          isSafeRoute: safeRoutes.includes(location.pathname)
         });
 
         if (startParam?.startsWith('registration_')) {
           const eventId = startParam.replace('registration_', '');
-          console.log('Redirecting to event details:', eventId);
+          const targetPath = `/event/${eventId}`;
           
-          // Проверяем, что мы еще не на странице этого события
-          if (location.pathname !== `/event/${eventId}`) {
-            navigate(`/event/${eventId}`);
+          // Проверяем условия для редиректа
+          const shouldRedirect = 
+            // Путь отличается от целевого
+            location.pathname !== targetPath &&
+            // Это не безопасный маршрут
+            !safeRoutes.includes(location.pathname) &&
+            // Мы еще не делали такой редирект
+            lastRedirect !== targetPath;
+
+          if (shouldRedirect) {
+            console.log('Redirecting to event details:', eventId);
+            setLastRedirect(targetPath);
+            navigate(targetPath);
           }
         } else if (location.pathname === '/') {
-          // Если нет start_param и мы на главной, редиректим на /events
-          navigate('/events');
+          // Редирект с главной только если нет сохраненного редиректа
+          if (!lastRedirect) {
+            navigate('/events');
+          }
         }
         
         // Устанавливаем кнопку "назад" только если мы не на /events
@@ -102,7 +120,7 @@ const TelegramRouter: React.FC = () => {
     };
 
     initTelegram();
-  }, [location.pathname, navigate]);
+  }, [location.pathname, navigate, lastRedirect]);
 
   // Добавим отладочный вывод для текущего пути
   useEffect(() => {
