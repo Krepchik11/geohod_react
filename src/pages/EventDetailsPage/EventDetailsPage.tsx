@@ -78,7 +78,19 @@ const EventDetailsPage: React.FC = () => {
         // Проверяем, является ли событие прошедшим
         const eventDate = new Date(eventData.date);
         const now = new Date();
-        const isPastEvent = eventDate < now;
+        
+        // Сбрасываем время до начала дня для корректного сравнения
+        eventDate.setHours(0, 0, 0, 0);
+        now.setHours(0, 0, 0, 0);
+        
+        const isPastEvent = eventDate.getTime() < now.getTime();
+        
+        console.log('Date comparison:', {
+          eventDate: eventDate.toISOString(),
+          now: now.toISOString(),
+          isPastEvent,
+          rawEventDate: eventData.date
+        });
         
         // Проверяем, достигнуто ли максимальное количество участников
         const isMaxParticipants = eventData.currentParticipants >= eventData.maxParticipants;
@@ -125,9 +137,10 @@ const EventDetailsPage: React.FC = () => {
     };
 
     if (id && user?.id) {
+      setLoading(true);
       fetchEventAndParticipants();
     }
-  }, [id, user?.id, operationInProgress]);
+  }, [id, user?.id]);
 
   const handleRegister = async () => {
     if (!event?.id) return;

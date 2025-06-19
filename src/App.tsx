@@ -63,30 +63,46 @@ const TelegramRouter: React.FC = () => {
   }, [location.pathname, navigate]);
 
   useEffect(() => {
-    // Обработка параметра startapp из Telegram
-    const processStartParam = () => {
-      if (telegramWebApp?.initDataUnsafe?.start_param) {
-        const startParam = telegramWebApp.initDataUnsafe.start_param;
-        console.log('Telegram start_param:', startParam);
+    const initTelegram = async () => {
+      try {
+        const webApp = window.Telegram.WebApp;
+        webApp.ready();
         
-        if (startParam.startsWith('registration_')) {
+        // Получаем start_param из URL или из webApp
+        const urlParams = new URLSearchParams(window.location.search);
+        const startParam = urlParams.get('start_param') || webApp.initDataUnsafe?.start_param;
+        
+        console.log('Init params:', {
+          startParam,
+          currentPath: location.pathname,
+          webAppStartParam: webApp.initDataUnsafe?.start_param
+        });
+
+        if (startParam?.startsWith('registration_')) {
           const eventId = startParam.replace('registration_', '');
           console.log('Redirecting to event details:', eventId);
           
-          // Проверяем, что мы еще не на странице события
-          if (!location.pathname.includes(`/event/${eventId}`)) {
-            navigate(`/event/${eventId}`, { 
-              replace: true,
-              state: { fromRegistration: true }
-            });
+          // Проверяем, что мы еще не на странице этого события
+          if (location.pathname !== `/event/${eventId}`) {
+            navigate(`/event/${eventId}`);
           }
+        } else if (location.pathname === '/') {
+          // Если нет start_param и мы на главной, редиректим на /events
+          navigate('/events');
         }
+        
+        // Устанавливаем кнопку "назад" только если мы не на /events
+        const shouldShowBackButton = location.pathname !== '/events';
+        console.log('Back button visibility:', shouldShowBackButton);
+        webApp.BackButton.isVisible = shouldShowBackButton;
+        
+      } catch (error) {
+        console.error('Error initializing Telegram Web App:', error);
       }
     };
 
-    // Вызываем обработку только один раз при монтировании
-    processStartParam();
-  }, [navigate, location.pathname]);
+    initTelegram();
+  }, [location.pathname, navigate]);
 
   // Добавим отладочный вывод для текущего пути
   useEffect(() => {
