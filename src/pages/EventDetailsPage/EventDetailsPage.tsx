@@ -58,7 +58,25 @@ const EventDetailsPage: React.FC = () => {
   const [iamParticipant, setIamParticipant] = useState(false);
 
   const isCanceled = event?.status === EventStatus.CANCELED;
-  const isPast = event ? new Date(event.date).getTime() < new Date().getTime() : false;
+  const isPast = event ? (() => {
+    try {
+      const eventDate = new Date(event.date);
+      const now = new Date();
+      console.log('Date debug:', {
+        eventDate: eventDate.toISOString(),
+        now: now.toISOString(),
+        eventTimestamp: eventDate.getTime(),
+        nowTimestamp: now.getTime(),
+        rawEventDate: event.date,
+        diff: eventDate.getTime() - now.getTime()
+      });
+      // Если разница между датами отрицательная - событие в прошлом
+      return (eventDate.getTime() - now.getTime()) < 0;
+    } catch (e) {
+      console.error('Error parsing date:', e);
+      return false;
+    }
+  })() : false;
 
   useEffect(() => {
     const fetchEventAndParticipants = async () => {

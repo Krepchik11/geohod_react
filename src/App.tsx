@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ru } from 'date-fns/locale';
@@ -23,11 +23,36 @@ import EditEventPage from './pages/EditEventPage';
 // Компонент для обработки Telegram параметров
 const TelegramRouter: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const initUser = useUserStore((state) => state.initUser);
 
   useEffect(() => {
     initUser();
   }, [initUser]);
+
+  // Обработка кнопки назад в Telegram WebApp
+  useEffect(() => {
+    if (!telegramWebApp?.BackButton) return;
+
+    const handleBackButton = () => {
+      if (location.pathname === '/events') {
+        telegramWebApp.close();
+      } else {
+        navigate(-1);
+      }
+    };
+
+    if (location.pathname === '/events') {
+      telegramWebApp.BackButton.hide();
+    } else {
+      telegramWebApp.BackButton.show();
+      telegramWebApp.BackButton.onClick(handleBackButton);
+    }
+
+    return () => {
+      telegramWebApp.BackButton.offClick(handleBackButton);
+    };
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     // Обработка параметра startapp из Telegram
@@ -38,10 +63,19 @@ const TelegramRouter: React.FC = () => {
       if (startParam.startsWith('registration_')) {
         const eventId = startParam.replace('registration_', '');
         console.log('Redirecting to event details:', eventId);
-        navigate(`/event/${eventId}`);
+        navigate(`/event/${eventId}`, { replace: true });
       }
     }
   }, [navigate]);
+
+  // Добавим отладочный вывод для текущего пути
+  useEffect(() => {
+    console.log('Current location:', {
+      pathname: location.pathname,
+      hash: location.hash,
+      search: location.search
+    });
+  }, [location]);
 
   return (
     <div
@@ -52,6 +86,7 @@ const TelegramRouter: React.FC = () => {
       }}
     >
       <Routes>
+        <Route path="" element={<Navigate to="/events" replace />} />
         <Route path="/" element={<Navigate to="/events" replace />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/create-event" element={<CreateEventPage />} />
@@ -63,6 +98,7 @@ const TelegramRouter: React.FC = () => {
         <Route path="/rate-organizer/:id" element={<RateOrganizerPage />} />
         <Route path="/finish-event/:id" element={<FinishEventPage />} />
         <Route path="/edit-event/:id" element={<EditEventPage />} />
+        <Route path="*" element={<Navigate to="/events" replace />} />
       </Routes>
       <BottomNavigation />
     </div>

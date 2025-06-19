@@ -14,11 +14,12 @@ const BottomNavigation: React.FC = () => {
   const navigate = useNavigate();
   const theme = useTheme();
 
+  // Скрываем главную кнопку Telegram при монтировании
   React.useEffect(() => {
     if (telegramWebApp?.MainButton) {
       telegramWebApp.MainButton.hide();
     }
-  }, [location.pathname]);
+  }, []);
 
   const getIcon = (iconName: string, isSelected: boolean) => (
     <Box
@@ -34,6 +35,14 @@ const BottomNavigation: React.FC = () => {
       }}
     />
   );
+
+  const handleNavigation = (path: string) => {
+    // Если мы уже на этой странице, не делаем ничего
+    if (location.pathname === path) return;
+
+    console.log('Navigating to:', path);
+    navigate(path);
+  };
 
   return (
     <Paper
@@ -52,9 +61,7 @@ const BottomNavigation: React.FC = () => {
     >
       <MuiBottomNavigation
         value={location.pathname}
-        onChange={(_, newValue) => {
-          navigate(newValue);
-        }}
+        onChange={(_, newValue) => handleNavigation(newValue)}
         sx={{
           height: 66,
           bgcolor: 'transparent',
