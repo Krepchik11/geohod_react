@@ -9,8 +9,6 @@ import Button from '@mui/material/Button';
 import { api } from '../../api/telegramApi';
 import TopBar from '../../components/TopBar/TopBar';
 import CloseIcon from '@mui/icons-material/Close';
-import ChatIcon from '../../assets/icons/chat.svg';
-import DeleteIcon from '../../assets/icons/delete.svg';
 
 const ParticipantsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -103,7 +101,7 @@ const ParticipantsPage: React.FC = () => {
                   }}
                 >
                   <img
-                    src={ChatIcon}
+                    src="/assets/icons/chat.svg"
                     alt="chat"
                     width={24}
                     height={24}
@@ -122,7 +120,7 @@ const ParticipantsPage: React.FC = () => {
                     }}
                   >
                     <img
-                      src={DeleteIcon}
+                      src="/assets/icons/delete.svg"
                       alt="delete"
                       width={20}
                       height={20}

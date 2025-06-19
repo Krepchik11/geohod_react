@@ -58,7 +58,7 @@ const EventDetailsPage: React.FC = () => {
   const [iamParticipant, setIamParticipant] = useState(false);
 
   const isCanceled = event?.status === EventStatus.CANCELED;
-  const isPast = event ? new Date(event.date) < new Date() : false;
+  const isPast = event ? new Date(event.date).getTime() < new Date().getTime() : false;
 
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
@@ -646,7 +646,7 @@ const EventDetailsPage: React.FC = () => {
                           marginRight: '11px',
                         }}
                       >
-                        <img src={chatIcon} alt="Chat" style={{ width: 20, height: 20 }} />
+                        <img src="/assets/icons/chat.svg" alt="Chat" style={{ width: 20, height: 20 }} />
                       </Box>
                       <Typography
                         sx={{
@@ -698,7 +698,7 @@ const EventDetailsPage: React.FC = () => {
                           marginRight: '8px',
                         }}
                       >
-                        <img src={canIcon} alt="Cancel" style={{ width: 20, height: 20 }} />
+                        <img src="/assets/icons/can.svg" alt="Cancel" style={{ width: 20, height: 20 }} />
                       </Box>
                       <Typography
                         sx={{
