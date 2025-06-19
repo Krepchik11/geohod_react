@@ -11,7 +11,6 @@ import { telegramWebApp } from './api/telegramApi';
 import EventsPage from './pages/EventsPage/EventsPage';
 import CreateEventPage from './pages/CreateEventPage/CreateEventPage';
 import EventDetailsPage from './pages/EventDetailsPage/EventDetailsPage';
-import RegistrationPage from './pages/RegistrationPage/RegistrationPage';
 import NotificationPage from './pages/NotificationPage/NotificationPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import BottomNavigation from './components/BottomNavigation/BottomNavigation';
@@ -71,8 +70,8 @@ const TelegramRouter: React.FC = () => {
       
       if (startParam.startsWith('registration_')) {
         const eventId = startParam.replace('registration_', '');
-        console.log('Redirecting to registration:', eventId);
-        navigate(`/register/${eventId}`, { replace: true });
+        console.log('Redirecting to event details:', eventId);
+        navigate(`/event/${eventId}`, { replace: true });
       }
     }
   }, [navigate]);
@@ -101,7 +100,6 @@ const TelegramRouter: React.FC = () => {
         <Route path="/create-event" element={<CreateEventPage />} />
         <Route path="/event/:id" element={<EventDetailsPage />} />
         <Route path="/event/:id/participants" element={<ParticipantsPage />} />
-        <Route path="/register/:id" element={<RegistrationPage />} />
         <Route path="/notification/:id" element={<NotificationPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/rate-organizer/:id" element={<RateOrganizerPage />} />
