@@ -5,31 +5,26 @@ import {
   Typography,
   Button,
   Divider,
-  TextField,
   Paper,
   Avatar,
-  Stepper,
-  Step,
-  StepLabel,
   Alert,
   CircularProgress,
 } from '@mui/material';
 import Layout from '../../components/Layout/Layout';
 import { telegramWebApp } from '../../api/telegramApi';
 import { api } from '../../api';
+import { useUserStore } from '../../store/userStore';
 
 const RegistrationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(0);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [agreed, setAgreed] = useState(false);
   const [eventId, setEventId] = useState<string | null>(null);
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [agreed, setAgreed] = useState(false);
+  const [registered, setRegistered] = useState(false);
+  const user = useUserStore((state) => state.user);
 
   // Обработка параметра startapp из Telegram
   useEffect(() => {
@@ -86,47 +81,64 @@ const RegistrationPage: React.FC = () => {
   }
 
   const handleBack = () => {
-    if (activeStep === 0) {
-      navigate(`/event/${eventId}`);
-    } else {
-      setActiveStep((prevStep) => prevStep - 1);
+    navigate(`/event/${eventId}`);
+  };
+
+  const handleSubmit = async () => {
+    if (!eventId) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Регистрация на мероприятие
+      await api.events.registerForEvent(eventId);
+      
+      // Успешная регистрация
+      setRegistered(true);
+    } catch (err: any) {
+      console.error('Error registering for event:', err);
+      setError(err.message || 'Ошибка при регистрации на мероприятие');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
-  };
-
-  const handleSubmit = () => {
-    console.log('Регистрация на мероприятие:', {
-      eventId: eventId,
-      name,
-      email,
-      phone,
-    });
-
-    setActiveStep(3);
-  };
-
   const handleComplete = () => {
-    const chatId = `chat${event.id}`;
-    navigate(`/chat/${chatId}`);
+    navigate(`/event/${eventId}`);
   };
-
-  const steps = ['Информация', 'Данные', 'Подтверждение', 'Готово'];
 
   return (
     <Layout title="Регистрация" showBackButton onBackClick={handleBack} showMenu={false}>
       <Box sx={{ p: 2 }}>
-        <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+        {registered ? (
+          <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Вы успешно зарегистрировались на мероприятие!
+            </Alert>
 
-        {activeStep === 0 && (
+            <Typography variant="h6" gutterBottom>
+              {event.name}
+            </Typography>
+
+            <Typography variant="body1" paragraph>
+              Дата: {event.date}
+            </Typography>
+
+            <Typography variant="body1" paragraph>
+              Вы можете вернуться к описанию мероприятия, чтобы увидеть подробную информацию.
+            </Typography>
+
+            <Button
+              variant="contained"
+              onClick={handleComplete}
+              fullWidth
+              sx={{ height: 48, borderRadius: '14px', fontSize: 17, textTransform: 'none' }}
+            >
+              Вернуться к мероприятию
+            </Button>
+          </Paper>
+        ) : (
           <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
             <Box display="flex" alignItems="center" mb={2}>
               <Avatar
@@ -140,7 +152,7 @@ const RegistrationPage: React.FC = () => {
                 {event.category?.shortName || event.name?.charAt(0)}
               </Avatar>
               <Box>
-                <Typography variant="h6">{event.name || event.title}</Typography>
+                <Typography variant="h6">{event.name}</Typography>
                 <Typography variant="body2" color="text.secondary">
                   {event.date}
                 </Typography>
@@ -150,8 +162,7 @@ const RegistrationPage: React.FC = () => {
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="body1" paragraph>
-              Вы собираетесь зарегистрироваться на это мероприятие. Для продолжения регистрации
-              нажмите "Далее".
+              Вы собираетесь зарегистрироваться на это мероприятие как {user?.first_name} {user?.last_name}.
             </Typography>
 
             <Typography variant="body2" color="text.secondary">
@@ -161,65 +172,6 @@ const RegistrationPage: React.FC = () => {
             <Typography variant="body2" color="text.secondary">
               Участников: {event.currentParticipants}/{event.maxParticipants}
             </Typography>
-          </Paper>
-        )}
-
-        {activeStep === 1 && (
-          <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Введите ваши данные
-            </Typography>
-
-            <TextField
-              fullWidth
-              label="Имя"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              margin="normal"
-              required
-            />
-
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              margin="normal"
-              required
-            />
-
-            <TextField
-              fullWidth
-              label="Телефон"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              margin="normal"
-              required
-            />
-          </Paper>
-        )}
-
-        {activeStep === 2 && (
-          <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Подтвердите данные
-            </Typography>
-
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2">Имя:</Typography>
-              <Typography variant="body1">{name}</Typography>
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2">Email:</Typography>
-              <Typography variant="body1">{email}</Typography>
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2">Телефон:</Typography>
-              <Typography variant="body1">{phone}</Typography>
-            </Box>
 
             <Divider sx={{ my: 2 }} />
 
@@ -235,74 +187,28 @@ const RegistrationPage: React.FC = () => {
             >
               {agreed ? '✓ Согласен с условиями' : 'Согласен с условиями'}
             </Button>
+
+            <Box sx={{ mt: 3 }}>
+              <Button
+                onClick={handleBack}
+                fullWidth
+                variant="outlined"
+                sx={{ height: 48, borderRadius: '14px', fontSize: 17, textTransform: 'none', mb: 2 }}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                disabled={!agreed || loading}
+                fullWidth
+                sx={{ height: 48, borderRadius: '14px', fontSize: 17, textTransform: 'none' }}
+              >
+                {loading ? 'Регистрация...' : 'Подтвердить'}
+              </Button>
+            </Box>
           </Paper>
         )}
-
-        {activeStep === 3 && (
-          <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Вы успешно зарегистрировались на мероприятие!
-            </Alert>
-
-            <Typography variant="h6" gutterBottom>
-              {event.title}
-            </Typography>
-
-            <Typography variant="body1" paragraph>
-              Дата: {event.date}
-            </Typography>
-
-            <Typography variant="body1" paragraph>
-              Вам будет доступен чат с организатором мероприятия для получения дополнительной
-              информации.
-            </Typography>
-          </Paper>
-        )}
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
-          {activeStep < 3 && (
-            <Button
-              onClick={handleBack}
-              fullWidth
-              variant="outlined"
-              sx={{ height: 48, borderRadius: '14px', fontSize: 17, textTransform: 'none' }}
-            >
-              {activeStep === 0 ? 'Отмена' : 'Назад'}
-            </Button>
-          )}
-          {activeStep < 2 && (
-            <Button
-              variant="contained"
-              onClick={handleNext}
-              disabled={activeStep === 1 && (!name || !email || !phone)}
-              fullWidth
-              sx={{ height: 48, borderRadius: '14px', fontSize: 17, textTransform: 'none' }}
-            >
-              Далее
-            </Button>
-          )}
-          {activeStep === 2 && (
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
-              disabled={!agreed}
-              fullWidth
-              sx={{ height: 48, borderRadius: '14px', fontSize: 17, textTransform: 'none' }}
-            >
-              Подтвердить
-            </Button>
-          )}
-          {activeStep === 3 && (
-            <Button
-              variant="contained"
-              onClick={handleComplete}
-              fullWidth
-              sx={{ height: 48, borderRadius: '14px', fontSize: 17, textTransform: 'none' }}
-            >
-              Перейти в чат
-            </Button>
-          )}
-        </Box>
       </Box>
     </Layout>
   );

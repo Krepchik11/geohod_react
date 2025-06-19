@@ -68,7 +68,14 @@ const EventDetailsPage: React.FC = () => {
         const eventData = await api.events.getEventById(id);
         console.log('Event data:', eventData);
         
-        const isPastEvent = new Date(eventData.date).getTime() < new Date().getTime();
+        // Корректное сравнение дат
+        const eventDate = new Date(eventData.date);
+        const now = new Date();
+        // Устанавливаем время в 00:00:00 для корректного сравнения дат
+        eventDate.setHours(0, 0, 0, 0);
+        now.setHours(0, 0, 0, 0);
+        const isPastEvent = eventDate.getTime() < now.getTime();
+        
         const isMaxParticipants = eventData.currentParticipants >= eventData.maxParticipants;
         
         console.log('Event state:', {
