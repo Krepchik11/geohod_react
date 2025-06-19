@@ -33,9 +33,24 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, sx }) =>
       >
         <Typography
           sx={{
-            fontSize: 24,
+            fontSize: {
+              xs: '18px',
+              sm: '20px',
+              md: '24px'
+            },
             fontWeight: 600,
             color: '#000',
+            lineHeight: 1.2,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            wordBreak: 'break-word',
+            maxHeight: '2.4em',
+            margin: '4px 0',
+            flex: 1,
+            paddingRight: '16px',
             ...sx,
           }}
         >
@@ -48,6 +63,7 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, sx }) =>
             height: 40,
             position: 'relative',
             color: '#007AFF',
+            flexShrink: 0,
             '& .MuiSvgIcon-root': {
               fill: '#007AFF',
             },

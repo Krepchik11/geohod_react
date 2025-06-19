@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Typography,
   Box,
@@ -37,17 +37,19 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import UnregisterDialog from '../../components/UnregisterDialog/UnregisterDialog';
 import chatIcon from '../../assets/icons/chat.svg';
 import canIcon from '../../assets/icons/can.svg';
+import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
 
 const EventDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [event, setEvent] = useState<Event | null>(null);
   const [participants, _setParticipants] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [participantsDialogOpen, setParticipantsDialogOpen] = useState<boolean>(false);
   const [operationInProgress, setOperationInProgress] = useState<boolean>(false);
-  const [customDialogOpen, setCustomDialogOpen] = useState(false);
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const user = useUserStore((state) => state.user);
   const isOrganizer = event && user && String(event.author.id) === String(user.id);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -60,35 +62,30 @@ const EventDetailsPage: React.FC = () => {
 
   const isCanceled = event?.status === EventStatus.CANCELED;
 
+  // вычисляем isToday локально
+  const isToday = event ? (() => {
+    const eventDate = new Date(event.date);
+    const now = new Date();
+    return eventDate.getTime() === now.getTime();
+  })() : false;
+
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
       if (!id || !user?.id) return;
-      setLoading(true);
       try {
         const eventData = await api.events.getEventById(id);
-        console.log('Event data:', eventData);
         
-        // Корректное сравнение дат
+        // Проверяем, является ли событие прошедшим
         const eventDate = new Date(eventData.date);
         const now = new Date();
-        // Устанавливаем время в 00:00:00 для корректного сравнения дат
-        eventDate.setHours(0, 0, 0, 0);
-        now.setHours(0, 0, 0, 0);
-        const isPastEvent = eventDate.getTime() < now.getTime();
+        const isPastEvent = eventDate < now;
         
+        // Проверяем, достигнуто ли максимальное количество участников
         const isMaxParticipants = eventData.currentParticipants >= eventData.maxParticipants;
-        
-        console.log('Event state:', {
-          currentParticipants: eventData.currentParticipants,
-          maxParticipants: eventData.maxParticipants,
-          isMaxParticipants,
-          isPastEvent,
-          status: eventData.status
-        });
         
         setEvent({
           ...eventData,
-          registrationLink: `#/register/${eventData.id}`,
+          registrationLink: `https://t.me/geohodton_bot?startapp=registration_${eventData.id}`,
           participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
           author: {
             ...eventData.author,
@@ -119,6 +116,9 @@ const EventDetailsPage: React.FC = () => {
         
         setIamParticipant(isParticipant);
         setIsPast(isPastEvent);
+      } catch (error) {
+        console.error('Error fetching event:', error);
+        setError('Ошибка при загрузке события');
       } finally {
         setLoading(false);
       }
@@ -136,7 +136,7 @@ const EventDetailsPage: React.FC = () => {
       const eventData = await api.events.getEventById(event.id);
       setEvent({
         ...eventData,
-        registrationLink: `#/register/${eventData.id}`,
+        registrationLink: `https://t.me/geohodton_bot?startapp=registration_${eventData.id}`,
         participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
         author: {
           ...eventData.author,
@@ -152,12 +152,23 @@ const EventDetailsPage: React.FC = () => {
         (p: any) => String(p.tgUserId) === String(user.id)
       );
       setIamParticipant(isParticipant);
-    } catch (err: any) {
-      setError(err.message || 'Ошибка при регистрации на событие');
+      setSuccessDialogOpen(true);
+    } catch (error) {
+      console.error('Error registering for event:', error);
     } finally {
       setOperationInProgress(false);
     }
   };
+
+  // Проверяем, пришли ли мы со страницы регистрации
+  useEffect(() => {
+    const state = location.state as { fromRegistration?: boolean };
+    if (state?.fromRegistration) {
+      handleRegister();
+      // Очищаем состояние, чтобы при обновлении страницы не происходила повторная регистрация
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, location.pathname, navigate, handleRegister]);
 
   const handleUnregister = async () => {
     if (!id || !event) return;
@@ -167,7 +178,7 @@ const EventDetailsPage: React.FC = () => {
       const eventData = await api.events.getEventById(id);
       setEvent({
         ...eventData,
-        registrationLink: `#/register/${eventData.id}`,
+        registrationLink: `https://t.me/geohodton_bot?startapp=registration_${eventData.id}`,
         participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
         author: {
           ...eventData.author,
@@ -243,11 +254,6 @@ const EventDetailsPage: React.FC = () => {
     }
   };
 
-  const getShortEventName = (name?: string) => {
-    if (!name) return isOrganizer ? '' : 'Регистрация';
-    return name.length > 18 ? name.slice(0, 18) + '...' : name;
-  };
-
   const handleRepeatEvent = () => {
     if (event) {
       navigate('/create-event', { state: { title: event.name } });
@@ -262,7 +268,10 @@ const EventDetailsPage: React.FC = () => {
 
   return (
     <Box>
-      <TopBar title={isOrganizer ? getShortEventName(event?.name) : 'Регистрация'} showBackButton />
+      <TopBar 
+        title={isOrganizer ? (event?.name || '') : 'Регистрация'} 
+        showBackButton 
+      />
       <Container maxWidth="sm" sx={{ mt: 1, mb: 10 }}>
         {loading ? (
           <Box display="flex" justifyContent="center" my={4}>
@@ -275,11 +284,15 @@ const EventDetailsPage: React.FC = () => {
             </Typography>
             <Button
               variant="contained"
-              color="primary"
-              onClick={() => navigate('/events')}
-              sx={{ mt: 2 }}
+              onClick={() => navigate('/')}
+              sx={{
+                borderRadius: '14px',
+                textTransform: 'none',
+                bgcolor: '#007AFF',
+                '&:hover': { bgcolor: '#0056b3' },
+              }}
             >
-              Вернуться к списку событий
+              Вернуться на главную
             </Button>
           </Box>
         ) : event ? (
@@ -308,6 +321,9 @@ const EventDetailsPage: React.FC = () => {
             {event && isOrganizer && (
               <Box
                 sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
                   bgcolor: '#fff',
                   borderTop: '1px solid #E5E5EA',
                   borderBottom: '1px solid #E5E5EA',
@@ -322,49 +338,62 @@ const EventDetailsPage: React.FC = () => {
                   mb: 2,
                 }}
               >
-                <Typography
-                  sx={{
-                    fontSize: 17,
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <LinkIcon sx={{ color: 'black', fontSize: 24, transform: 'rotate(-45deg)' }} />
-                  </Box>
-                  Копировать ссылку
-                </Typography>
-                <Box
-                  onClick={handleCopyLink}
-                  sx={{
-                    cursor: 'pointer',
-                    borderRadius: '8px',
-                    transition: 'background 0.2s',
-                    '&:hover': { backgroundColor: '#F7F7F7' },
-                    width: 'fit-content',
-                  }}
-                >
+                <Box>
                   <Typography
                     sx={{
-                      px: 4,
-                      fontSize: 15,
-                      color: '#007AFF',
-                      fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
-                      wordBreak: 'break-all',
-                      textDecoration: 'underline',
+                      fontSize: 17,
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
                     }}
                   >
-                    {event.registrationLink}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <LinkIcon sx={{ color: 'black', fontSize: 24, transform: 'rotate(-45deg)' }} />
+                    </Box>
+                    Копировать ссылку
                   </Typography>
+                  <Box
+                    onClick={handleCopyLink}
+                    sx={{
+                      cursor: 'pointer',
+                      borderRadius: '8px',
+                      transition: 'background 0.2s',
+                      '&:hover': { backgroundColor: '#F7F7F7' },
+                      width: 'fit-content',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        px: 4,
+                        fontSize: 15,
+                        color: '#007AFF',
+                        fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
+                        wordBreak: 'break-all',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      {event.registrationLink}
+                    </Typography>
+                  </Box>
                 </Box>
+                {/* Кнопка завершения события */}
+                {isToday && event.status !== EventStatus.FINISHED && event.status !== EventStatus.CANCELED && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ height: 40, borderRadius: '14px', fontWeight: 600, fontSize: 16, ml: 2 }}
+                    onClick={() => navigate(`/finish-event/${event.id}`)}
+                  >
+                    Завершить событие
+                  </Button>
+                )}
               </Box>
             )}
             <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid #E5E5EA' }}>
@@ -824,214 +853,29 @@ const EventDetailsPage: React.FC = () => {
           <Typography>Событие не найдено</Typography>
         )}
       </Container>
-      {customDialogOpen && event && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1300,
-            bgcolor: 'rgba(14, 24, 30, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              position: 'relative',
-              bgcolor: '#fff',
-              borderRadius: '20px',
-              width: '90%',
-              maxWidth: 370,
-              p: 3,
-              boxShadow: '0px 2px 16px rgba(0,0,0,0.12)',
-              mx: 'auto',
-            }}
-          >
-            <Box
-              component="img"
-              src="/images/close-popup.svg"
-              alt="Close"
-              onClick={() => setCustomDialogOpen(false)}
-              sx={{
-                position: 'fixed',
-                top: 30,
-                right: 30,
-                width: 50,
-                height: 50,
-                cursor: 'pointer',
-                zIndex: 1400,
-              }}
-            />
-            <Typography sx={{ fontSize: 15, color: '#000', mb: 1 }}>
-              Вы успешно зарегистрировались на событие
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 20,
-                fontWeight: 700,
-                color: '#000',
-                mb: 1,
-              }}
-            >
-              {event.name}
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <EventIcon sx={{ fontSize: 20, color: '#8E8E93', mr: 1 }} />
-              <Typography sx={{ fontSize: 16 }}>{formatDate(event.date).split(',')[0]}</Typography>
-            </Box>
-            <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>Организатор</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Avatar
-                src={event.author.tgImageUrl}
-                alt={event.author.firstName}
-                sx={{ width: 40, height: 40, mr: 1.5 }}
-              />
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 16,
-                    fontWeight: 500,
-                    color: '#000',
-                  }}
-                >
-                  {event.author.firstName}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Typography
-                    sx={{
-                      fontSize: 15,
-                      color: '#007AFF',
-                      fontWeight: 500,
-                    }}
-                  >
-                    ★
-                  </Typography>
-                  <Typography sx={{ fontSize: 15, color: '#8E8E93' }}>4.8</Typography>
-                </Box>
-              </Box>
-              <Button
-                variant="contained"
-                size="small"
-                component="a"
-                href={`https://t.me/${event.author.tgUsername}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  ml: 2,
-                  borderRadius: '20px',
-                  fontSize: 15,
-                  fontWeight: 500,
-                  minWidth: 90,
-                  height: 36,
-                  textTransform: 'none',
-                  boxShadow: 'none',
-                  bgcolor: '#007AFF',
-                  '&:hover': { bgcolor: '#0056b3' },
-                  marginLeft: 'auto',
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: 15,
-                    color: '#fff',
-                    fontFamily: 'Roboto, sans-serif',
-                    fontWeight: 600,
-                  }}
-                >
-                  Связаться
-                </Typography>
-              </Button>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <PeopleAltIcon sx={{ fontSize: 20, color: '#8E8E93', mr: 1 }} />
-              <Typography
-                sx={{
-                  fontSize: 16,
-                  color: '#007AFF',
-                  fontWeight: 500,
-                  mr: 0.5,
-                }}
-              >
-                {event.participantsCount}
-              </Typography>
-              <Typography sx={{ fontSize: 16, color: '#8E8E93' }}>
-                из {event.maxParticipants}
-              </Typography>
-            </Box>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() => setCustomDialogOpen(false)}
-              sx={{
-                borderRadius: '14px',
-                height: 48,
-                textTransform: 'none',
-                fontSize: 17,
-                color: '#007AFF',
-                borderColor: '#007AFF',
-                fontFamily: 'Roboto, sans-serif',
-                fontWeight: 500,
-                bgcolor: '#fff',
-                '&:hover': {
-                  bgcolor: '#007AFF',
-                  color: '#fff',
-                  borderColor: '#007AFF',
-                },
-                mt: 1,
-              }}
-            >
-              Закрыть
-            </Button>
-          </Box>
-        </Box>
+      {event && (
+        <SuccessEventDialog
+          open={successDialogOpen}
+          onClose={() => setSuccessDialogOpen(false)}
+          eventName={event.name}
+          eventDate={formatDate(event.date)}
+          registrationLink={event.registrationLink}
+        />
       )}
-      <Dialog
-        open={participantsDialogOpen}
-        onClose={() => setParticipantsDialogOpen(false)}
-        aria-labelledby="participants-dialog-title"
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle id="participants-dialog-title">Участники ({participants.length})</DialogTitle>
-        <DialogContent>
-          {participants.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" align="center">
-              Нет участников
-            </Typography>
-          ) : (
-            <List>
-              {participants.map((participant) => (
-                <ListItem key={participant.id}>
-                  <ListItemAvatar>
-                    <Avatar src={participant.tgImageUrl} alt={participant.firstName} />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={`${participant.firstName} ${participant.lastName}`}
-                    secondary={participant.tgUsername ? `@${participant.tgUsername}` : ''}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setParticipantsDialogOpen(false)} color="primary">
-            Закрыть
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CancelEventDialog
+        open={cancelDialogOpen}
+        onClose={() => setCancelDialogOpen(false)}
+        participants={cancelParticipants}
+        onCancel={handleCancelEvent}
+      />
       <Toast
-        message="Ссылка скопирована в буфер обмена"
+        message="Ссылка скопирована"
         isVisible={showCopyToast}
         type="success"
         icon={
           <Box
             sx={{
-              background: '#2EBC65',
+              bgcolor: '#34C759',
               borderRadius: '50%',
               width: 40,
               height: 40,
@@ -1044,42 +888,11 @@ const EventDetailsPage: React.FC = () => {
           </Box>
         }
       />
-      <CancelEventDialog
-        open={cancelDialogOpen}
-        onClose={() => setCancelDialogOpen(false)}
-        participants={cancelParticipants}
-        onCancel={handleCancelEvent}
-      />
-      <Toast
-        message="Вы отменили событие"
-        isVisible={cancelSuccessToast}
-        type="error"
-        icon={
-          <Box
-            sx={{
-              bgcolor: '#FF3B30',
-              borderRadius: '50%',
-              width: 40,
-              height: 40,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <ErrorOutlineIcon sx={{ color: '#fff', fontSize: 24 }} />
-          </Box>
-        }
-      />
       <UnregisterDialog
         open={unregisterDialogOpen}
         onClose={() => setUnregisterDialogOpen(false)}
-        onUnregister={async () => {
-          await handleUnregister();
-          setUnregisterDialogOpen(false);
-          navigate('/events', { state: { showUnregisterToast: true } });
-        }}
+        onUnregister={handleUnregister}
         event={event}
-        loading={operationInProgress}
       />
     </Box>
   );

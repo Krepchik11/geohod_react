@@ -71,7 +71,10 @@ const TelegramRouter: React.FC = () => {
       if (startParam.startsWith('registration_')) {
         const eventId = startParam.replace('registration_', '');
         console.log('Redirecting to event details:', eventId);
-        navigate(`/event/${eventId}`, { replace: true });
+        navigate(`/event/${eventId}`, { 
+          replace: true,
+          state: { fromRegistration: true }
+        });
       }
     }
   }, [navigate]);

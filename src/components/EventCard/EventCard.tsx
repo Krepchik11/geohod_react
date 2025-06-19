@@ -84,7 +84,7 @@ const EventCard: React.FC<EventCardProps> = ({
       onClick={handleCardClick}
       sx={{
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         gap: 2,
         p: 2,
         cursor: 'pointer',
@@ -95,6 +95,10 @@ const EventCard: React.FC<EventCardProps> = ({
         },
         opacity: isPast ? 0.5 : 1,
         filter: isPast ? 'grayscale(1)' : 'none',
+        flexWrap: {
+          xs: 'wrap',
+          sm: 'nowrap'
+        },
       }}
     >
       <Avatar
@@ -103,20 +107,31 @@ const EventCard: React.FC<EventCardProps> = ({
           width: 48,
           height: 48,
           borderRadius: '12px',
+          flexShrink: 0,
         }}
       />
-      <Box sx={{ flex: 1 }}>
+      <Box sx={{ 
+        flex: 1,
+        minWidth: 0, // Важно для корректной работы text-overflow
+      }}>
         <Typography
           sx={{
-            fontSize: '17px',
+            fontSize: {
+              xs: '15px',
+              sm: '16px',
+              md: '17px'
+            },
             fontWeight: 500,
-            lineHeight: '22px',
+            lineHeight: 1.2,
             mb: 0.5,
             fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
-            whiteSpace: 'nowrap',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            maxWidth: 180,
+            wordBreak: 'break-word',
+            maxHeight: '2.4em',
           }}
         >
           {title}
@@ -146,29 +161,46 @@ const EventCard: React.FC<EventCardProps> = ({
           </Typography>
         )}
       </Box>
-      <ParticipantsCount>
-        <Typography
-          component="span"
-          sx={{
-            fontSize: '17px',
-            fontWeight: 500,
-            fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
-          }}
-        >
-          <span style={{ color: '#007AFF' }}>{registeredCount}</span>
-          <span style={{ color: '#001E2F' }}> из {maxParticipants}</span>
-        </Typography>
-      </ParticipantsCount>
-      {isOrganizer && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED && (
-        <Button
-          variant="contained"
-          size="small"
-          sx={{ ml: 2, minWidth: 0, px: 2, fontSize: 14, height: 32 }}
-          onClick={handleFinishClick}
-        >
-          Завершить событие
-        </Button>
-      )}
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2,
+        ml: { xs: 0, sm: 'auto' },
+        mt: { xs: 1, sm: 0 },
+        width: { xs: '100%', sm: 'auto' },
+        justifyContent: { xs: 'space-between', sm: 'flex-end' },
+      }}>
+        <ParticipantsCount>
+          <Typography
+            component="span"
+            sx={{
+              fontSize: '17px',
+              fontWeight: 500,
+              fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <span style={{ color: '#007AFF' }}>{registeredCount}</span>
+            <span style={{ color: '#001E2F' }}> из {maxParticipants}</span>
+          </Typography>
+        </ParticipantsCount>
+        {isOrganizer && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED && (
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ 
+              minWidth: 0, 
+              px: 2, 
+              fontSize: 14, 
+              height: 32,
+              whiteSpace: 'nowrap',
+            }}
+            onClick={handleFinishClick}
+          >
+            Завершить событие
+          </Button>
+        )}
+      </Box>
     </Box>
   );
 };
