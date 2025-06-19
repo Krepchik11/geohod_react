@@ -123,8 +123,11 @@ const EventDetailsPage: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchEventAndParticipants();
-  }, [id, user?.id]);
+
+    if (id && user?.id) {
+      fetchEventAndParticipants();
+    }
+  }, [id, user?.id, operationInProgress]);
 
   const handleRegister = async () => {
     if (!event?.id) return;
@@ -809,7 +812,7 @@ const EventDetailsPage: React.FC = () => {
                       <ArrowForwardIosIcon sx={{ color: '#8E8E93', fontSize: 20 }} />
                     </Box>
                   </Box>
-                  {event && !isOrganizer && (
+                  {!isOrganizer && (
                     <Box
                       sx={{
                         width: '100%',
@@ -834,11 +837,12 @@ const EventDetailsPage: React.FC = () => {
                         }}
                         onClick={handleRegister}
                         disabled={
+                          !user?.id ||
                           operationInProgress ||
                           event.status === EventStatus.CANCELED ||
                           iamParticipant ||
                           isPast ||
-                          event.participantsCount >= event.maxParticipants
+                          (event.participantsCount >= event.maxParticipants)
                         }
                       >
                         Зарегистрироваться

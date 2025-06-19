@@ -64,20 +64,29 @@ const TelegramRouter: React.FC = () => {
 
   useEffect(() => {
     // Обработка параметра startapp из Telegram
-    if (telegramWebApp?.initDataUnsafe?.start_param) {
-      const startParam = telegramWebApp.initDataUnsafe.start_param;
-      console.log('Telegram start_param:', startParam);
-      
-      if (startParam.startsWith('registration_')) {
-        const eventId = startParam.replace('registration_', '');
-        console.log('Redirecting to event details:', eventId);
-        navigate(`/event/${eventId}`, { 
-          replace: true,
-          state: { fromRegistration: true }
-        });
+    const processStartParam = () => {
+      if (telegramWebApp?.initDataUnsafe?.start_param) {
+        const startParam = telegramWebApp.initDataUnsafe.start_param;
+        console.log('Telegram start_param:', startParam);
+        
+        if (startParam.startsWith('registration_')) {
+          const eventId = startParam.replace('registration_', '');
+          console.log('Redirecting to event details:', eventId);
+          
+          // Проверяем, что мы еще не на странице события
+          if (!location.pathname.includes(`/event/${eventId}`)) {
+            navigate(`/event/${eventId}`, { 
+              replace: true,
+              state: { fromRegistration: true }
+            });
+          }
+        }
       }
-    }
-  }, [navigate]);
+    };
+
+    // Вызываем обработку только один раз при монтировании
+    processStartParam();
+  }, [navigate, location.pathname]);
 
   // Добавим отладочный вывод для текущего пути
   useEffect(() => {
