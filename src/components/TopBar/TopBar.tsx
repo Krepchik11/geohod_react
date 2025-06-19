@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import { useTelegramBackButton } from '../../hooks/useTelegramBackButton';
 import NotificationContainer from '../NotificationContainer/NotificationContainer';
 
 interface TopBarProps {
@@ -12,7 +11,6 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, sx }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-  useTelegramBackButton(showBackButton);
 
   const handleNotificationsClick = () => {
     setShowNotifications(true);

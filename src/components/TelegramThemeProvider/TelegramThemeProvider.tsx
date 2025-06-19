@@ -117,7 +117,13 @@ const TelegramThemeProvider: React.FC<TelegramThemeProviderProps> = ({ children 
 
   useEffect(() => {
     if (isTelegramWebApp && telegramWebApp) {
-      console.log('Initializing Telegram WebApp...');
+      console.log('Initializing Telegram WebApp...', {
+        version: telegramWebApp.version,
+        platform: telegramWebApp.platform,
+        initData: telegramWebApp.initData ? 'present' : 'missing',
+        colorScheme: telegramWebApp.colorScheme,
+        BackButton: telegramWebApp.BackButton ? 'available' : 'missing'
+      });
 
       try {
         const bgColor = telegramTheme.bg_color || (colorScheme === 'dark' ? '#1f1f1f' : '#f5f5f5');
@@ -129,11 +135,18 @@ const TelegramThemeProvider: React.FC<TelegramThemeProviderProps> = ({ children 
         console.log('Header color set to:', headerColor);
 
         telegramWebApp.enableClosingConfirmation();
+        console.log('Closing confirmation enabled');
 
         telegramWebApp.ready();
+        console.log('WebApp ready called');
       } catch (error) {
         console.error('Error initializing Telegram WebApp:', error);
       }
+    } else {
+      console.log('Telegram WebApp not available:', { 
+        isTelegramWebApp, 
+        telegramWebApp: telegramWebApp ? 'present' : 'missing' 
+      });
     }
 
     if (window.hideLoadingScreen) {

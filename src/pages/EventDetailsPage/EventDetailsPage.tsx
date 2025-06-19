@@ -56,27 +56,9 @@ const EventDetailsPage: React.FC = () => {
   const [cancelSuccessToast, setCancelSuccessToast] = useState(false);
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState(false);
   const [iamParticipant, setIamParticipant] = useState(false);
+  const [isPast, setIsPast] = useState(false);
 
   const isCanceled = event?.status === EventStatus.CANCELED;
-  const isPast = event ? (() => {
-    try {
-      const eventDate = new Date(event.date);
-      const now = new Date();
-      console.log('Date debug:', {
-        eventDate: eventDate.toISOString(),
-        now: now.toISOString(),
-        eventTimestamp: eventDate.getTime(),
-        nowTimestamp: now.getTime(),
-        rawEventDate: event.date,
-        diff: eventDate.getTime() - now.getTime()
-      });
-      // Если разница между датами отрицательная - событие в прошлом
-      return (eventDate.getTime() - now.getTime()) < 0;
-    } catch (e) {
-      console.error('Error parsing date:', e);
-      return false;
-    }
-  })() : false;
 
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
@@ -85,6 +67,18 @@ const EventDetailsPage: React.FC = () => {
       try {
         const eventData = await api.events.getEventById(id);
         console.log('Event data:', eventData);
+        
+        const isPastEvent = new Date(eventData.date).getTime() < new Date().getTime();
+        const isMaxParticipants = eventData.currentParticipants >= eventData.maxParticipants;
+        
+        console.log('Event state:', {
+          currentParticipants: eventData.currentParticipants,
+          maxParticipants: eventData.maxParticipants,
+          isMaxParticipants,
+          isPastEvent,
+          status: eventData.status
+        });
+        
         setEvent({
           ...eventData,
           registrationLink: `#/register/${eventData.id}`,
@@ -96,6 +90,7 @@ const EventDetailsPage: React.FC = () => {
             tgUsername: eventData.author.username ?? eventData.author.tgUsername,
           },
         });
+        
         // Получаем участников и вычисляем iamParticipant
         const participantsData = await api.events.getEventParticipants(id);
         console.log('Participants data:', participantsData);
@@ -103,16 +98,20 @@ const EventDetailsPage: React.FC = () => {
         const isParticipant = participantsData.participants.some(
           (p: any) => String(p.tgUserId) === String(user.id)
         );
-        console.log('Debug button state:', {
+        
+        console.log('Registration button state:', {
           operationInProgress,
           eventStatus: eventData.status,
           isCanceled: eventData.status === EventStatus.CANCELED,
           isParticipant,
-          isPast: new Date(eventData.date).getTime() < new Date().getTime(),
+          isPastEvent,
+          isMaxParticipants,
           currentUser: user.id,
           isOrganizer: eventData.author.id === String(user.id)
         });
+        
         setIamParticipant(isParticipant);
+        setIsPast(isPastEvent);
       } finally {
         setLoading(false);
       }
@@ -120,9 +119,37 @@ const EventDetailsPage: React.FC = () => {
     fetchEventAndParticipants();
   }, [id, user?.id]);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!event?.id) return;
-    navigate(`/register/${event.id}`);
+    try {
+      setOperationInProgress(true);
+      await api.events.registerForEvent(event.id);
+      
+      // Обновляем данные события после регистрации
+      const eventData = await api.events.getEventById(event.id);
+      setEvent({
+        ...eventData,
+        registrationLink: `#/register/${eventData.id}`,
+        participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
+        author: {
+          ...eventData.author,
+          firstName: eventData.author.name ?? eventData.author.firstName,
+          tgImageUrl: eventData.author.imageUrl ?? eventData.author.tgImageUrl,
+          tgUsername: eventData.author.username ?? eventData.author.tgUsername,
+        },
+      });
+      
+      // Обновляем статус участия
+      const participantsData = await api.events.getEventParticipants(event.id);
+      const isParticipant = participantsData.participants.some(
+        (p: any) => String(p.tgUserId) === String(user.id)
+      );
+      setIamParticipant(isParticipant);
+    } catch (err: any) {
+      setError(err.message || 'Ошибка при регистрации на событие');
+    } finally {
+      setOperationInProgress(false);
+    }
   };
 
   const handleUnregister = async () => {
@@ -774,7 +801,8 @@ const EventDetailsPage: React.FC = () => {
                           operationInProgress ||
                           event.status === EventStatus.CANCELED ||
                           iamParticipant ||
-                          isPast
+                          isPast ||
+                          event.participantsCount >= event.maxParticipants
                         }
                       >
                         Зарегистрироваться

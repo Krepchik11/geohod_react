@@ -32,9 +32,13 @@ const TelegramRouter: React.FC = () => {
 
   // Обработка кнопки назад в Telegram WebApp
   useEffect(() => {
-    if (!telegramWebApp?.BackButton) return;
+    if (!telegramWebApp?.BackButton) {
+      console.log('Telegram BackButton not available');
+      return;
+    }
 
     const handleBackButton = () => {
+      console.log('Back button clicked, current path:', location.pathname);
       if (location.pathname === '/events') {
         telegramWebApp.close();
       } else {
@@ -42,15 +46,20 @@ const TelegramRouter: React.FC = () => {
       }
     };
 
+    // Показываем кнопку на всех страницах кроме /events
     if (location.pathname === '/events') {
+      console.log('Hiding back button on /events');
       telegramWebApp.BackButton.hide();
     } else {
+      console.log('Showing back button');
       telegramWebApp.BackButton.show();
       telegramWebApp.BackButton.onClick(handleBackButton);
     }
 
     return () => {
-      telegramWebApp.BackButton.offClick(handleBackButton);
+      if (telegramWebApp?.BackButton) {
+        telegramWebApp.BackButton.offClick(handleBackButton);
+      }
     };
   }, [location.pathname, navigate]);
 
