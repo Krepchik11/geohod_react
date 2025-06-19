@@ -68,7 +68,7 @@ const EventDetailsPage: React.FC = () => {
         const eventData = await api.events.getEventById(id);
         setEvent({
           ...eventData,
-          registrationLink: `https://t.me/geohodton_bot/app?startapp=registration_${eventData.id}`,
+          registrationLink: `/register/${eventData.id}`,
           participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
           author: {
             ...eventData.author,
@@ -90,29 +90,9 @@ const EventDetailsPage: React.FC = () => {
     fetchEventAndParticipants();
   }, [id, user?.id]);
 
-  const handleRegister = async () => {
-    if (!id) return;
-    setOperationInProgress(true);
-    try {
-      await api.events.registerForEvent(id);
-      // Обновляем состояние без дополнительных запросов
-      setIamParticipant(true);
-      if (event) {
-        setEvent({
-          ...event,
-          participantsCount: (event.participantsCount || 0) + 1
-        });
-      }
-      setCustomDialogOpen(true);
-    } catch (err: any) {
-      if (err?.response?.data?.error === 'User already participated') {
-        setIamParticipant(true);
-      } else {
-        setError(err.message || 'Ошибка при регистрации на событие');
-      }
-    } finally {
-      setOperationInProgress(false);
-    }
+  const handleRegister = () => {
+    if (!event?.id) return;
+    navigate(`/register/${event.id}`);
   };
 
   const handleUnregister = async () => {
@@ -123,7 +103,7 @@ const EventDetailsPage: React.FC = () => {
       const eventData = await api.events.getEventById(id);
       setEvent({
         ...eventData,
-        registrationLink: `https://t.me/geohodton_bot/app?startapp=registration_${eventData.id}`,
+        registrationLink: `/register/${eventData.id}`,
         participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
         author: {
           ...eventData.author,

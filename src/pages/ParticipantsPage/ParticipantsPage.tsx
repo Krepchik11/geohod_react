@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Typography, Avatar, IconButton, CircularProgress } from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Toast from '../../components/Toast/Toast';
 import { useUserStore } from '../../store/userStore';
 import Dialog from '@mui/material/Dialog';
@@ -11,6 +10,7 @@ import { api } from '../../api/telegramApi';
 import TopBar from '../../components/TopBar/TopBar';
 import CloseIcon from '@mui/icons-material/Close';
 import ChatIcon from '../../assets/icons/chat.svg';
+import DeleteIcon from '../../assets/icons/delete.svg';
 
 const ParticipantsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -94,25 +94,39 @@ const ParticipantsPage: React.FC = () => {
                   href={`https://t.me/${p.username || p.tgUsername}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    bgcolor: '#007AFF',
+                    borderRadius: '50%',
+                    '&:hover': { bgcolor: '#0056b3' },
+                  }}
                 >
                   <img
                     src={ChatIcon}
                     alt="chat"
                     width={24}
                     height={24}
-                    style={{
-                      filter:
-                        'invert(32%) sepia(99%) saturate(7496%) hue-rotate(196deg) brightness(99%) contrast(101%)',
-                    }}
                   />
                 </IconButton>
 
                 {isOrganizer && (
                   <IconButton
-                    sx={{ color: '#007AFF' }}
                     onClick={() => setDialog({ open: true, participant: p })}
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      bgcolor: '#FF3B30',
+                      borderRadius: '50%',
+                      '&:hover': { bgcolor: '#d32f2f' },
+                    }}
                   >
-                    <DeleteOutlineIcon />
+                    <img
+                      src={DeleteIcon}
+                      alt="delete"
+                      width={20}
+                      height={20}
+                    />
                   </IconButton>
                 )}
               </Box>
@@ -188,7 +202,17 @@ const ParticipantsPage: React.FC = () => {
               color="error"
               fullWidth
               sx={{ borderRadius: '14px', fontSize: 17, textTransform: 'none', height: 44 }}
-              disabled={true}
+              onClick={async () => {
+                try {
+                  // TODO: Implement participant removal API call
+                  // await api.events.removeParticipant(id!, dialog.participant.id);
+                  setParticipants(participants.filter(p => p.id !== dialog.participant.id));
+                  setDialog({ open: false, participant: null });
+                  setToast({ isVisible: true, message: 'Участник удален' });
+                } catch (error: any) {
+                  setToast({ isVisible: true, message: error.message || 'Ошибка при удалении' });
+                }
+              }}
             >
               Удалить
             </Button>
