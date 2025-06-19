@@ -48,7 +48,7 @@ const CreateEventPage: React.FC = () => {
         id: response.id,
         name: data.title,
         date: data.date,
-        registrationLink: `https://t.me/geohod_bot/app?startapp=registration_${response.id}`,
+        registrationLink: `https://t.me/geohodton_bot/app?startapp=registration_${response.id}`,
       };
 
       setCreatedEvent(eventData);

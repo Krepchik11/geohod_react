@@ -127,6 +127,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    console.log('handleChange called:', name, value);
 
     setTouched((prev) => ({
       ...prev,
@@ -137,16 +138,22 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
       const numValue = Number(value);
       if (numValue > 100) {
         showError('Превышено количество участников');
+        return;
       }
     }
 
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormState((prev) => {
+      console.log('Updating form state:', { ...prev, [name]: value });
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
   };
 
   const handleDateChange = (newValue: Date | null) => {
+    console.log('handleDateChange called:', newValue);
+    
     setTouched((prev) => ({
       ...prev,
       date: true,
@@ -169,10 +176,14 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
       }
     }
 
-    setFormState((prev) => ({
-      ...prev,
-      date: newValue ? newValue.toISOString().split('T')[0] : '',
-    }));
+    setFormState((prev) => {
+      const newState = {
+        ...prev,
+        date: newValue ? newValue.toISOString().split('T')[0] : '',
+      };
+      console.log('Updating form state with new date:', newState);
+      return newState;
+    });
   };
   useEffect(() => {
     if (touched.date && errors.date) {
@@ -339,7 +350,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 fullWidth
                 name="maxParticipants"
                 type="number"
-                value={formState.maxParticipants}
+                value={formState.maxParticipants ?? ''}
                 onChange={handleChange}
                 placeholder="30"
                 error={touched.maxParticipants && !!errors.maxParticipants}

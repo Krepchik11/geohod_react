@@ -68,7 +68,7 @@ const EventDetailsPage: React.FC = () => {
         const eventData = await api.events.getEventById(id);
         setEvent({
           ...eventData,
-          registrationLink: `https://t.me/geohod_bot/app?startapp=registration_${eventData.id}`,
+          registrationLink: `https://t.me/geohodton_bot/app?startapp=registration_${eventData.id}`,
           participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
           author: {
             ...eventData.author,
@@ -123,7 +123,7 @@ const EventDetailsPage: React.FC = () => {
       const eventData = await api.events.getEventById(id);
       setEvent({
         ...eventData,
-        registrationLink: `https://t.me/geohod_bot/app?startapp=registration_${eventData.id}`,
+        registrationLink: `https://t.me/geohodton_bot/app?startapp=registration_${eventData.id}`,
         participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
         author: {
           ...eventData.author,

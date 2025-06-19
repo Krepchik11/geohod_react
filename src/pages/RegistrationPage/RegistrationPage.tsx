@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { EVENTS } from '../../data/mockData';
 import Layout from '../../components/Layout/Layout';
+import { telegramWebApp } from '../../api/telegramApi';
 
 const RegistrationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,8 +25,33 @@ const RegistrationPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [eventId, setEventId] = useState<string | null>(null);
 
-  const event = EVENTS.find((e) => e.id === id);
+  // Обработка параметра startapp из Telegram
+  useEffect(() => {
+    if (telegramWebApp?.initDataUnsafe?.start_param) {
+      // Если есть start_param, извлекаем ID события
+      const startParam = telegramWebApp.initDataUnsafe.start_param;
+      if (startParam.startsWith('registration_')) {
+        const extractedId = startParam.replace('registration_', '');
+        setEventId(extractedId);
+      }
+    } else if (id) {
+      // Если нет start_param, используем ID из URL
+      setEventId(id);
+    }
+  }, [id]);
+
+  // Используем eventId из состояния вместо id из URL
+  const event = EVENTS.find((e) => e.id === eventId);
+
+  if (!eventId) {
+    return (
+      <Layout title="Ошибка" showBackButton onBackClick={() => navigate('/')}>
+        <Typography variant="h6">ID мероприятия не найден</Typography>
+      </Layout>
+    );
+  }
 
   if (!event) {
     return (
@@ -37,7 +63,7 @@ const RegistrationPage: React.FC = () => {
 
   const handleBack = () => {
     if (activeStep === 0) {
-      navigate(`/event/${id}`);
+      navigate(`/event/${eventId}`);
     } else {
       setActiveStep((prevStep) => prevStep - 1);
     }
@@ -49,7 +75,7 @@ const RegistrationPage: React.FC = () => {
 
   const handleSubmit = () => {
     console.log('Регистрация на мероприятие:', {
-      eventId: id,
+      eventId: eventId,
       name,
       email,
       phone,
@@ -59,7 +85,7 @@ const RegistrationPage: React.FC = () => {
   };
 
   const handleComplete = () => {
-    const chatId = `chat${event.id}`;
+    const chatId = `chat${eventId}`;
     navigate(`/chat/${chatId}`);
   };
 
