@@ -4,20 +4,22 @@ import {
   Box,
   Typography,
   Button,
-  Divider,
-  TextField,
-  Paper,
   Avatar,
-  Stepper,
-  Step,
-  StepLabel,
-  Alert,
+  Rating,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListItemButton,
   CircularProgress,
 } from '@mui/material';
 import Layout from '../../components/Layout/Layout';
 import { telegramWebApp } from '../../api/telegramApi';
 import { api } from '../../api';
 import { useTelegramBackButton } from '../../hooks/useTelegramBackButton';
+import ChatIcon from '@mui/icons-material/Chat';
+import CancelIcon from '@mui/icons-material/Cancel';
+import PeopleIcon from '@mui/icons-material/People';
 
 interface Event {
   id: string;
@@ -28,52 +30,38 @@ interface Event {
   author: {
     id: string;
     name: string;
+    rating?: number;
+    avatar?: string;
   };
 }
 
 const RegistrationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(0);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [agreed, setAgreed] = useState(false);
-  const [eventId, setEventId] = useState<string | null>(null);
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRegistered, setIsRegistered] = useState(false);
 
   // Включаем кнопку "Назад" Telegram
   useTelegramBackButton(true);
 
-  // Обработка параметра startapp из Telegram
   useEffect(() => {
-    if (telegramWebApp?.initDataUnsafe?.start_param) {
-      // Если есть start_param, извлекаем ID события
-      const startParam = telegramWebApp.initDataUnsafe.start_param;
-      if (startParam.startsWith('registration_')) {
-        const extractedId = startParam.replace('registration_', '');
-        setEventId(extractedId);
-      }
-    } else if (id) {
-      // Если нет start_param, используем ID из URL
-      setEventId(id);
-    }
-  }, [id]);
-
-  // Загрузка события с бэкенда
-  useEffect(() => {
-    if (!eventId) return;
-
     const fetchEvent = async () => {
+      if (!id) return;
       try {
         setLoading(true);
         setError(null);
-        console.log('Fetching event with ID:', eventId);
-        const eventData = await api.events.getEventById(eventId);
-        console.log('Event data received:', eventData);
+        const eventData = await api.events.getEventById(id);
         setEvent(eventData);
+        // Проверяем, зарегистрирован ли пользователь
+        const participantsData = await api.events.getEventParticipants(id);
+        const user = telegramWebApp?.initDataUnsafe?.user;
+        if (user && participantsData.participants) {
+          setIsRegistered(participantsData.participants.some(
+            (p: any) => String(p.tgUserId) === String(user.id)
+          ));
+        }
       } catch (err: any) {
         console.error('Error fetching event:', err);
         setError(err.message || 'Ошибка при загрузке мероприятия');
@@ -83,249 +71,139 @@ const RegistrationPage: React.FC = () => {
     };
 
     fetchEvent();
-  }, [eventId]);
+  }, [id]);
 
-  if (!eventId) {
-    return (
-      <Layout title="Ошибка" showBackButton onBackClick={() => navigate('/events')}>
-        <Typography variant="h6">ID мероприятия не найден</Typography>
-      </Layout>
-    );
-  }
-
-  if (loading) {
-    return (
-      <Layout title="Загрузка" showBackButton onBackClick={() => navigate('/events')}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-          <CircularProgress />
-        </Box>
-      </Layout>
-    );
-  }
-
-  if (error || !event) {
-    return (
-      <Layout title="Ошибка" showBackButton onBackClick={() => navigate('/events')}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error || 'Мероприятие не найдено'}
-        </Alert>
-        <Button variant="contained" onClick={() => navigate('/events')}>
-          Вернуться к списку мероприятий
-        </Button>
-      </Layout>
-    );
-  }
-
-  const handleBack = () => {
-    if (activeStep === 0) {
-      navigate('/events');
-      if (telegramWebApp?.BackButton) {
-        telegramWebApp.BackButton.hide();
-      }
-    } else {
-      setActiveStep((prevStep) => prevStep - 1);
-    }
-  };
-
-  const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
-  };
-
-  const handleSubmit = async () => {
+  const handleRegister = async () => {
+    if (!event?.id) return;
     try {
-      console.log('Регистрация на мероприятие:', {
-        eventId: eventId,
-        name,
-        email,
-        phone,
-      });
-
-      // Здесь должен быть вызов API для регистрации
-      // await api.events.registerForEvent(eventId, { name, email, phone });
-      
-      setActiveStep(3);
+      await api.events.registerForEvent(event.id);
+      setIsRegistered(true);
     } catch (err: any) {
       console.error('Error registering for event:', err);
       setError(err.message || 'Ошибка при регистрации');
     }
   };
 
-  const handleComplete = () => {
-    navigate('/events');
-    if (telegramWebApp?.BackButton) {
-      telegramWebApp.BackButton.hide();
+  const handleUnregister = async () => {
+    if (!event?.id) return;
+    try {
+      await api.events.unregisterFromEvent(event.id);
+      setIsRegistered(false);
+    } catch (err: any) {
+      console.error('Error unregistering from event:', err);
+      setError(err.message || 'Ошибка при отмене регистрации');
     }
   };
 
-  const steps = ['Информация', 'Данные', 'Подтверждение', 'Готово'];
+  if (loading || !event) {
+    return (
+      <Layout title="Регистрация" showBackButton>
+        <Box sx={{ p: 2 }}>
+          <CircularProgress />
+        </Box>
+      </Layout>
+    );
+  }
 
   return (
-    <Layout title="Регистрация" showBackButton onBackClick={handleBack} showMenu={false}>
+    <Layout title="Регистрация" showBackButton>
       <Box sx={{ p: 2 }}>
-        <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          {event.name}
+        </Typography>
 
-        {activeStep === 0 && (
-          <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-            <Box display="flex" alignItems="center" mb={2}>
-              <Avatar
-                sx={{
-                  bgcolor: '#007AFF',
-                  width: 50,
-                  height: 50,
-                  mr: 2,
-                }}
-              >
-                {event.name.charAt(0).toUpperCase()}
-              </Avatar>
-              <Box>
-                <Typography variant="h6">{event.name}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {new Date(event.date).toLocaleDateString('ru-RU')}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="body1" paragraph>
-              Вы собираетесь зарегистрироваться на это мероприятие. Для продолжения регистрации
-              нажмите "Далее".
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary">
-              Организатор: {event.author.name}
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary">
-              Участников: {event.currentParticipants}/{event.maxParticipants}
-            </Typography>
-          </Paper>
-        )}
-
-        {activeStep === 1 && (
-          <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Введите ваши данные
-            </Typography>
-
-            <TextField
-              fullWidth
-              label="Имя"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              margin="normal"
-              required
-            />
-
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              margin="normal"
-              required
-            />
-
-            <TextField
-              fullWidth
-              label="Телефон"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              margin="normal"
-              required
-            />
-          </Paper>
-        )}
-
-        {activeStep === 2 && (
-          <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Подтвердите данные
-            </Typography>
-
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2">Имя:</Typography>
-              <Typography variant="body1">{name}</Typography>
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2">Email:</Typography>
-              <Typography variant="body1">{email}</Typography>
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2">Телефон:</Typography>
-              <Typography variant="body1">{phone}</Typography>
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="body2" color="text.secondary">
-              Нажимая "Подтвердить", вы соглашаетесь с условиями участия в мероприятии.
-            </Typography>
-
-            <Button
-              variant="outlined"
-              sx={{ mt: 1 }}
-              onClick={() => setAgreed(!agreed)}
-              color={agreed ? 'primary' : 'inherit'}
-            >
-              {agreed ? '✓ Согласен с условиями' : 'Согласен с условиями'}
-            </Button>
-          </Paper>
-        )}
-
-        {activeStep === 3 && (
-          <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Вы успешно зарегистрировались на мероприятие!
-            </Alert>
-
-            <Typography variant="h6" gutterBottom>
-              {event.name}
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary" paragraph>
-              Мы отправили подтверждение на ваш email. Не забудьте добавить мероприятие в календарь!
-            </Typography>
-
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={handleComplete}
-              sx={{ mt: 2 }}
-            >
-              Перейти к мероприятию
-            </Button>
-          </Paper>
-        )}
-
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-          <Button
-            variant="outlined"
-            onClick={handleBack}
-            disabled={activeStep === 0}
-          >
-            Назад
-          </Button>
-          
-          {activeStep < 3 ? (
-            <Button
-              variant="contained"
-              onClick={activeStep === 2 ? handleSubmit : handleNext}
-              disabled={activeStep === 2 && !agreed}
-            >
-              {activeStep === 2 ? 'Подтвердить' : 'Далее'}
-            </Button>
-          ) : null}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <PeopleIcon sx={{ mr: 1, color: 'text.secondary' }} />
+          <Typography variant="body2" color="text.secondary">
+            Человек в группе
+          </Typography>
         </Box>
+        <Typography variant="h6" sx={{ mb: 3 }}>
+          {event.currentParticipants} из {event.maxParticipants}
+        </Typography>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Организатор
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <Avatar
+            src={event.author.avatar}
+            sx={{ width: 48, height: 48, mr: 2 }}
+          >
+            {event.author.name.charAt(0)}
+          </Avatar>
+          <Box>
+            <Typography variant="subtitle1">{event.author.name}</Typography>
+            <Rating
+              value={event.author.rating || 0}
+              readOnly
+              precision={0.1}
+              size="small"
+            />
+          </Box>
+        </Box>
+
+        <List sx={{ mb: 3 }}>
+          <ListItemButton
+            component="a"
+            href={`https://t.me/${event.author.name}`}
+            target="_blank"
+            sx={{
+              bgcolor: '#F7F7F7',
+              borderRadius: 2,
+              mb: 1,
+            }}
+          >
+            <ListItemIcon>
+              <Box
+                component="img"
+                src="/images/chat.svg"
+                sx={{ width: 24, height: 24 }}
+              />
+            </ListItemIcon>
+            <ListItemText primary="Чат с организатором" />
+          </ListItemButton>
+
+          {isRegistered && (
+            <ListItemButton
+              onClick={handleUnregister}
+              sx={{
+                bgcolor: '#FFF5F5',
+                borderRadius: 2,
+                color: '#FF3B30',
+              }}
+            >
+              <ListItemIcon>
+                <Box
+                  component="img"
+                  src="/images/cancel.svg"
+                  sx={{ width: 24, height: 24 }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary="Отменить регистрацию"
+                sx={{ color: '#FF3B30' }}
+              />
+            </ListItemButton>
+          )}
+        </List>
+
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={handleRegister}
+          disabled={isRegistered || event.currentParticipants >= event.maxParticipants}
+          sx={{
+            borderRadius: 2,
+            py: 2,
+            bgcolor: isRegistered ? '#E5E5EA' : '#007AFF',
+            '&:hover': {
+              bgcolor: isRegistered ? '#E5E5EA' : '#0056b3',
+            },
+          }}
+        >
+          {isRegistered ? 'Вы зарегистрированы' : 'Зарегистрироваться'}
+        </Button>
       </Box>
     </Layout>
   );
