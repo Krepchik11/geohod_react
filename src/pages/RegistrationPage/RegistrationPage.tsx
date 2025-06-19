@@ -12,10 +12,11 @@ import {
   Step,
   StepLabel,
   Alert,
+  CircularProgress,
 } from '@mui/material';
-import { EVENTS } from '../../data/mockData';
 import Layout from '../../components/Layout/Layout';
 import { telegramWebApp } from '../../api/telegramApi';
+import { api } from '../../api';
 
 const RegistrationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +27,9 @@ const RegistrationPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [eventId, setEventId] = useState<string | null>(null);
+  const [event, setEvent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Обработка параметра startapp из Telegram
   useEffect(() => {
@@ -42,12 +46,41 @@ const RegistrationPage: React.FC = () => {
     }
   }, [id]);
 
-  const event = EVENTS.find((e) => e.id === eventId);
+  // Загрузка события с сервера
+  useEffect(() => {
+    if (!eventId) return;
 
-  if (!event) {
+    const fetchEvent = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const eventData = await api.events.getEventById(eventId);
+        setEvent(eventData);
+      } catch (err: any) {
+        console.error('Error fetching event:', err);
+        setError(err.message || 'Ошибка при загрузке мероприятия');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvent();
+  }, [eventId]);
+
+  if (loading) {
+    return (
+      <Layout title="Загрузка" showBackButton onBackClick={() => navigate('/')}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <CircularProgress />
+        </Box>
+      </Layout>
+    );
+  }
+
+  if (error || !event) {
     return (
       <Layout title="Ошибка" showBackButton onBackClick={() => navigate('/')}>
-        <Typography variant="h6">Мероприятие не найдено</Typography>
+        <Typography variant="h6">{error || 'Мероприятие не найдено'}</Typography>
       </Layout>
     );
   }
@@ -98,16 +131,16 @@ const RegistrationPage: React.FC = () => {
             <Box display="flex" alignItems="center" mb={2}>
               <Avatar
                 sx={{
-                  bgcolor: event.category.color,
+                  bgcolor: event.category?.color || '#007AFF',
                   width: 50,
                   height: 50,
                   mr: 2,
                 }}
               >
-                {event.category.shortName}
+                {event.category?.shortName || event.name?.charAt(0)}
               </Avatar>
               <Box>
-                <Typography variant="h6">{event.title}</Typography>
+                <Typography variant="h6">{event.name || event.title}</Typography>
                 <Typography variant="body2" color="text.secondary">
                   {event.date}
                 </Typography>
@@ -122,7 +155,7 @@ const RegistrationPage: React.FC = () => {
             </Typography>
 
             <Typography variant="body2" color="text.secondary">
-              Организатор: {event.organizer.name}
+              Организатор: {event.author?.name || event.organizer?.name}
             </Typography>
 
             <Typography variant="body2" color="text.secondary">
