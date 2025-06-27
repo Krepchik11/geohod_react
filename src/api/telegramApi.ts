@@ -4,7 +4,7 @@ import axios from 'axios';
 export const telegramWebApp = window.Telegram?.WebApp;
 export const isTelegramWebApp = Boolean(telegramWebApp);
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = 'http://localhost:8081/api/v1';
 console.log('Using API URL:', API_BASE_URL);
 
 export const getTelegramUser = () => {
@@ -45,7 +45,10 @@ axiosInstance.interceptors.response.use(
 export const eventsApi = {
   getAllEvents: async (params: any = {}) => {
     try {
+      console.log('Making API request to /events with params:', params);
+      console.log('Authorization header:', window.Telegram?.WebApp?.initData ? 'Present' : 'Missing');
       const response = await axiosInstance.get('/events', { params });
+      console.log('Raw API response:', response);
       return response.data;
     } catch (error) {
       console.error('Ошибка при получении событий:', error);

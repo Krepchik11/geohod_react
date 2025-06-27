@@ -4,20 +4,16 @@ import { Event as EventIcon } from '@mui/icons-material';
 import { Event } from '../../api';
 import StarIcon from '@mui/icons-material/Star';
 
-interface UnregisterDialogProps {
+interface RegistrationConfirmDialogProps {
   open: boolean;
   onClose: () => void;
-  onUnregister: () => Promise<void>;
   event: Event | null;
-  loading?: boolean;
 }
 
-const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
+const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
   open,
   onClose,
-  onUnregister,
   event,
-  loading,
 }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -32,7 +28,7 @@ const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogContent sx={{ p: 3, pb: 2 }}>
         <Typography sx={{ fontSize: 16, fontWeight: 400, mb: 2 }}>
-          Вы уверены, что хотите отменить регистрацию на событие?
+          Вы успешно зарегистрировались на событие
         </Typography>
         <Typography sx={{ fontSize: 20, fontWeight: 700, mb: 1 }}>{event?.name}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -78,7 +74,7 @@ const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
             Связаться
           </Button>
         </Box>
-        <Typography sx={{ fontSize: 15, color: '#007AFF', mb: 1 }}>
+        <Typography sx={{ fontSize: 15, color: 'black', mb: 1 }}>
           Человек в группе: <span style={{ color: '#007AFF' }}>{event?.participantsCount}</span> из {event?.maxParticipants}
         </Typography>
         <Button
@@ -97,22 +93,13 @@ const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
               color: '#fff',
             },
           }}
-          onClick={async () => {
-            try {
-              await onUnregister();
-              onClose(); // Закрываем диалог после успешной операции
-            } catch (error) {
-              console.error('Error during unregistration:', error);
-              // Диалог останется открытым при ошибке
-            }
-          }}
-          disabled={loading}
+          onClick={onClose}
         >
-          Отменить регистрацию
+          Закрыть
         </Button>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default UnregisterDialog;
+export default RegistrationConfirmDialog; 

@@ -42,7 +42,7 @@ const ParticipantsPage: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#fff' }}>
-      <TopBar title="Список участников" showBackButton />
+      <TopBar title="Список участников" showBackButton showNotifications={false} />
       <Toast
         isVisible={toast.isVisible}
         message={toast.message}

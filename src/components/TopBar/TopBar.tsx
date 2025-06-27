@@ -6,18 +6,19 @@ import NotificationContainer from '../NotificationContainer/NotificationContaine
 interface TopBarProps {
   title: string;
   showBackButton?: boolean;
+  showNotifications?: boolean;
   sx?: any;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, sx }) => {
-  const [showNotifications, setShowNotifications] = useState(false);
+const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNotifications = true, sx }) => {
+  const [showNotificationsPopup, setShowNotificationsPopup] = useState(false);
 
   const handleNotificationsClick = () => {
-    setShowNotifications(true);
+    setShowNotificationsPopup(true);
   };
 
   const handleCloseNotifications = () => {
-    setShowNotifications(false);
+    setShowNotificationsPopup(false);
   };
 
   return (
@@ -33,11 +34,7 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, sx }) =>
       >
         <Typography
           sx={{
-            fontSize: {
-              xs: '18px',
-              sm: '20px',
-              md: '24px'
-            },
+            fontSize: '24px',
             fontWeight: 600,
             color: '#000',
             lineHeight: 1.2,
@@ -50,41 +47,43 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, sx }) =>
             maxHeight: '2.4em',
             margin: '4px 0',
             flex: 1,
-            paddingRight: '16px',
+            paddingRight: showNotifications ? '16px' : '0',
             ...sx,
           }}
         >
           {title}
         </Typography>
-        <IconButton
-          onClick={handleNotificationsClick}
-          sx={{
-            width: 40,
-            height: 40,
-            position: 'relative',
-            color: '#007AFF',
-            flexShrink: 0,
-            '& .MuiSvgIcon-root': {
-              fill: '#007AFF',
-            },
-          }}
-        >
-          <NotificationsNoneIcon sx={{ fontSize: 24 }} />
-          <Box
+        {showNotifications && (
+          <IconButton
+            onClick={handleNotificationsClick}
             sx={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              width: 8,
-              height: 8,
-              bgcolor: '#FF3B30',
-              borderRadius: '50%',
+              width: 40,
+              height: 40,
+              position: 'relative',
+              color: '#007AFF',
+              flexShrink: 0,
+              '& .MuiSvgIcon-root': {
+                fill: '#007AFF',
+              },
             }}
-          />
-        </IconButton>
+          >
+            <NotificationsNoneIcon sx={{ fontSize: 24 }} />
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                width: 8,
+                height: 8,
+                bgcolor: '#FF3B30',
+                borderRadius: '50%',
+              }}
+            />
+          </IconButton>
+        )}
       </Box>
 
-      <NotificationContainer open={showNotifications} onClose={handleCloseNotifications} />
+      <NotificationContainer open={showNotificationsPopup} onClose={handleCloseNotifications} />
     </>
   );
 };

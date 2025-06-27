@@ -12,6 +12,7 @@ interface EventCardProps {
   registeredCount: number;
   maxParticipants: number;
   organizerAvatar?: string;
+  organizerId?: string | number;
   isPast?: boolean;
   status?: EventStatus | string;
   registrationCanceled?: boolean;
@@ -34,6 +35,7 @@ const EventCard: React.FC<EventCardProps> = ({
   registeredCount,
   maxParticipants,
   organizerAvatar,
+  organizerId,
   isPast = false,
   status,
   registrationCanceled,
@@ -58,7 +60,17 @@ const EventCard: React.FC<EventCardProps> = ({
     return eventDate.getTime() === today.getTime();
   })();
 
-  const isOrganizer = user && user.id && status !== EventStatus.CANCELED && status !== EventStatus.FINISHED && isToday;
+  const isOrganizer = user && user.id && organizerId && String(user.id) === String(organizerId);
+  
+  console.log('EventCard isOrganizer check:', {
+    eventId: id,
+    userId: user?.id,
+    organizerId,
+    isOrganizer,
+    isToday,
+    status,
+    shouldShowButton: isOrganizer && isToday && status !== EventStatus.CANCELED && status !== EventStatus.FINISHED
+  });
 
   const formatDateTime = (dateStr: string) => {
     if (dateStr.includes('.')) {
@@ -84,7 +96,7 @@ const EventCard: React.FC<EventCardProps> = ({
       onClick={handleCardClick}
       sx={{
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         gap: 2,
         p: 2,
         cursor: 'pointer',
@@ -95,24 +107,23 @@ const EventCard: React.FC<EventCardProps> = ({
         },
         opacity: isPast ? 0.5 : 1,
         filter: isPast ? 'grayscale(1)' : 'none',
-        flexWrap: {
-          xs: 'wrap',
-          sm: 'nowrap'
-        },
       }}
     >
+      {/* Аватар */}
       <Avatar
         src={organizerAvatar}
         sx={{
           width: 48,
           height: 48,
-          borderRadius: '12px',
+          borderRadius: '50%',
           flexShrink: 0,
         }}
       />
+      
+      {/* Основной контент */}
       <Box sx={{ 
         flex: 1,
-        minWidth: 0, // Важно для корректной работы text-overflow
+        minWidth: 0,
       }}>
         <Typography
           sx={{
@@ -161,30 +172,20 @@ const EventCard: React.FC<EventCardProps> = ({
           </Typography>
         )}
       </Box>
+      
+      {/* Правая колонка со счетчиком и кнопкой */}
       <Box sx={{
         display: 'flex',
-        alignItems: 'center',
-        gap: 2,
-        ml: { xs: 0, sm: 'auto' },
-        mt: { xs: 1, sm: 0 },
-        width: { xs: '100%', sm: 'auto' },
-        justifyContent: { xs: 'space-between', sm: 'flex-end' },
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        justifyContent: isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED 
+          ? 'space-between' 
+          : 'center',
+        minHeight: 60,
+        flexShrink: 0,
       }}>
-        <ParticipantsCount>
-          <Typography
-            component="span"
-            sx={{
-              fontSize: '17px',
-              fontWeight: 500,
-              fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <span style={{ color: '#007AFF' }}>{registeredCount}</span>
-            <span style={{ color: '#001E2F' }}> из {maxParticipants}</span>
-          </Typography>
-        </ParticipantsCount>
-        {isOrganizer && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED && (
+        {/* Кнопка завершения события */}
+        {isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED && (
           <Button
             variant="contained"
             size="small"
@@ -194,12 +195,32 @@ const EventCard: React.FC<EventCardProps> = ({
               fontSize: 14, 
               height: 32,
               whiteSpace: 'nowrap',
+              backgroundColor: '#007AFF',
+              borderRadius: '20px',
+              textTransform: 'none',
+              mb: 1,
             }}
             onClick={handleFinishClick}
           >
             Завершить событие
           </Button>
         )}
+        
+        {/* Счетчик участников */}
+        <ParticipantsCount>
+          <Typography
+            component="span"
+            sx={{
+              fontSize: '17px',
+              fontWeight: 600,
+              fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <span style={{ color: '#007AFF' }}>{registeredCount}</span>
+            <span style={{ color: '#001E2F' }}> из {maxParticipants}</span>
+          </Typography>
+        </ParticipantsCount>
       </Box>
     </Box>
   );

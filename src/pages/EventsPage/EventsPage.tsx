@@ -38,7 +38,10 @@ const EventsPage: React.FC = () => {
       try {
         setLoading(true);
         const response = await api.events.getAllEvents();
+        console.log('API response for getAllEvents:', response);
         if (response && response.content) {
+          console.log('Events received:', response.content);
+          console.log('Number of events:', response.content.length);
           setEvents(response.content);
         }
       } catch (err) {
@@ -117,10 +120,11 @@ const EventsPage: React.FC = () => {
             key={event.id}
             id={event.id}
             title={event.name}
-            date={formatDate(event.date)}
+            date={event.date}
             registeredCount={event.currentParticipants}
             maxParticipants={event.maxParticipants}
             organizerAvatar={event.author.imageUrl}
+            organizerId={event.author.id}
             isPast={new Date(event.date) < today}
             status={event.status}
           />

@@ -319,6 +319,8 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 name="title"
                 value={formState.title}
                 onChange={handleChange}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 placeholder="Введите название"
                 variant="outlined"
                 error={touched.title && formState.title.trim() === ''}

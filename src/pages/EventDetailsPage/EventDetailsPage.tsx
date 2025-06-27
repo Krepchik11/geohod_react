@@ -38,6 +38,7 @@ import UnregisterDialog from '../../components/UnregisterDialog/UnregisterDialog
 import chatIcon from '../../assets/icons/chat.svg';
 import canIcon from '../../assets/icons/can.svg';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
+import RegistrationConfirmDialog from '../../components/RegistrationConfirmDialog/RegistrationConfirmDialog';
 
 const EventDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +51,7 @@ const EventDetailsPage: React.FC = () => {
   const [participantsDialogOpen, setParticipantsDialogOpen] = useState<boolean>(false);
   const [operationInProgress, setOperationInProgress] = useState<boolean>(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [registrationDialogOpen, setRegistrationDialogOpen] = useState(false);
   const user = useUserStore((state) => state.user);
   const isOrganizer = event && user && String(event.author.id) === String(user.id);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -168,7 +170,7 @@ const EventDetailsPage: React.FC = () => {
         (p: any) => String(p.tgUserId) === String(user.id)
       );
       setIamParticipant(isParticipant);
-      setSuccessDialogOpen(true);
+      setRegistrationDialogOpen(true);
     } catch (error) {
       console.error('Error registering for event:', error);
     } finally {
@@ -209,8 +211,10 @@ const EventDetailsPage: React.FC = () => {
         (p: any) => String(p.tgUserId) === String(user.id)
       );
       setIamParticipant(isParticipant);
+      setUnregisterDialogOpen(false); // Закрываем диалог после успешной операции
     } catch (err: any) {
       setError(err.message || 'Ошибка при отмене регистрации');
+      console.error('Unregister error:', err);
     } finally {
       setOperationInProgress(false);
     }
@@ -224,6 +228,15 @@ const EventDetailsPage: React.FC = () => {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+    });
+  };
+
+  const formatDateOnly = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
   };
 
@@ -287,6 +300,7 @@ const EventDetailsPage: React.FC = () => {
       <TopBar 
         title={isOrganizer ? (event?.name || '') : 'Регистрация'} 
         showBackButton 
+        showNotifications={false}
       />
       <Container maxWidth="sm" sx={{ mt: 1, mb: 10 }}>
         {loading ? (
@@ -314,17 +328,22 @@ const EventDetailsPage: React.FC = () => {
         ) : event ? (
           <Box>
             {!isOrganizer && (
-              <Box
-                sx={{
-                  bgcolor: '#fff',
-                  borderTop: '1px solid #E5E5EA',
-                  borderBottom: '1px solid #E5E5EA',
-                }}
-              >
-                <Box sx={{ px: 0, pt: 2, pb: 2 }}>
+              <>
+                <Box
+                  sx={{
+                    bgcolor: '#fff',
+                    borderTop: '1px solid #E5E5EA',
+                    borderBottom: '1px solid #E5E5EA',
+                    py: 1.5,
+                    px: 0,
+                  }}
+                >
+                  <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
+                    Название события
+                  </Typography>
                   <Typography
                     sx={{
-                      fontSize: 24,
+                      fontSize: 18,
                       fontWeight: 600,
                       color: '#000',
                     }}
@@ -332,7 +351,39 @@ const EventDetailsPage: React.FC = () => {
                     {event.name}
                   </Typography>
                 </Box>
-              </Box>
+                <Box
+                  sx={{
+                    bgcolor: '#fff',
+                    borderBottom: '1px solid #E5E5EA',
+                    py: 1.5,
+                    px: 0,
+                  }}
+                >
+                  <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
+                    Дата
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <EventIcon sx={{ fontSize: 20, color: 'black' }} />
+                    <Typography sx={{ fontSize: 17, fontWeight: 600, color: '#000' }}>
+                      {formatDateOnly(event.date)}
+                    </Typography>
+                  </Box>
+                </Box>
+                {isPast && (
+                  <Box
+                    sx={{
+                      bgcolor: '#fff',
+                      borderBottom: '1px solid #E5E5EA',
+                      py: 1.5,
+                      px: 0,
+                    }}
+                  >
+                    <Typography sx={{ color: '#8E8E93', fontSize: 16 }}>
+                      Данное событие завершено
+                    </Typography>
+                  </Box>
+                )}
+              </>
             )}
             {event && isOrganizer && (
               <Box
@@ -358,7 +409,10 @@ const EventDetailsPage: React.FC = () => {
                   <Typography
                     sx={{
                       fontSize: 17,
-                      fontWeight: 600,
+                      fontWeight: 500,
+                      color: '#000',
+                      fontFamily: 'Roboto, sans-serif',
+                      mb: 0.5,
                       display: 'flex',
                       alignItems: 'center',
                       gap: 1,
@@ -371,7 +425,7 @@ const EventDetailsPage: React.FC = () => {
                         justifyContent: 'center',
                       }}
                     >
-                      <LinkIcon sx={{ color: 'black', fontSize: 24, transform: 'rotate(-45deg)' }} />
+                      <LinkIcon sx={{ color: 'black', fontSize: 20, transform: 'rotate(-45deg)' }} />
                     </Box>
                     Копировать ссылку
                   </Typography>
@@ -379,20 +433,21 @@ const EventDetailsPage: React.FC = () => {
                     onClick={handleCopyLink}
                     sx={{
                       cursor: 'pointer',
+                      p: 0.5,
                       borderRadius: '8px',
-                      transition: 'background 0.2s',
-                      '&:hover': { backgroundColor: '#F7F7F7' },
-                      width: 'fit-content',
                     }}
                   >
                     <Typography
                       sx={{
-                        px: 4,
-                        fontSize: 15,
+                        fontSize: 13,
                         color: '#007AFF',
                         fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
                         wordBreak: 'break-all',
-                        textDecoration: 'underline',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                       }}
                     >
                       {event.registrationLink}
@@ -413,12 +468,12 @@ const EventDetailsPage: React.FC = () => {
               </Box>
             )}
             <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid #E5E5EA' }}>
-              <Box sx={{ px: 1, pt: 3, pb: 2, display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ px: 1, pt: 2, pb: 1.5, display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
                   Человек в группе
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <PeopleAltIcon sx={{ fontSize: 20, color: '#8E8E93', mr: 1 }} />
+                  <PeopleAltIcon sx={{ fontSize: 20, color: 'black', mr: 1 }} />
                   <Typography
                     sx={{
                       fontSize: 16,
@@ -445,7 +500,7 @@ const EventDetailsPage: React.FC = () => {
                   maxWidth: 600,
                   margin: '0 auto',
                   px: 1,
-                  pt: 3,
+                  pt: 2,
                   pb: 1,
                   display: 'flex',
                   flexDirection: 'column',
@@ -454,16 +509,16 @@ const EventDetailsPage: React.FC = () => {
                 <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
                   Организатор
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
                   <Avatar
                     src={event.author.tgImageUrl}
                     alt={event.author.firstName}
-                    sx={{ width: 96, height: 96, mr: 2 }}
+                    sx={{ width: 48, height: 48, mr: 2 }}
                   />
                   <Box>
                     <Typography
                       sx={{
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: 600,
                         color: '#000',
                       }}
@@ -766,66 +821,66 @@ const EventDetailsPage: React.FC = () => {
                           transition: 'background 0.2s',
                         }}
                       >
-                        Чат с организатором
+                        Связаться с организатором
                       </Typography>
                     </Box>
                     <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
                       <ArrowForwardIosIcon sx={{ color: '#8E8E93', fontSize: 20 }} />
                     </Box>
                   </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      bgcolor: '#F7F7F7',
-                      borderRadius: '14px',
-                      px: 2,
-                      py: '12px',
-                      mb: 1,
-                      textDecoration: 'none',
-                      boxShadow: 'none',
-                      cursor: iamParticipant && !isPast ? 'pointer' : 'not-allowed',
-                      opacity: iamParticipant && !isPast ? 1 : 0.5,
-                      pointerEvents: iamParticipant && !isPast ? 'auto' : 'none',
-                      transition: 'background 0.2s',
-                      '&:hover': { background: '#E5F1FF' },
-                    }}
-                    onClick={() => iamParticipant && !isPast && setUnregisterDialogOpen(true)}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: '#FF3B30',
-                          borderRadius: '50%',
-                          padding: '8px',
-                          width: '40px',
-                          height: '40px',
-                          marginRight: '8px',
-                        }}
-                      >
-                        <img src="/assets/icons/can.svg" alt="Cancel" style={{ width: 20, height: 20 }} />
+                  {iamParticipant && !isPast && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        bgcolor: '#F7F7F7',
+                        borderRadius: '14px',
+                        px: 2,
+                        py: '12px',
+                        mb: 1,
+                        textDecoration: 'none',
+                        boxShadow: 'none',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s',
+                        '&:hover': { background: '#E5F1FF' },
+                      }}
+                      onClick={() => setUnregisterDialogOpen(true)}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: '#FF3B30',
+                            borderRadius: '50%',
+                            padding: '8px',
+                            width: '40px',
+                            height: '40px',
+                            marginRight: '8px',
+                          }}
+                        >
+                          <img src="/assets/icons/can.svg" alt="Cancel" style={{ width: 20, height: 20 }} />
+                        </Box>
+                        <Typography
+                          sx={{
+                            color: '#FF3B30',
+                            fontFamily: 'Roboto, sans-serif',
+                            fontWeight: 400,
+                            fontSize: 17,
+                            transition: 'background 0.2s',
+                          }}
+                        >
+                          Отменить регистрацию
+                        </Typography>
                       </Box>
-                      <Typography
-                        sx={{
-                          color: '#FF3B30',
-                          fontFamily: 'Roboto, sans-serif',
-                          fontWeight: 400,
-                          fontSize: 17,
-                          transition: 'background 0.2s',
-                        }}
-                      >
-                        Отменить регистрацию
-                      </Typography>
+                      <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
+                        <ArrowForwardIosIcon sx={{ color: '#8E8E93', fontSize: 20 }} />
+                      </Box>
                     </Box>
-                    <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
-                      <ArrowForwardIosIcon sx={{ color: '#8E8E93', fontSize: 20 }} />
-                    </Box>
-                  </Box>
-                  {!isOrganizer && (
+                  )}
+                  {!isOrganizer && !iamParticipant && !isPast && (
                     <Box
                       sx={{
                         width: '100%',
@@ -853,8 +908,6 @@ const EventDetailsPage: React.FC = () => {
                           !user?.id ||
                           operationInProgress ||
                           event.status === EventStatus.CANCELED ||
-                          iamParticipant ||
-                          isPast ||
                           (event.participantsCount >= event.maxParticipants)
                         }
                       >
@@ -879,12 +932,17 @@ const EventDetailsPage: React.FC = () => {
           registrationLink={event.registrationLink}
         />
       )}
-      <CancelEventDialog
-        open={cancelDialogOpen}
-        onClose={() => setCancelDialogOpen(false)}
-        participants={cancelParticipants}
-        onCancel={handleCancelEvent}
-      />
+              <RegistrationConfirmDialog
+          open={registrationDialogOpen}
+          onClose={() => setRegistrationDialogOpen(false)}
+          event={event}
+        />
+        <CancelEventDialog
+          open={cancelDialogOpen}
+          onClose={() => setCancelDialogOpen(false)}
+          participants={cancelParticipants}
+          onCancel={handleCancelEvent}
+        />
       <Toast
         message="Ссылка скопирована"
         isVisible={showCopyToast}
