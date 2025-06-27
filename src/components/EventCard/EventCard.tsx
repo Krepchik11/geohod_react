@@ -127,11 +127,7 @@ const EventCard: React.FC<EventCardProps> = ({
       }}>
         <Typography
           sx={{
-            fontSize: {
-              xs: '15px',
-              sm: '16px',
-              md: '17px'
-            },
+            fontSize: '14px',
             fontWeight: 500,
             lineHeight: 1.2,
             mb: 0.5,
@@ -149,7 +145,7 @@ const EventCard: React.FC<EventCardProps> = ({
         </Typography>
         <Typography
           sx={{
-            fontSize: '15px',
+            fontSize: '14px',
             color: 'text.secondary',
             fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
           }}
@@ -157,17 +153,17 @@ const EventCard: React.FC<EventCardProps> = ({
           {formatDateTime(date)}
         </Typography>
         {status === EventStatus.CANCELED && (
-          <Typography sx={{ color: '#FF3B30', fontSize: 15, fontWeight: 500 }}>
+          <Typography sx={{ color: '#FF3B30', fontSize: 14, fontWeight: 500 }}>
             Событие отменено
           </Typography>
         )}
         {status === EventStatus.FINISHED && (
-          <Typography sx={{ color: '#007AFF', fontSize: 15, fontWeight: 500 }}>
+          <Typography sx={{ color: '#007AFF', fontSize: 14, fontWeight: 500 }}>
             Событие завершено
           </Typography>
         )}
         {registrationCanceled && (
-          <Typography sx={{ color: '#FF3B30', fontSize: 15, fontWeight: 500 }}>
+          <Typography sx={{ color: '#FF3B30', fontSize: 14, fontWeight: 500 }}>
             Регистрация отменена
           </Typography>
         )}
@@ -211,7 +207,7 @@ const EventCard: React.FC<EventCardProps> = ({
           <Typography
             component="span"
             sx={{
-              fontSize: '17px',
+              fontSize: '15px',
               fontWeight: 600,
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
               whiteSpace: 'nowrap',

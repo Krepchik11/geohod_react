@@ -152,7 +152,7 @@ const EventsPage: React.FC = () => {
                 justifyContent: 'center',
               }}
             >
-              <SentimentVeryDissatisfiedIcon sx={{ color: '#fff', fontSize: 24 }} />
+              <SentimentVeryDissatisfiedIcon sx={{ color: '#fff', fontSize: 20 }} />
             </Box>
           }
         />

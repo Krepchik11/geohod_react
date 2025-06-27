@@ -45,10 +45,7 @@ axiosInstance.interceptors.response.use(
 export const eventsApi = {
   getAllEvents: async (params: any = {}) => {
     try {
-      console.log('Making API request to /events with params:', params);
-      console.log('Authorization header:', window.Telegram?.WebApp?.initData ? 'Present' : 'Missing');
       const response = await axiosInstance.get('/events', { params });
-      console.log('Raw API response:', response);
       return response.data;
     } catch (error) {
       console.error('Ошибка при получении событий:', error);

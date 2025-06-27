@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm/EventForm';
 import { api } from '../api';
 import TopBar from '../components/TopBar/TopBar';
-import BottomNavigation from '../components/BottomNavigation/BottomNavigation';
+
 
 const EditEventPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +46,7 @@ const EditEventPage: React.FC = () => {
         submitLabel="Сохранить"
         onInputFocusChange={setIsInputFocused}
       />
-      {!isInputFocused && <BottomNavigation />}
+      
     </>
   );
 };

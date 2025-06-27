@@ -27,26 +27,26 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogContent sx={{ p: 3, pb: 2 }}>
-        <Typography sx={{ fontSize: 16, fontWeight: 400, mb: 2 }}>
+        <Typography sx={{ fontSize: 14, fontWeight: 400, mb: 2 }}>
           Вы успешно зарегистрировались на событие
         </Typography>
         <Typography sx={{ fontSize: 20, fontWeight: 700, mb: 1 }}>{event?.name}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <EventIcon sx={{ fontSize: 20, color: '#8E8E93', mr: 1 }} />
-          <Typography sx={{ fontSize: 16 }}>{event && formatDate(event.date)}</Typography>
+          <Typography sx={{ fontSize: 14 }}>{event && formatDate(event.date)}</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Avatar src={event?.author?.tgImageUrl} sx={{ width: 32, height: 32, mr: 1 }} />
           <Box>
-            <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
+            <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
               Организатор
             </Typography>
-            <Typography sx={{ fontWeight: 500, fontSize: 16 }}>
+            <Typography sx={{ fontWeight: 500, fontSize: 15 }}>
               {event?.author?.firstName} {event?.author?.lastName}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <StarIcon sx={{ color: '#007AFF', width: '16px', height: '16px' }} />
-              <Typography sx={{ fontSize: 15, color: '#8E8E93' }}>4.8</Typography>
+              <Typography sx={{ fontSize: 14, color: '#8E8E93' }}>4.8</Typography>
             </Box>
           </Box>
           <Button
@@ -59,7 +59,7 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
             sx={{
               ml: 2,
               borderRadius: '20px',
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: 500,
               minWidth: 90,
               height: 36,
@@ -74,7 +74,7 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
             Связаться
           </Button>
         </Box>
-        <Typography sx={{ fontSize: 15, color: 'black', mb: 1 }}>
+        <Typography sx={{ fontSize: 14, color: 'black', mb: 1 }}>
           Человек в группе: <span style={{ color: '#007AFF' }}>{event?.participantsCount}</span> из {event?.maxParticipants}
         </Typography>
         <Button
@@ -83,7 +83,7 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
           sx={{
             height: 48,
             borderRadius: '14px',
-            fontSize: 17,
+            fontSize: 16,
             textTransform: 'none',
             mt: 2,
             color: '#006FFD',

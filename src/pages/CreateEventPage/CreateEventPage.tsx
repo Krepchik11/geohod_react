@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import EventForm from '../../components/EventForm/EventForm';
 import { api } from '../../api';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
-import BottomNavigation from '../../components/BottomNavigation/BottomNavigation';
+
 
 interface EventResponse {
   id: string;
@@ -66,7 +66,7 @@ const CreateEventPage: React.FC = () => {
   return (
     <>
       <EventForm onSubmit={handleSubmit} initialTitle={initialTitle} onInputFocusChange={setIsInputFocused} />
-      {!isInputFocused && <BottomNavigation />}
+      
       {createdEvent && (
         <SuccessEventDialog
           open={successDialogOpen}

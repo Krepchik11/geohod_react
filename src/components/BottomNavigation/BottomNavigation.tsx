@@ -72,7 +72,7 @@ const BottomNavigation: React.FC = () => {
             padding: 0,
             color: theme.palette.text.secondary,
             '& .MuiBottomNavigationAction-label': {
-              fontSize: 15,
+              fontSize: 14,
               lineHeight: '14px',
               letterSpacing: '0.4px',
               fontWeight: 500,
@@ -80,7 +80,7 @@ const BottomNavigation: React.FC = () => {
               transition: 'none',
               marginTop: '8px',
               '&.Mui-selected': {
-                fontSize: 17,
+                fontSize: 16,
               },
             },
             '& .MuiBottomNavigationAction-wrapper': {

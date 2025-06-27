@@ -46,16 +46,16 @@ const FinishEventPage: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: 2 }}>
-      <Typography sx={{ fontWeight: 600, fontSize: 22, mb: 2 }}>Завершение события</Typography>
+      <Typography sx={{ fontWeight: 600, fontSize: 20, mb: 2 }}>Завершение события</Typography>
       <Box sx={{ mb: 2 }}>
         <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>Название события</Typography>
-          <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#000' }}>{event.name}</Typography>
+          <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Название события</Typography>
+          <Typography sx={{ fontSize: 17, fontWeight: 600, color: '#000' }}>{event.name}</Typography>
         </Box>
         
         <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>Дата</Typography>
-          <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#000' }}>
+          <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Дата</Typography>
+          <Typography sx={{ fontSize: 17, fontWeight: 600, color: '#000' }}>
             {new Date(event.date).toLocaleDateString('ru-RU', {
               day: '2-digit',
               month: '2-digit', 
@@ -67,24 +67,24 @@ const FinishEventPage: React.FC = () => {
         </Box>
         
         <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>Человек в группе</Typography>
-          <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#000' }}>
+          <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Человек в группе</Typography>
+          <Typography sx={{ fontSize: 17, fontWeight: 600, color: '#000' }}>
             <span style={{ color: '#007AFF' }}>{event.participantsCount}</span> из {event.maxParticipants}
           </Typography>
         </Box>
         
         <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>Участники</Typography>
+          <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Участники</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {participants.slice(0, 5).map((p) => (
               <Avatar key={p.id} src={p.imageUrl || p.tgImageUrl} sx={{ width: 32, height: 32, ml: -1 }} />
             ))}
-            <Typography sx={{ ml: 1, fontSize: 16, fontWeight: 500 }}>{participants.length} человек</Typography>
+            <Typography sx={{ ml: 1, fontSize: 15, fontWeight: 500 }}>{participants.length} человек</Typography>
           </Box>
         </Box>
       </Box>
       <Box sx={{ mb: 2 }}>
-        <Typography sx={{ fontWeight: 500, fontSize: 16, mb: 1 }}>Направить участникам</Typography>
+        <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 1 }}>Направить участникам</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <Checkbox checked={sendVote} onChange={e => setSendVote(e.target.checked)} />
           <Typography>Ссылку для голосования</Typography>
@@ -105,7 +105,7 @@ const FinishEventPage: React.FC = () => {
       <Button
         variant="contained"
         fullWidth
-        sx={{ mt: 2, height: 48, fontSize: 18 }}
+        sx={{ mt: 2, height: 48, fontSize: 17 }}
         disabled={finishLoading || (sendDonation && !donation.trim())}
         onClick={handleFinish}
       >
@@ -121,9 +121,9 @@ const FinishEventPage: React.FC = () => {
           </Box>
         </DialogTitle>
         <DialogContent>
-          <Typography sx={{ fontWeight: 600, fontSize: 18 }}>{event.name}</Typography>
-          <Typography sx={{ color: '#8E8E93', fontSize: 15, mb: 1 }}>{new Date(event.date).toLocaleDateString('ru-RU')}</Typography>
-          <Typography sx={{ fontWeight: 500, fontSize: 16, mb: 1 }}>Следующие участники получили уведомление о завершении события</Typography>
+          <Typography sx={{ fontWeight: 600, fontSize: 17 }}>{event.name}</Typography>
+          <Typography sx={{ color: '#8E8E93', fontSize: 16, mb: 1 }}>{new Date(event.date).toLocaleDateString('ru-RU')}</Typography>
+          <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 1 }}>Следующие участники получили уведомление о завершении события</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             {participants.slice(0, 5).map((p) => (
               <Avatar key={p.id} src={p.imageUrl || p.tgImageUrl} sx={{ width: 32, height: 32, ml: -1 }} />

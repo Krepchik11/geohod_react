@@ -338,12 +338,12 @@ const EventDetailsPage: React.FC = () => {
                     px: 0,
                   }}
                 >
-                  <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
+                  <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
                     Название события
                   </Typography>
                   <Typography
                     sx={{
-                      fontSize: 18,
+                      fontSize: 17,
                       fontWeight: 600,
                       color: '#000',
                     }}
@@ -359,12 +359,12 @@ const EventDetailsPage: React.FC = () => {
                     px: 0,
                   }}
                 >
-                  <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
+                  <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
                     Дата
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <EventIcon sx={{ fontSize: 20, color: 'black' }} />
-                    <Typography sx={{ fontSize: 17, fontWeight: 600, color: '#000' }}>
+                    <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#000' }}>
                       {formatDateOnly(event.date)}
                     </Typography>
                   </Box>
@@ -378,7 +378,7 @@ const EventDetailsPage: React.FC = () => {
                       px: 0,
                     }}
                   >
-                    <Typography sx={{ color: '#8E8E93', fontSize: 16 }}>
+                    <Typography sx={{ color: '#8E8E93', fontSize: 15 }}>
                       Данное событие завершено
                     </Typography>
                   </Box>
@@ -400,15 +400,15 @@ const EventDetailsPage: React.FC = () => {
                   right: '50%',
                   ml: '-50vw',
                   mr: '-50vw',
-                  px: 3,
-                  py: 2,
-                  mb: 2,
+                  px: 2,
+                  py: 1,
+                  mb: 0,
                 }}
               >
                 <Box>
                   <Typography
                     sx={{
-                      fontSize: 17,
+                      fontSize: 16,
                       fontWeight: 500,
                       color: '#000',
                       fontFamily: 'Roboto, sans-serif',
@@ -459,7 +459,7 @@ const EventDetailsPage: React.FC = () => {
                   <Button
                     variant="contained"
                     color="primary"
-                    sx={{ height: 40, borderRadius: '14px', fontWeight: 600, fontSize: 16, ml: 2 }}
+                    sx={{ height: 40, borderRadius: '14px', fontWeight: 600, fontSize: 15, ml: 2 }}
                     onClick={() => navigate(`/finish-event/${event.id}`)}
                   >
                     Завершить событие
@@ -469,14 +469,14 @@ const EventDetailsPage: React.FC = () => {
             )}
             <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid #E5E5EA' }}>
               <Box sx={{ px: 1, pt: 2, pb: 1.5, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
+                <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
                   Человек в группе
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <PeopleAltIcon sx={{ fontSize: 20, color: 'black', mr: 1 }} />
                   <Typography
                     sx={{
-                      fontSize: 16,
+                      fontSize: 15,
                       color: '#007AFF',
                       fontWeight: 600,
                       mr: 0.5,
@@ -484,7 +484,7 @@ const EventDetailsPage: React.FC = () => {
                   >
                     {event.participantsCount}
                   </Typography>
-                  <Typography sx={{ fontSize: 16, color: 'black', fontWeight: 600 }}>
+                  <Typography sx={{ fontSize: 15, color: 'black', fontWeight: 600 }}>
                     из {event.maxParticipants}
                   </Typography>
                 </Box>
@@ -506,7 +506,7 @@ const EventDetailsPage: React.FC = () => {
                   flexDirection: 'column',
                 }}
               >
-                <Typography sx={{ fontSize: 15, color: '#8E8E93', mb: 0.5 }}>
+                <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
                   Организатор
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
@@ -518,7 +518,7 @@ const EventDetailsPage: React.FC = () => {
                   <Box>
                     <Typography
                       sx={{
-                        fontSize: 18,
+                        fontSize: 17,
                         fontWeight: 600,
                         color: '#000',
                       }}
@@ -527,7 +527,7 @@ const EventDetailsPage: React.FC = () => {
                     </Typography>
                     <Typography
                       sx={{
-                        fontSize: '16px',
+                        fontSize: '15px',
                         fontWeight: 600,
                         color: '#707579',
                       }}
@@ -593,7 +593,7 @@ const EventDetailsPage: React.FC = () => {
                           color: '#000',
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
-                          fontSize: 17,
+                          fontSize: 16,
                           transition: 'background 0.2s',
                         }}
                       >
@@ -653,7 +653,7 @@ const EventDetailsPage: React.FC = () => {
                           color: '#000',
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
-                          fontSize: 17,
+                          fontSize: 16,
                           transition: 'background 0.2s',
                         }}
                       >
@@ -708,7 +708,7 @@ const EventDetailsPage: React.FC = () => {
                           color: '#000',
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
-                          fontSize: 17,
+                          fontSize: 16,
                           transition: 'background 0.2s',
                         }}
                       >
@@ -761,7 +761,7 @@ const EventDetailsPage: React.FC = () => {
                         sx={{
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
-                          fontSize: 17,
+                          fontSize: 16,
                           transition: 'background 0.2s',
                         }}
                       >
@@ -817,7 +817,7 @@ const EventDetailsPage: React.FC = () => {
                           color: '#000',
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
-                          fontSize: 17,
+                          fontSize: 16,
                           transition: 'background 0.2s',
                         }}
                       >
@@ -868,7 +868,7 @@ const EventDetailsPage: React.FC = () => {
                             color: '#FF3B30',
                             fontFamily: 'Roboto, sans-serif',
                             fontWeight: 400,
-                            fontSize: 17,
+                            fontSize: 16,
                             transition: 'background 0.2s',
                           }}
                         >
@@ -896,7 +896,7 @@ const EventDetailsPage: React.FC = () => {
                           marginTop: 5,
                           borderRadius: '14px',
                           height: 48,
-                          fontSize: 17,
+                          fontSize: 16,
                           textTransform: 'none',
                           fontWeight: 600,
                           bgcolor: '#007AFF',
@@ -959,7 +959,7 @@ const EventDetailsPage: React.FC = () => {
               justifyContent: 'center',
             }}
           >
-            <LinkIcon sx={{ color: '#fff', fontSize: 18, transform: 'rotate(-45deg)' }} />
+            <LinkIcon sx={{ color: '#fff', fontSize: 17, transform: 'rotate(-45deg)' }} />
           </Box>
         }
       />

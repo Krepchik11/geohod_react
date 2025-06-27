@@ -29,12 +29,12 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNoti
           justifyContent: 'space-between',
           alignItems: 'center',
           px: 2,
-          py: 2.5,
+          py: 1,
         }}
       >
         <Typography
           sx={{
-            fontSize: '24px',
+            fontSize: '20px',
             fontWeight: 600,
             color: '#000',
             lineHeight: 1.2,
@@ -45,7 +45,7 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNoti
             WebkitBoxOrient: 'vertical',
             wordBreak: 'break-word',
             maxHeight: '2.4em',
-            margin: '4px 0',
+            margin: '2px 0',
             flex: 1,
             paddingRight: showNotifications ? '16px' : '0',
             ...sx,
@@ -67,7 +67,7 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNoti
               },
             }}
           >
-            <NotificationsNoneIcon sx={{ fontSize: 24 }} />
+            <NotificationsNoneIcon sx={{ fontSize: 20 }} />
             <Box
               sx={{
                 position: 'absolute',

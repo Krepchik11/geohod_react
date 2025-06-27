@@ -66,11 +66,11 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
         }}
       >
         <DialogContent sx={{ p: 3, pb: 2 }}>
-          <Typography sx={{ fontSize: 16, fontWeight: 400, mb: 2 }}>
+          <Typography sx={{ fontSize: 15, fontWeight: 400, mb: 2 }}>
             Вы отменяете событие, на которое записаны люди
           </Typography>
           <Typography
-            sx={{ fontSize: 15, fontWeight: 500, mb: 1, color: '#007AFF', cursor: 'pointer' }}
+            sx={{ fontSize: 14, fontWeight: 500, mb: 1, color: '#007AFF', cursor: 'pointer' }}
           >
             Участники
           </Typography>
@@ -85,9 +85,9 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
                 {!p.imageUrl && p.firstName?.[0]}
               </Avatar>
             ))}
-            <Typography sx={{ fontSize: 15, ml: 1 }}>{participants.length} человек</Typography>
+            <Typography sx={{ fontSize: 14, ml: 1 }}>{participants.length} человек</Typography>
           </Box>
-          <Typography sx={{ fontSize: 15, color: '#007AFF', mb: 1 }}>
+          <Typography sx={{ fontSize: 14, color: '#007AFF', mb: 1 }}>
             Направить участникам
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -96,7 +96,7 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
               onChange={(e) => setNotify(e.target.checked)}
               sx={{ color: '#007AFF' }}
             />
-            <Typography sx={{ fontSize: 15 }}>Оповещение</Typography>
+            <Typography sx={{ fontSize: 14 }}>Оповещение</Typography>
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
@@ -108,7 +108,7 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
               height: 48,
               borderRadius: '14px',
               textTransform: 'none',
-              fontSize: 17,
+              fontSize: 16,
               color: '#007AFF',
               borderColor: '#007AFF',
               '&:hover': {

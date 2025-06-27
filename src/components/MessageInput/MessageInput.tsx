@@ -59,7 +59,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           mx: 1,
           '& .MuiOutlinedInput-root': {
             borderRadius: 2,
-            fontSize: '0.9rem',
+            fontSize: '0.8rem',
             paddingTop: '8px',
             paddingBottom: '8px',
           },

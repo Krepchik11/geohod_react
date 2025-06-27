@@ -77,11 +77,11 @@ const ParticipantsPage: React.FC = () => {
                 sx={{ width: 44, height: 44, mr: 0 }}
               />
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: 17, fontWeight: 600 }}>
+                <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
                   {p.name || `${p.firstName || ''} ${p.lastName || ''}`}
                 </Typography>
                 {p.username || p.tgUsername ? (
-                  <Typography sx={{ color: '#8E8E93', fontSize: 15 }}>
+                  <Typography sx={{ color: '#8E8E93', fontSize: 14 }}>
                     @{p.username || p.tgUsername}
                   </Typography>
                 ) : null}
@@ -95,9 +95,9 @@ const ParticipantsPage: React.FC = () => {
                   sx={{
                     width: 40,
                     height: 40,
-                    bgcolor: '#007AFF',
+                    mr: 1,
                     borderRadius: '50%',
-                    '&:hover': { bgcolor: '#0056b3' },
+                    color: '#007AFF',
                   }}
                 >
                   <img
@@ -105,6 +105,9 @@ const ParticipantsPage: React.FC = () => {
                     alt="chat"
                     width={24}
                     height={24}
+                    style={{ 
+                      filter: 'invert(80%) sepia(70%) saturate(5000%) hue-rotate(201deg) brightness(95%) contrast(101%)'
+                    }}
                   />
                 </IconButton>
 
@@ -114,9 +117,7 @@ const ParticipantsPage: React.FC = () => {
                     sx={{
                       width: 40,
                       height: 40,
-                      bgcolor: '#FF3B30',
                       borderRadius: '50%',
-                      '&:hover': { bgcolor: '#d32f2f' },
                     }}
                   >
                     <img
@@ -124,6 +125,9 @@ const ParticipantsPage: React.FC = () => {
                       alt="delete"
                       width={20}
                       height={20}
+                      style={{ 
+                        filter: 'invert(80%) sepia(70%) saturate(5000%) hue-rotate(201deg) brightness(95%) contrast(101%)'
+                      }}
                     />
                   </IconButton>
                 )}
@@ -161,10 +165,10 @@ const ParticipantsPage: React.FC = () => {
           </Box>
         )}
         <DialogContent sx={{ p: 3, pb: 2 }}>
-          <Typography sx={{ fontSize: 16, fontWeight: 400, mb: 2 }}>
+          <Typography sx={{ fontSize: 15, fontWeight: 400, mb: 2 }}>
             Вы удаляете запись на событие для следующего участника
           </Typography>
-          <Typography sx={{ fontSize: 16, fontWeight: 500, mb: 1, color: '#007AFF' }}>
+          <Typography sx={{ fontSize: 15, fontWeight: 500, mb: 1, color: '#007AFF' }}>
             Участники
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -173,7 +177,7 @@ const ParticipantsPage: React.FC = () => {
               alt={dialog.participant?.name || dialog.participant?.firstName}
               sx={{ width: 44, height: 44, mr: 1 }}
             />
-            <Typography sx={{ fontWeight: 600, fontSize: 17 }}>
+            <Typography sx={{ fontWeight: 600, fontSize: 16 }}>
               {dialog.participant?.name ||
                 `${dialog.participant?.firstName || ''} ${dialog.participant?.lastName || ''}`}
             </Typography>
@@ -185,7 +189,7 @@ const ParticipantsPage: React.FC = () => {
               onClick={() => setDialog({ open: false, participant: null })}
               sx={{
                 borderRadius: '14px',
-                fontSize: 17,
+                fontSize: 16,
                 textTransform: 'none',
                 height: 44,
                 color: '#007AFF',

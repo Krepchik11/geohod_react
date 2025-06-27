@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, Button } from '@mui/material';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
@@ -50,6 +50,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
   const user = useUserStore((state) => state.user);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const datePickerRef = useRef<any>(null);
 
   const now = new Date();
   const defaultDate = now.toISOString().split('T')[0];
@@ -231,8 +232,9 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
 
       <Typography
         sx={{
-          fontSize: 24,
+          fontSize: 20,
           fontWeight: 600,
+          pb: 0,
           mb: 3,
           fontFamily: 'Roboto, sans-serif',
         }}
@@ -268,8 +270,8 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
           <Box sx={{ flex: 1 }}>
             <Typography
               sx={{
-                fontSize: 17,
-                fontWeight: 500,
+                fontSize: 15,
+                fontWeight: 600,
                 color: '#000',
               }}
             >
@@ -277,7 +279,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
             </Typography>
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 color: '#8E8E93',
               }}
             >
@@ -295,7 +297,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
               transition: 'transform 0.3s ease',
             }}
           >
-            <KeyboardArrowDownIcon sx={{ fontSize: 24 }} />
+            <KeyboardArrowDownIcon sx={{ fontSize: 20 }} />
           </Box>
         </Box>
 
@@ -306,7 +308,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 <DriveFileRenameOutlineIcon sx={{ fontSize: 20 }} />
                 <Typography
                   sx={{
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 600,
                     fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
                   }}
@@ -340,7 +342,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 <PeopleAltIcon sx={{ fontSize: 20 }} />
                 <Typography
                   sx={{
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 600,
                     fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
                   }}
@@ -390,7 +392,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 <EventAvailableIcon sx={{ fontSize: 20 }} />
                 <Typography
                   sx={{
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 600,
                     fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
                   }}
@@ -398,34 +400,69 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                   Дата
                 </Typography>
               </Box>
-              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+              <LocalizationProvider 
+                dateAdapter={AdapterDateFns} 
+                adapterLocale={ru}
+                localeText={{
+                  cancelButtonLabel: 'Отмена',
+                  okButtonLabel: 'ОК',
+                }}
+              >
                 <DatePicker
+                  ref={datePickerRef}
                   value={formState.date ? new Date(formState.date) : null}
                   onChange={handleDateChange}
-                  onAccept={handleDateChange}
                   format="dd.MM.yyyy"
                   enableAccessibleFieldDOMStructure={false}
-                  slots={{
-                    textField: TextField,
-                  }}
-                  slotProps={{
-                    textField: {
-                      error: touched.date && !!errors.date,
-                      helperText: touched.date && errors.date ? errors.date : undefined,
-                      fullWidth: true,
-                      InputProps: { 
-                        readOnly: true, 
-                        tabIndex: -1, 
-                        onFocus: handleFocus, 
-                        onBlur: handleBlur,
-                        inputProps: {
-                          readOnly: true,
-                          autoComplete: 'off',
-                          onKeyDown: (e: React.KeyboardEvent) => {
-                            e.preventDefault();
-                          }
-                        }
+                    slots={{
+                      textField: TextField,
+                    }}
+                    slotProps={{
+                      actionBar: {
+                        actions: ['cancel', 'accept'],
+                        sx: {
+                          '& .MuiButton-root': {
+                            color: '#000000',
+                            fontWeight: 500,
+                            pointerEvents: 'auto',
+                            cursor: 'pointer',
+                          },
+                        },
                       },
+                      mobilePaper: {
+                        sx: {
+                          '& .MuiPickersToolbar-root': {
+                            color: '#000000',
+                          },
+                        },
+                      },
+                      textField: {
+                        error: touched.date && !!errors.date,
+                        helperText: touched.date && errors.date ? errors.date : undefined,
+                        fullWidth: true,
+                        onClick: () => {
+                          // Программно открываем календарь при клике на поле
+                          setTimeout(() => {
+                            const calendarButton = document.querySelector('[aria-label="Choose date"], .MuiIconButton-root') as HTMLElement;
+                            if (calendarButton) {
+                              calendarButton.click();
+                            }
+                          }, 0);
+                        },
+                        InputProps: { 
+                          readOnly: true, 
+                          onFocus: handleFocus, 
+                          onBlur: handleBlur,
+                          style: { cursor: 'pointer' },
+                          inputProps: {
+                            readOnly: true,
+                            autoComplete: 'off',
+                            style: { cursor: 'pointer' },
+                            onKeyDown: (e: React.KeyboardEvent) => {
+                              e.preventDefault();
+                            }
+                          }
+                        },
                       FormHelperTextProps: {
                         sx: {
                           textAlign: 'right',
@@ -459,7 +496,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 height: 48,
                 borderRadius: '14px',
                 textTransform: 'none',
-                fontSize: 17,
+                fontSize: 16,
                 backgroundColor: '#007AFF',
                 '&:hover': {
                   backgroundColor: '#0056b3',

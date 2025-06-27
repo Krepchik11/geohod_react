@@ -26,6 +26,14 @@ const TelegramRouter: React.FC = () => {
   const initUser = useUserStore((state) => state.initUser);
   const [lastRedirect, setLastRedirect] = useState<string | null>(null);
 
+  // Список путей где нужно скрыть BottomNavigation
+  const hideBottomNavPaths = ['/create-event', '/edit-event'];
+  
+  // Проверяем нужно ли скрыть BottomNavigation
+  const shouldHideBottomNav = hideBottomNavPaths.some(path => 
+    location.pathname.startsWith(path)
+  ) || location.pathname.startsWith('/event/') && location.pathname !== '/events';
+
   // Список путей, где редирект не должен срабатывать
   const safeRoutes = ['/profile', '/create-event', '/events'];
 
@@ -153,7 +161,7 @@ const TelegramRouter: React.FC = () => {
         <Route path="/edit-event/:id" element={<EditEventPage />} />
         <Route path="*" element={<Navigate to="/events" replace />} />
       </Routes>
-      <BottomNavigation />
+      {!shouldHideBottomNav && <BottomNavigation />}
     </div>
   );
 };

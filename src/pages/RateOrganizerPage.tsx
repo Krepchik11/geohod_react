@@ -47,15 +47,15 @@ const RateOrganizerPage: React.FC = () => {
           alt={organizer.first_name}
           sx={{ width: 96, height: 96, mb: 1 }}
         />
-        <Typography sx={{ fontWeight: 600, fontSize: 22 }}>
+        <Typography sx={{ fontWeight: 600, fontSize: 20 }}>
           {organizer.first_name} {organizer.last_name}
         </Typography>
         {organizer.username && (
-          <Typography sx={{ color: '#8E8E93', fontSize: 16 }}>
+          <Typography sx={{ color: '#8E8E93', fontSize: 15 }}>
             @{organizer.username}
           </Typography>
         )}
-        <Typography sx={{ mt: 1, fontWeight: 500, fontSize: 16 }}>
+        <Typography sx={{ mt: 1, fontWeight: 500, fontSize: 15 }}>
           Общий рейтинг
           <StarIcon sx={{ color: '#007AFF', width: 16, height: 16, ml: 1, mr: 0.5 }} />
           4.8
@@ -64,7 +64,7 @@ const RateOrganizerPage: React.FC = () => {
       {isSelf ? (
         <Box>
           {/* Здесь будет список отзывов о себе */}
-          <Typography sx={{ fontWeight: 500, fontSize: 16, mb: 2 }}>
+          <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 2 }}>
             Ваши отзывы
           </Typography>
           {/* TODO: вывести отзывы о себе */}
@@ -73,7 +73,7 @@ const RateOrganizerPage: React.FC = () => {
       ) : (
         <>
           <Box sx={{ mb: 2 }}>
-            <Typography sx={{ fontWeight: 500, fontSize: 16, mb: 1 }}>Оцените</Typography>
+            <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 1 }}>Оцените</Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <IconButton
@@ -93,7 +93,7 @@ const RateOrganizerPage: React.FC = () => {
             </Box>
           </Box>
           <Box sx={{ mb: 2 }}>
-            <Typography sx={{ fontWeight: 500, fontSize: 16, mb: 1, display: 'flex', alignItems: 'center' }}>
+            <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 1, display: 'flex', alignItems: 'center' }}>
               <svg width="20" height="20" fill="none" viewBox="0 0 24 24" style={{ marginRight: 6 }}><path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="7" r="4" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               Напишите отзыв
             </Typography>
@@ -110,7 +110,7 @@ const RateOrganizerPage: React.FC = () => {
           <Button
             variant="contained"
             fullWidth
-            sx={{ mt: 2, height: 48, fontSize: 18 }}
+            sx={{ mt: 2, height: 48, fontSize: 17 }}
             disabled={rating === 0 || !review.trim()}
             onClick={() => {/* TODO: отправка отзыва */}}
           >

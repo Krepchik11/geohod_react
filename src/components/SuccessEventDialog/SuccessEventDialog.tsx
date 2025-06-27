@@ -79,7 +79,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
         <DialogContent sx={{ p: 3, pb: 2 }}>
           <Typography
             sx={{
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: 400,
               mb: '23px',
               fontFamily: 'Roboto, sans-serif',
@@ -103,7 +103,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
             <TodayIcon sx={{ fontSize: 20, color: '#8E8E93' }} />
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 color: '#8E8E93',
               }}
             >
@@ -114,7 +114,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
           <Box sx={{ mb: 2 }}>
             <Typography
               sx={{
-                fontSize: 17,
+                fontSize: 16,
                 fontWeight: 500,
                 color: '#000',
                 fontFamily: 'Roboto, sans-serif',
@@ -165,7 +165,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
               height: 48,
               borderRadius: '14px',
               textTransform: 'none',
-              fontSize: 17,
+              fontSize: 16,
               color: '#007AFF',
               borderColor: '#007AFF',
               '&:hover': {
@@ -205,7 +205,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
             <LinkIcon
               sx={{
                 color: '#fff',
-                fontSize: 18,
+                fontSize: 17,
                 transform: 'rotate(-45deg)',
               }}
             />

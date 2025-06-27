@@ -27,7 +27,7 @@ const NotificationContent = {
           borderRadius: '50%',
         }}
       >
-        <SentimentSatisfiedRoundedIcon sx={{ color: 'white', fontSize: 24 }} {...props} />
+        <SentimentSatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
       </Box>
     ),
     title: 'Регистрация подтверждена',
@@ -46,7 +46,7 @@ const NotificationContent = {
           borderRadius: '50%',
         }}
       >
-        <SentimentDissatisfiedRoundedIcon sx={{ color: 'white', fontSize: 24 }} {...props} />
+        <SentimentDissatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
       </Box>
     ),
     title: 'Отменена события',
@@ -65,7 +65,7 @@ const NotificationContent = {
           borderRadius: '50%',
         }}
       >
-        <ScheduleRoundedIcon sx={{ color: 'white', fontSize: 24 }} {...props} />
+        <ScheduleRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
       </Box>
     ),
     title: 'Напоминание о событии',
@@ -84,7 +84,7 @@ const NotificationContent = {
           borderRadius: '50%',
         }}
       >
-        <StarBorderIcon sx={{ color: 'white', fontSize: 24 }} {...props} />
+        <StarBorderIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
       </Box>
     ),
     title: 'Отзыв об организаторе',
@@ -118,7 +118,7 @@ const EventNotification: React.FC<NotificationProps> = ({
         <Box sx={{ flex: 1 }}>
           <Typography
             sx={{
-              fontSize: 17,
+              fontSize: 16,
               fontWeight: 500,
               color: '#000',
             }}
@@ -127,7 +127,7 @@ const EventNotification: React.FC<NotificationProps> = ({
           </Typography>
           <Typography
             sx={{
-              fontSize: 15,
+              fontSize: 14,
               color: '#8E8E93',
             }}
           >
@@ -161,7 +161,7 @@ const EventNotification: React.FC<NotificationProps> = ({
           <VisibilityOutlinedIcon sx={{ fontSize: 20 }} />
           <Typography
             sx={{
-              fontSize: '15px',
+              fontSize: '14px',
               lineHeight: '18px',
               fontWeight: 500,
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
@@ -173,7 +173,7 @@ const EventNotification: React.FC<NotificationProps> = ({
         {timestamp && (
           <Typography
             sx={{
-              fontSize: '13px',
+              fontSize: '14px',
               lineHeight: '16px',
               color: '#8E8E93',
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',

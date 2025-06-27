@@ -109,7 +109,7 @@ const ProfilePage: React.FC = () => {
         <Typography>Рейтинг организатора</Typography>
         <Typography
           sx={{
-            fontSize: '24px',
+            fontSize: '20px',
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
@@ -129,7 +129,7 @@ const ProfilePage: React.FC = () => {
       >
         <Typography
           sx={{
-            fontSize: '17px',
+            fontSize: '16px',
             fontWeight: 500,
             mb: 2,
           }}
@@ -154,7 +154,7 @@ const ProfilePage: React.FC = () => {
               <Box>
                 <Typography
                   sx={{
-                    fontSize: '17px',
+                    fontSize: '16px',
                     fontWeight: 600,
                   }}
                 >

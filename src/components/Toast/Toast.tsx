@@ -20,11 +20,11 @@ const Toast: React.FC<ToastProps> = ({ message, isVisible, type = 'error', onClo
 
     switch (type) {
       case 'success':
-        return <CheckCircleIcon sx={{ color: '#2EBC65', fontSize: 24 }} />;
+        return <CheckCircleIcon sx={{ color: '#2EBC65', fontSize: 20 }} />;
       case 'error':
-        return <SentimentVeryDissatisfiedIcon sx={{ color: '#FF3B30', fontSize: 24 }} />;
+        return <SentimentVeryDissatisfiedIcon sx={{ color: '#FF3B30', fontSize: 20 }} />;
       default:
-        return <ErrorOutlineIcon sx={{ color: '#FF3B30', fontSize: 24 }} />;
+        return <ErrorOutlineIcon sx={{ color: '#FF3B30', fontSize: 20 }} />;
     }
   };
 
@@ -60,7 +60,7 @@ const Toast: React.FC<ToastProps> = ({ message, isVisible, type = 'error', onClo
         {getIcon()}
         <Typography
           sx={{
-            fontSize: 17,
+            fontSize: 16,
             fontWeight: 600,
             color: '#000000',
             fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
