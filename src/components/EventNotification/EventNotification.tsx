@@ -87,7 +87,7 @@ const NotificationContent = {
         <StarBorderIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
       </Box>
     ),
-    title: 'Отзыв об организаторе',
+    title: 'Отзыв об инициаторе события',
     getMessage: (title: string) =>
       `Ваше событие "${title}" завершено, пожалуйста оставьте свой отзыв`,
   },

@@ -106,7 +106,7 @@ const ProfilePage: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-        <Typography>Рейтинг организатора</Typography>
+        <Typography>Рейтинг инициатора события</Typography>
         <Typography
           sx={{
             fontSize: '20px',

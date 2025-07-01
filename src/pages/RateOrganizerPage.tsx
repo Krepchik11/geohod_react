@@ -38,7 +38,7 @@ const RateOrganizerPage: React.FC = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         {/* Telegram BackButton теперь нативный, кастомную кнопку убираем */}
         <Typography sx={{ fontWeight: 500, fontSize: 20 }}>
-          Оценка организатора
+          Оценка инициатора события
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>

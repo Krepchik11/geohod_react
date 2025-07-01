@@ -76,7 +76,7 @@ const NotificationPage: React.FC = () => {
           </Box>
 
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            Организатор: {event.organizer.name}
+            Инициатор события: {event.organizer.name}
           </Typography>
 
           <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>

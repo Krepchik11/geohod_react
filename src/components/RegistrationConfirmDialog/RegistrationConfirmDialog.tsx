@@ -30,7 +30,7 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
         <Typography sx={{ fontSize: 14, fontWeight: 400, mb: 2 }}>
           Вы успешно зарегистрировались на событие
         </Typography>
-        <Typography sx={{ fontSize: 20, fontWeight: 700, mb: 1 }}>{event?.name}</Typography>
+        <Typography sx={{ fontSize: 16, fontWeight: 700, mb: 1 }}>{event?.name}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <EventIcon sx={{ fontSize: 20, color: '#8E8E93', mr: 1 }} />
           <Typography sx={{ fontSize: 14 }}>{event && formatDate(event.date)}</Typography>
@@ -38,8 +38,8 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Avatar src={event?.author?.tgImageUrl} sx={{ width: 32, height: 32, mr: 1 }} />
           <Box>
-            <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
-              Организатор
+            <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5}}>
+              Инициатор события
             </Typography>
             <Typography sx={{ fontWeight: 500, fontSize: 15 }}>
               {event?.author?.firstName} {event?.author?.lastName}

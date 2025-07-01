@@ -61,16 +61,6 @@ const EventCard: React.FC<EventCardProps> = ({
   })();
 
   const isOrganizer = user && user.id && organizerId && String(user.id) === String(organizerId);
-  
-  console.log('EventCard isOrganizer check:', {
-    eventId: id,
-    userId: user?.id,
-    organizerId,
-    isOrganizer,
-    isToday,
-    status,
-    shouldShowButton: isOrganizer && isToday && status !== EventStatus.CANCELED && status !== EventStatus.FINISHED
-  });
 
   const formatDateTime = (dateStr: string) => {
     if (dateStr.includes('.')) {
@@ -91,17 +81,20 @@ const EventCard: React.FC<EventCardProps> = ({
     });
   };
 
+  const showFinishButton = isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED;
+
   return (
     <Box
       onClick={handleCardClick}
       sx={{
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'stretch',
         gap: 2,
         p: 2,
         cursor: 'pointer',
         borderBottom: '1px solid',
         borderColor: 'divider',
+        minHeight: showFinishButton ? 120 : 'unset',
         '&:hover': {
           bgcolor: 'action.hover',
         },
@@ -119,9 +112,9 @@ const EventCard: React.FC<EventCardProps> = ({
           flexShrink: 0,
         }}
       />
-      
+
       {/* Основной контент */}
-      <Box sx={{ 
+      <Box sx={{
         flex: 1,
         minWidth: 0,
       }}>
@@ -168,40 +161,19 @@ const EventCard: React.FC<EventCardProps> = ({
           </Typography>
         )}
       </Box>
-      
+
       {/* Правая колонка со счетчиком и кнопкой */}
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
-        justifyContent: isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED 
-          ? 'space-between' 
-          : 'center',
-        minHeight: 60,
+        justifyContent: 'flex-start',
+        minHeight: showFinishButton ? 60 : 'unset',
+        minWidth: showFinishButton ? 50 : 'unset',
+        maxWidth: showFinishButton ? 60 : 'unset',
         flexShrink: 0,
       }}>
-        {/* Кнопка завершения события */}
-        {isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED && (
-          <Button
-            variant="contained"
-            size="small"
-            sx={{ 
-              minWidth: 0, 
-              px: 2, 
-              fontSize: 14, 
-              height: 32,
-              whiteSpace: 'nowrap',
-              backgroundColor: '#007AFF',
-              borderRadius: '20px',
-              textTransform: 'none',
-              mb: 1,
-            }}
-            onClick={handleFinishClick}
-          >
-            Завершить событие
-          </Button>
-        )}
-        
+
         {/* Счетчик участников */}
         <ParticipantsCount>
           <Typography
@@ -217,6 +189,28 @@ const EventCard: React.FC<EventCardProps> = ({
             <span style={{ color: '#001E2F' }}> из {maxParticipants}</span>
           </Typography>
         </ParticipantsCount>
+        {isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED && (
+          <Button
+            variant="contained"
+            size="small"
+            sx={{
+              minWidth: 0,
+              px: 2,
+              fontSize: 14,
+              height: 32,
+              whiteSpace: 'nowrap',
+              backgroundColor: '#007AFF',
+              borderRadius: '20px',
+              textTransform: 'none',
+              position: 'relative',
+              top: 30,
+              right: 0,
+            }}
+            onClick={handleFinishClick}
+          >
+            Завершить событие
+          </Button>
+        )}
       </Box>
     </Box>
   );

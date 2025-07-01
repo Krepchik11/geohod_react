@@ -99,7 +99,7 @@ const EventDetailsPage: React.FC = () => {
         
         setEvent({
           ...eventData,
-          registrationLink: `https://t.me/geohodton_bot?startapp=registration_${eventData.id}`,
+          registrationLink: `https://t.me/geogoddevbot?startapp=registration_${eventData.id}`,
           participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
           author: {
             ...eventData.author,
@@ -298,11 +298,11 @@ const EventDetailsPage: React.FC = () => {
   return (
     <Box>
       <TopBar 
-        title={isOrganizer ? (event?.name || '') : 'Регистрация'} 
+        title={iamParticipant ? 'Вы зарегистрированы' : event?.status === EventStatus.FINISHED ? 'Событие завершено' : 'Регистрация'} 
         showBackButton 
         showNotifications={false}
       />
-      <Container maxWidth="sm" sx={{ mt: 1, mb: 10 }}>
+      <Container maxWidth="sm" sx={{ mt: 1, mb: 1 }}>
         {loading ? (
           <Box display="flex" justifyContent="center" my={4}>
             <CircularProgress />
@@ -369,7 +369,7 @@ const EventDetailsPage: React.FC = () => {
                     </Typography>
                   </Box>
                 </Box>
-                {isPast && (
+                {isPast && false && (
                   <Box
                     sx={{
                       bgcolor: '#fff',
@@ -507,7 +507,7 @@ const EventDetailsPage: React.FC = () => {
                 }}
               >
                 <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
-                  Организатор
+                  Инициатор события
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
                   <Avatar
@@ -821,7 +821,7 @@ const EventDetailsPage: React.FC = () => {
                           transition: 'background 0.2s',
                         }}
                       >
-                        Связаться с организатором
+                        Задать вопрос
                       </Typography>
                     </Box>
                     <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>

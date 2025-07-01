@@ -40,7 +40,7 @@ const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
           <Typography sx={{ fontSize: 14, color: '#8E8E93' }}>{event && formatDate(event.date)}</Typography>
         </Box>
         <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5}}>
-              Организатор
+              Инициатор события
             </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Avatar src={event?.author?.tgImageUrl} sx={{ width: 32, height: 32, mr: 1 }} />

@@ -32,7 +32,7 @@ const Notification: React.FC<NotificationProps> = ({ event, onButtonClick }) => 
       </Typography>
 
       <Typography variant="body2" color="text.secondary" gutterBottom>
-        Организатор: Никола Тесла
+        Инициатор события: Никола Тесла
       </Typography>
 
       <Box mt={2}>

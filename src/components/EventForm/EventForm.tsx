@@ -283,7 +283,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                 color: '#8E8E93',
               }}
             >
-              Организатор
+              Инициатор события
             </Typography>
           </Box>
           <Box

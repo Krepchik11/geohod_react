@@ -26,12 +26,21 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNoti
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           alignItems: 'center',
           px: 2,
-          py: 1,
+          py: 1.5,
+          position: 'relative',
         }}
       >
+        {showBackButton && (
+          <IconButton
+            onClick={() => window.history.back()}
+            sx={{ position: 'absolute', left: 8 }}
+          >
+            {/* иконка назад */}
+          </IconButton>
+        )}
         <Typography
           sx={{
             fontSize: '20px',
@@ -45,9 +54,11 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNoti
             WebkitBoxOrient: 'vertical',
             wordBreak: 'break-word',
             maxHeight: '2.4em',
-            margin: '2px 0',
+            margin: 0,
             flex: 1,
-            paddingRight: showNotifications ? '16px' : '0',
+            textAlign: 'center',
+            paddingRight: 0,
+            paddingLeft: 0,
             ...sx,
           }}
         >
@@ -56,16 +67,7 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNoti
         {showNotifications && (
           <IconButton
             onClick={handleNotificationsClick}
-            sx={{
-              width: 40,
-              height: 40,
-              position: 'relative',
-              color: '#007AFF',
-              flexShrink: 0,
-              '& .MuiSvgIcon-root': {
-                fill: '#007AFF',
-              },
-            }}
+            sx={{ position: 'absolute', right: 8, width: 40, height: 40, color: '#007AFF', flexShrink: 0 }}
           >
             <NotificationsNoneIcon sx={{ fontSize: 20 }} />
             <Box

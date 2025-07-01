@@ -4,7 +4,7 @@ import axios from 'axios';
 export const telegramWebApp = window.Telegram?.WebApp;
 export const isTelegramWebApp = Boolean(telegramWebApp);
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = 'http://localhost:8080/api/v1';
 console.log('Using API URL:', API_BASE_URL);
 
 export const getTelegramUser = () => {
