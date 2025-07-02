@@ -105,7 +105,7 @@ const ProfilePage: React.FC = () => {
     >
       <Box
         sx={{
-          p: 4,
+          p: 0,
           width: '100%',
           maxWidth: 400,
           display: 'flex',
@@ -146,7 +146,7 @@ const ProfilePage: React.FC = () => {
       </Box>
       <Box
         sx={{
-          p: 1,
+          mt: 1,
           width: '100%',
           maxWidth: 400,
           display: 'flex',
@@ -154,7 +154,9 @@ const ProfilePage: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-        <Typography>Рейтинг инициатора события</Typography>
+        <Typography sx={{ fontSize: '14px', fontWeight: '500' }}>
+          Рейтинг инициатора события
+        </Typography>
         <Typography
           sx={{
             fontSize: '20px',
@@ -177,7 +179,8 @@ const ProfilePage: React.FC = () => {
       >
         <Typography
           sx={{
-            fontSize: '16px',
+            fontSize: '14px',
+            color: '#8E8E93',
             fontWeight: 500,
             mb: 2,
           }}
@@ -244,20 +247,8 @@ const ProfilePage: React.FC = () => {
         )}
       </Box>
       <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ position: 'relative', pr: 5 }}>
+        <DialogTitle sx={{ position: 'relative', pr: 5, fontSize: '14px', fontWeight: '400' }}>
           Значения по умолчанию для ваших событий:
-          <IconButton
-            aria-label="close"
-            onClick={() => setSettingsOpen(false)}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
         </DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
@@ -280,8 +271,7 @@ const ProfilePage: React.FC = () => {
               fullWidth
             />
             <Button
-              variant="contained"
-              sx={{ mt: 2 }}
+              sx={{ mt: 2, backgroundColor: '#007AFF', color: '#fff' }}
               onClick={() => setSettingsOpen(false)}
               fullWidth
             >

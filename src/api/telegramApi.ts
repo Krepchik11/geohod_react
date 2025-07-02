@@ -3,7 +3,7 @@ import axios from 'axios';
 export const telegramWebApp = window.Telegram?.WebApp;
 export const isTelegramWebApp = Boolean(telegramWebApp);
 
-const API_BASE_URL = '/api/v2';
+const API_BASE_URL = 'http://localhost:8080/api/v2';
 console.log('Using API URL:', API_BASE_URL);
 
 export const getTelegramUser = () => {
@@ -15,7 +15,7 @@ export const getTelegramUser = () => {
 };
 
 const axiosV1 = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'http://localhost:8080/api/v1',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
@@ -24,7 +24,7 @@ const axiosV1 = axios.create({
 });
 
 const axiosV2 = axios.create({
-  baseURL: '/api/v2',
+  baseURL: 'http://localhost:8080/api/v2',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',

@@ -8,13 +8,16 @@ import {
   useTheme,
 } from '@mui/material';
 import { telegramWebApp } from '../../api/telegramApi';
+import CalendarBlueIcon from '../../assets/icons/calendar-blue.svg';
+import CalendarWhiteIcon from '../../assets/icons/calendar-white.svg';
+import ProfileBlueIcon from '../../assets/icons/profile-blue.svg';
+import ProfileWhiteIcon from '../../assets/icons/profile-white.svg';
 
 const BottomNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
 
-  // Скрываем главную кнопку Telegram при монтировании
   React.useEffect(() => {
     if (telegramWebApp?.MainButton) {
       telegramWebApp.MainButton.hide();
@@ -37,10 +40,7 @@ const BottomNavigation: React.FC = () => {
   );
 
   const handleNavigation = (path: string) => {
-    // Если мы уже на этой странице, не делаем ничего
     if (location.pathname === path) return;
-
-    console.log('Navigating to:', path);
     navigate(path);
   };
 
@@ -80,7 +80,7 @@ const BottomNavigation: React.FC = () => {
               transition: 'none',
               marginTop: '8px',
               '&.Mui-selected': {
-                fontSize: 16,
+                fontSize: 14,
               },
             },
             '& .MuiBottomNavigationAction-wrapper': {
@@ -100,7 +100,13 @@ const BottomNavigation: React.FC = () => {
         <BottomNavigationAction
           label="События"
           value="/events"
-          icon={getIcon('events', location.pathname === '/events')}
+          icon={
+            location.pathname === '/events' ? (
+              <img src={CalendarWhiteIcon} alt="Календарь" style={{ width: 22, height: 23 }} />
+            ) : (
+              <img src={CalendarBlueIcon} alt="Календарь" style={{ width: 22, height: 23 }} />
+            )
+          }
         />
         <BottomNavigationAction
           label="Создать"
@@ -110,7 +116,13 @@ const BottomNavigation: React.FC = () => {
         <BottomNavigationAction
           label="Профиль"
           value="/profile"
-          icon={getIcon('person', location.pathname === '/profile')}
+          icon={
+            location.pathname === '/profile' ? (
+              <img src={ProfileWhiteIcon} alt="Профиль" style={{ width: 22, height: 23 }} />
+            ) : (
+              <img src={ProfileBlueIcon} alt="Профиль" style={{ width: 22, height: 23 }} />
+            )
+          }
         />
       </MuiBottomNavigation>
     </Paper>
