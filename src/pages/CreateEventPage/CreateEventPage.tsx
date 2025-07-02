@@ -41,8 +41,6 @@ const CreateEventPage: React.FC = () => {
         date: data.date,
       });
 
-      console.log('Server response:', response);
-
       const eventData: EventResponse = {
         id: response.id,
         name: data.title,

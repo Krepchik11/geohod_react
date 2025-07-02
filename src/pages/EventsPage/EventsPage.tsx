@@ -38,10 +38,7 @@ const EventsPage: React.FC = () => {
       try {
         setLoading(true);
         const response = await api.events.getAllEvents();
-        console.log('API response for getAllEvents:', response);
         if (response && response.content) {
-          console.log('Events received:', response.content);
-          console.log('Number of events:', response.content.length);
           setEvents(response.content);
         }
       } catch (err) {

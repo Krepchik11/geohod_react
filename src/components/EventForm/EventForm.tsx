@@ -106,7 +106,6 @@ const EventForm: React.FC<EventFormProps> = ({
         const selectedDateTime = new Date(formState.date + 'T' + formState.time);
         const now = new Date();
 
-        // Устанавливаем время now к 00:00:00 для сравнения только дат
         const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const selectedDate = new Date(
           selectedDateTime.getFullYear(),
@@ -139,7 +138,6 @@ const EventForm: React.FC<EventFormProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log('handleChange called:', name, value);
 
     setTouched((prev) => ({
       ...prev,
@@ -155,7 +153,6 @@ const EventForm: React.FC<EventFormProps> = ({
     }
 
     setFormState((prev) => {
-      console.log('Updating form state:', { ...prev, [name]: value });
       return {
         ...prev,
         [name]: value,
@@ -164,8 +161,6 @@ const EventForm: React.FC<EventFormProps> = ({
   };
 
   const handleDateChange = (newValue: Date | null) => {
-    console.log('handleDateChange called:', newValue);
-
     setTouched((prev) => ({
       ...prev,
       date: true,
@@ -193,7 +188,6 @@ const EventForm: React.FC<EventFormProps> = ({
         ...prev,
         date: newValue ? newValue.toISOString().split('T')[0] : '',
       };
-      console.log('Updating form state with new date:', newState);
       return newState;
     });
   };
@@ -206,7 +200,6 @@ const EventForm: React.FC<EventFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // При отправке формы помечаем все поля как тронутые
     setTouched({
       title: true,
       maxParticipants: true,
@@ -216,7 +209,6 @@ const EventForm: React.FC<EventFormProps> = ({
 
     if (!isValid) return;
 
-    // Форматируем дату и время в ISO строку для бэкенда
     const dateTime = new Date(formState.date + 'T' + formState.time);
     const isoString = dateTime.toISOString();
 
@@ -227,7 +219,6 @@ const EventForm: React.FC<EventFormProps> = ({
     });
   };
 
-  // Фокусировка для скрытия меню
   const handleFocus = () => {
     if (onInputFocusChange) onInputFocusChange(true);
   };
@@ -452,7 +443,6 @@ const EventForm: React.FC<EventFormProps> = ({
                       helperText: touched.date && errors.date ? errors.date : undefined,
                       fullWidth: true,
                       onClick: () => {
-                        // Программно открываем календарь при клике на поле
                         setTimeout(() => {
                           const calendarButton = document.querySelector(
                             '[aria-label="Choose date"], .MuiIconButton-root'

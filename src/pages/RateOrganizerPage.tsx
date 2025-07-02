@@ -12,7 +12,6 @@ const RateOrganizerPage: React.FC = () => {
   const [review, setReview] = useState('');
   const navigate = useNavigate();
 
-  // Telegram BackButton
   useEffect(() => {
     if (window.Telegram?.WebApp?.BackButton) {
       window.Telegram.WebApp.BackButton.show();
@@ -25,9 +24,7 @@ const RateOrganizerPage: React.FC = () => {
     }
   }, [navigate]);
 
-  // TODO: здесь должен быть запрос на получение данных пользователя по id
-  // Пока используем user как заглушку
-  const organizer = user; // заменить на реальные данные по id
+  const organizer = user;
 
   if (!organizer) return null;
 

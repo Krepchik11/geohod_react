@@ -101,10 +101,9 @@ const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
           onClick={async () => {
             try {
               await onUnregister();
-              onClose(); // Закрываем диалог после успешной операции
+              onClose();
             } catch (error) {
               console.error('Error during unregistration:', error);
-              // Диалог останется открытым при ошибке
             }
           }}
           disabled={loading}

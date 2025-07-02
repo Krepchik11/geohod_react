@@ -61,7 +61,6 @@ const EventDetailsPage: React.FC = () => {
 
   const isCanceled = event?.status === EventStatus.CANCELED;
 
-  // вычисляем isToday локально
   const isToday = event
     ? (() => {
         const eventDate = new Date(event.date);
@@ -76,25 +75,13 @@ const EventDetailsPage: React.FC = () => {
       try {
         const eventData = await api.events.getEventById(id);
 
-        // Проверяем, является ли событие прошедшим
         const eventDate = new Date(eventData.date);
         const now = new Date();
 
-        // Сбрасываем время до начала дня для корректного сравнения
         eventDate.setHours(0, 0, 0, 0);
         now.setHours(0, 0, 0, 0);
 
         const isPastEvent = eventDate.getTime() < now.getTime();
-
-        console.log('Date comparison:', {
-          eventDate: eventDate.toISOString(),
-          now: now.toISOString(),
-          isPastEvent,
-          rawEventDate: eventData.date,
-        });
-
-        // Проверяем, достигнуто ли максимальное количество участников
-        const isMaxParticipants = eventData.currentParticipants >= eventData.maxParticipants;
 
         setEvent({
           ...eventData,
@@ -108,24 +95,10 @@ const EventDetailsPage: React.FC = () => {
           },
         });
 
-        // Получаем участников и вычисляем iamParticipant
         const participantsData = await api.events.getEventParticipants(id);
-        console.log('Participants data:', participantsData);
-        console.log('Current user ID:', user.id);
         const isParticipant = participantsData.participants.some(
           (p: any) => String(p.tgUserId) === String(user.id)
         );
-
-        console.log('Registration button state:', {
-          operationInProgress,
-          eventStatus: eventData.status,
-          isCanceled: eventData.status === EventStatus.CANCELED,
-          isParticipant,
-          isPastEvent,
-          isMaxParticipants,
-          currentUser: user.id,
-          isOrganizer: eventData.author.id === String(user.id),
-        });
 
         setIamParticipant(isParticipant);
         setIsPast(isPastEvent);
@@ -149,7 +122,6 @@ const EventDetailsPage: React.FC = () => {
       setOperationInProgress(true);
       await api.events.registerForEvent(event.id);
 
-      // Обновляем данные события после регистрации
       const eventData = await api.events.getEventById(event.id);
       setEvent({
         ...eventData,
@@ -163,7 +135,6 @@ const EventDetailsPage: React.FC = () => {
         },
       });
 
-      // Обновляем статус участия
       const participantsData = await api.events.getEventParticipants(event.id);
       const isParticipant = participantsData.participants.some(
         (p: any) => String(p.tgUserId) === String(user.id)
@@ -177,12 +148,10 @@ const EventDetailsPage: React.FC = () => {
     }
   };
 
-  // Проверяем, пришли ли мы со страницы регистрации
   useEffect(() => {
     const state = location.state as { fromRegistration?: boolean };
     if (state?.fromRegistration) {
       handleRegister();
-      // Очищаем состояние, чтобы при обновлении страницы не происходила повторная регистрация
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, location.pathname, navigate, handleRegister]);
@@ -204,13 +173,12 @@ const EventDetailsPage: React.FC = () => {
           tgUsername: eventData.author.username ?? eventData.author.tgUsername,
         },
       });
-      // обновляем iamParticipant
       const participantsData = await api.events.getEventParticipants(id);
       const isParticipant = participantsData.participants.some(
         (p: any) => String(p.tgUserId) === String(user.id)
       );
       setIamParticipant(isParticipant);
-      setUnregisterDialogOpen(false); // Закрываем диалог после успешной операции
+      setUnregisterDialogOpen(false);
     } catch (err: any) {
       setError(err.message || 'Ошибка при отмене регистрации');
       console.error('Unregister error:', err);

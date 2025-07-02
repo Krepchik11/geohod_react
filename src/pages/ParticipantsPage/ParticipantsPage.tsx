@@ -208,8 +208,6 @@ const ParticipantsPage: React.FC = () => {
               sx={{ borderRadius: '14px', fontSize: 17, textTransform: 'none', height: 44 }}
               onClick={async () => {
                 try {
-                  // TODO: Implement participant removal API call
-                  // await api.events.removeParticipant(id!, dialog.participant.id);
                   setParticipants(participants.filter((p) => p.id !== dialog.participant.id));
                   setDialog({ open: false, participant: null });
                   setToast({ isVisible: true, message: 'Участник удален' });

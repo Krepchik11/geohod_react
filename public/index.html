@@ -131,35 +131,23 @@
     </style>
 
     <script>
-      // Определяем тему Telegram для загрузочного экрана
       document.addEventListener('DOMContentLoaded', function () {
         const tgApp = window.Telegram?.WebApp;
 
-        // Логируем для отладки
-        console.log('DOM Content Loaded');
-        console.log('Telegram WebApp available:', Boolean(tgApp));
-
         if (tgApp) {
-          console.log('Telegram ColorScheme:', tgApp.colorScheme);
-          console.log('Telegram ThemeParams:', tgApp.themeParams);
-
           const isDarkTheme = tgApp.colorScheme === 'dark';
           const loadingScreen = document.getElementById('loading-screen');
           if (loadingScreen && isDarkTheme) {
             loadingScreen.classList.add('dark');
           }
 
-          // Сообщаем Telegram WebApp о готовности базовой страницы
           try {
             tgApp.ready();
-            console.log('Telegram WebApp.ready() called');
           } catch (e) {
             console.error('Error calling Telegram WebApp.ready():', e);
           }
         }
       });
-
-      // Скрываем загрузочный экран, когда приложение готово
       window.hideLoadingScreen = function () {
         const loadingScreen = document.getElementById('loading-screen');
         if (loadingScreen) {

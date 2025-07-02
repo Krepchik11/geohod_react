@@ -3,9 +3,6 @@ import axios from 'axios';
 export const telegramWebApp = window.Telegram?.WebApp;
 export const isTelegramWebApp = Boolean(telegramWebApp);
 
-const API_BASE_URL = '/api/v2';
-console.log('Using API URL:', API_BASE_URL);
-
 export const getTelegramUser = () => {
   if (!telegramWebApp?.initDataUnsafe?.user) {
     console.error('Информация о пользователе не доступна');
@@ -49,6 +46,13 @@ axiosV2.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const usersApi = {
+  getUserByTelegramId: async (telegramId: string | number) => {
+    const response = await axiosV2.get(`/users/by-tg-id/${telegramId}`);
+    return response.data;
+  },
+};
 
 export const eventsApi = {
   getAllEvents: async (params: any = {}) => {
@@ -143,8 +147,10 @@ export const eventsApi = {
 };
 
 export const reviewsApi = {
-  getUserReviews: async (userId: string) => {
-    const response = await axiosV2.get(`/users/${userId}/reviews`);
+  getUserReviews: async (userId: string, page: number = 0, size: number = 10) => {
+    const response = await axiosV2.get(`/users/${userId}/reviews`, {
+      params: { page, size }
+    });
     return response.data;
   },
   getUserRating: async (userId: string) => {
@@ -168,6 +174,7 @@ export const reviewsApi = {
 export const api = {
   events: eventsApi,
   reviews: reviewsApi,
+  users: usersApi,
 };
 
 export default api;

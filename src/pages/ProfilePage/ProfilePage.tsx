@@ -50,33 +50,72 @@ const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
 
 const ProfilePage: React.FC = () => {
   const user = useUserStore((state) => state.user);
+  console.log('user:', user);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [maxParticipants, setMaxParticipants] = React.useState('30');
   const [donation, setDonation] = React.useState('500 динар');
   const navigate = useNavigate();
-
-  // id профиля, который просматриваем (если есть роутинг на чужой профиль, иначе user.id)
-  const userId = user?.id;
-  const isOwnProfile = user && user.id === userId;
+  const userId = user?.uuid;
+  const isOwnProfile = user && user.uuid === userId;
 
   const [reviews, setReviews] = React.useState<Review[]>([]);
+  const [page, setPage] = React.useState(0);
+  const [hasMore, setHasMore] = React.useState(true);
+  const [loadingReviews, setLoadingReviews] = React.useState(false);
+  const loaderRef = React.useRef<HTMLDivElement | null>(null);
+
   const [rating, setRating] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    if (!userId) return;
+    if (!user || !user.uuid) return;
     setLoading(true);
-    const userIdStr = String(userId);
-    Promise.all([reviewsApi.getUserReviews(userIdStr), reviewsApi.getUserRating(userIdStr)]).then(
-      ([reviews, rating]) => {
-        setReviews(reviews);
-        setRating(rating);
-        setLoading(false);
-      }
-    );
-  }, [userId]);
+    const userIdStr = String(user.uuid);
+    Promise.all([
+      reviewsApi.getUserReviews(userIdStr, 0, 10),
+      reviewsApi.getUserRating(userIdStr)
+    ]).then(([reviews, rating]) => {
+      setReviews(reviews);
+      setRating(rating);
+      setLoading(false);
+    });
+  }, [user]);
 
-  console.log(user);
+  React.useEffect(() => {
+    setReviews([]);
+    setPage(0);
+    setHasMore(true);
+  }, [user]);
+
+  React.useEffect(() => {
+    const loadReviews = async () => {
+      if (!user || !user.uuid || loadingReviews || !hasMore) return;
+      setLoadingReviews(true);
+      const res = await reviewsApi.getUserReviews(user.uuid, page, 10);
+      const newReviews = Array.isArray(res) ? res : res.data || [];
+      setReviews(prev => [...prev, ...newReviews]);
+      setHasMore(newReviews.length === 10);
+      setLoadingReviews(false);
+    };
+    loadReviews();
+    // eslint-disable-next-line
+  }, [page, user]);
+
+  React.useEffect(() => {
+    if (!hasMore || loadingReviews) return;
+    const observer = new window.IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    };
+  }, [hasMore, loadingReviews]);
 
   const handleToggleReviewVisibility = async (review: Review) => {
     const userIdStr = String(userId);
@@ -85,7 +124,7 @@ const ProfilePage: React.FC = () => {
     } else {
       await reviewsApi.hideReview(String(review.id));
     }
-    const updated = await reviewsApi.getUserReviews(userIdStr);
+    const updated = await reviewsApi.getUserReviews(userIdStr, 0, 10);
     setReviews(updated);
   };
 
@@ -187,64 +226,63 @@ const ProfilePage: React.FC = () => {
         >
           Отзывы
         </Typography>
-        {loading ? (
-          <Typography>Загрузка...</Typography>
-        ) : (
-          reviews?.map((review) => (
-            <Paper
-              key={review.id}
+        {reviews.length === 0 && !loadingReviews && <Typography>Нет отзывов</Typography>}
+        {reviews.map((review) => (
+          <Paper
+            key={review.id}
+            sx={{
+              p: 2,
+              mb: 2,
+              borderRadius: '12px',
+              position: 'relative',
+              opacity: review.hidden ? 0.5 : 1,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <Avatar
+                src={review.avatar}
+                alt={review.author}
+                sx={{ width: 40, height: 40, mr: 2 }}
+              />
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: '16px',
+                    fontWeight: 600,
+                  }}
+                >
+                  {review.author}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '14px',
+                    color: '#8E8E93',
+                  }}
+                >
+                  {review.date}
+                </Typography>
+              </Box>
+              {isOwnProfile && (
+                <Box sx={{ position: 'absolute', right: 12, top: 12 }}>
+                  <IconButton onClick={() => handleToggleReviewVisibility(review)}>
+                    {review.hidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+            <RatingStars rating={review.rating} />
+            <Typography
               sx={{
-                p: 2,
-                mb: 2,
-                borderRadius: '12px',
-                position: 'relative',
-                opacity: review.hidden ? 0.5 : 1,
+                fontSize: '14px',
+                lineHeight: '20px',
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <Avatar
-                  src={review.avatar}
-                  alt={review.author}
-                  sx={{ width: 40, height: 40, mr: 2 }}
-                />
-                <Box>
-                  <Typography
-                    sx={{
-                      fontSize: '16px',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {review.author}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '14px',
-                      color: '#8E8E93',
-                    }}
-                  >
-                    {review.date}
-                  </Typography>
-                </Box>
-                {isOwnProfile && (
-                  <Box sx={{ position: 'absolute', right: 12, top: 12 }}>
-                    <IconButton onClick={() => handleToggleReviewVisibility(review)}>
-                      {review.hidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </Box>
-                )}
-              </Box>
-              <RatingStars rating={review.rating} />
-              <Typography
-                sx={{
-                  fontSize: '14px',
-                  lineHeight: '20px',
-                }}
-              >
-                {review.text}
-              </Typography>
-            </Paper>
-          ))
-        )}
+              {review.text}
+            </Typography>
+          </Paper>
+        ))}
+        {loadingReviews && <Typography>Загрузка...</Typography>}
+        {hasMore && <div ref={loaderRef} style={{ height: 20 }} />}
       </Box>
       <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ position: 'relative', pr: 5, fontSize: '14px', fontWeight: '400' }}>

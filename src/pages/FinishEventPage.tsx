@@ -38,7 +38,6 @@ const FinishEventPage: React.FC = () => {
   };
 
   useEffect(() => {
-    // Загрузка данных события и участников
     const fetchData = async () => {
       if (!id) return;
       const eventData = await api.events.getEventById(id);

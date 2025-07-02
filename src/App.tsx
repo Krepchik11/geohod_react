@@ -26,50 +26,39 @@ import RateOrganizerPage from './pages/RateOrganizerPage';
 import FinishEventPage from './pages/FinishEventPage';
 import EditEventPage from './pages/EditEventPage';
 
-// Компонент для обработки Telegram параметров
 const TelegramRouter: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const initUser = useUserStore((state) => state.initUser);
   const [lastRedirect, setLastRedirect] = useState<string | null>(null);
 
-  // Список путей где нужно скрыть BottomNavigation
   const hideBottomNavPaths = ['/create-event', '/edit-event', '/finish-event'];
 
-  // Проверяем нужно ли скрыть BottomNavigation
   const shouldHideBottomNav =
     hideBottomNavPaths.some((path) => location.pathname.startsWith(path)) ||
     (location.pathname.startsWith('/event/') && location.pathname !== '/events');
 
-  // Список путей, где редирект не должен срабатывать
   const safeRoutes = ['/profile', '/create-event', '/events'];
 
   useEffect(() => {
     initUser();
   }, [initUser]);
 
-  // Обработка кнопки назад в Telegram WebApp
   useEffect(() => {
     if (!telegramWebApp?.BackButton) {
-      console.log('Telegram BackButton not available');
       return;
     }
 
     const handleBackButton = () => {
-      console.log('Back button clicked, current path:', location.pathname);
       if (location.pathname === '/events') {
         telegramWebApp.close();
       } else {
         navigate(-1);
       }
     };
-
-    // Показываем кнопку на всех страницах кроме /events
     if (location.pathname === '/events') {
-      console.log('Hiding back button on /events');
       telegramWebApp.BackButton.hide();
     } else {
-      console.log('Showing back button');
       telegramWebApp.BackButton.show();
       telegramWebApp.BackButton.onClick(handleBackButton);
     }
@@ -87,46 +76,29 @@ const TelegramRouter: React.FC = () => {
         const webApp = window.Telegram.WebApp;
         webApp.ready();
 
-        // Получаем start_param из URL или из webApp
         const urlParams = new URLSearchParams(window.location.search);
         const startParam = urlParams.get('start_param') || webApp.initDataUnsafe?.start_param;
-
-        console.log('Init params:', {
-          startParam,
-          currentPath: location.pathname,
-          webAppStartParam: webApp.initDataUnsafe?.start_param,
-          lastRedirect,
-          isSafeRoute: safeRoutes.includes(location.pathname),
-        });
 
         if (startParam?.startsWith('registration_')) {
           const eventId = startParam.replace('registration_', '');
           const targetPath = `/event/${eventId}`;
 
-          // Проверяем условия для редиректа
           const shouldRedirect =
-            // Путь отличается от целевого
             location.pathname !== targetPath &&
-            // Это не безопасный маршрут
             !safeRoutes.includes(location.pathname) &&
-            // Мы еще не делали такой редирект
             lastRedirect !== targetPath;
 
           if (shouldRedirect) {
-            console.log('Redirecting to event details:', eventId);
             setLastRedirect(targetPath);
             navigate(targetPath);
           }
         } else if (location.pathname === '/') {
-          // Редирект с главной только если нет сохраненного редиректа
           if (!lastRedirect) {
             navigate('/events');
           }
         }
 
-        // Устанавливаем кнопку "назад" только если мы не на /events
         const shouldShowBackButton = location.pathname !== '/events';
-        console.log('Back button visibility:', shouldShowBackButton);
         webApp.BackButton.isVisible = shouldShowBackButton;
       } catch (error) {
         console.error('Error initializing Telegram Web App:', error);
@@ -135,15 +107,6 @@ const TelegramRouter: React.FC = () => {
 
     initTelegram();
   }, [location.pathname, navigate, lastRedirect]);
-
-  // Добавим отладочный вывод для текущего пути
-  useEffect(() => {
-    console.log('Current location:', {
-      pathname: location.pathname,
-      hash: location.hash,
-      search: location.search,
-    });
-  }, [location]);
 
   return (
     <div
