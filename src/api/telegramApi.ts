@@ -21,7 +21,7 @@ const axiosV1 = axios.create({
 });
 
 const axiosV2 = axios.create({
-  baseURL: '/api/v2',
+  baseURL: 'api/v2',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',

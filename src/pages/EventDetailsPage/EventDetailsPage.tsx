@@ -85,7 +85,7 @@ const EventDetailsPage: React.FC = () => {
 
         setEvent({
           ...eventData,
-          registrationLink: `https://t.me/geogoddevbot?startapp=registration_${eventData.id}`,
+          registrationLink: `https://t.me/geohodton_bot?startapp=registration_${eventData.id}`,
           participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
           author: {
             ...eventData.author,
