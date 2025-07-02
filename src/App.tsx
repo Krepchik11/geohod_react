@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ru } from 'date-fns/locale';
@@ -27,12 +34,12 @@ const TelegramRouter: React.FC = () => {
   const [lastRedirect, setLastRedirect] = useState<string | null>(null);
 
   // Список путей где нужно скрыть BottomNavigation
-  const hideBottomNavPaths = ['/create-event', '/edit-event'];
-  
+  const hideBottomNavPaths = ['/create-event', '/edit-event', '/finish-event'];
+
   // Проверяем нужно ли скрыть BottomNavigation
-  const shouldHideBottomNav = hideBottomNavPaths.some(path => 
-    location.pathname.startsWith(path)
-  ) || location.pathname.startsWith('/event/') && location.pathname !== '/events';
+  const shouldHideBottomNav =
+    hideBottomNavPaths.some((path) => location.pathname.startsWith(path)) ||
+    (location.pathname.startsWith('/event/') && location.pathname !== '/events');
 
   // Список путей, где редирект не должен срабатывать
   const safeRoutes = ['/profile', '/create-event', '/events'];
@@ -79,25 +86,25 @@ const TelegramRouter: React.FC = () => {
       try {
         const webApp = window.Telegram.WebApp;
         webApp.ready();
-        
+
         // Получаем start_param из URL или из webApp
         const urlParams = new URLSearchParams(window.location.search);
         const startParam = urlParams.get('start_param') || webApp.initDataUnsafe?.start_param;
-        
+
         console.log('Init params:', {
           startParam,
           currentPath: location.pathname,
           webAppStartParam: webApp.initDataUnsafe?.start_param,
           lastRedirect,
-          isSafeRoute: safeRoutes.includes(location.pathname)
+          isSafeRoute: safeRoutes.includes(location.pathname),
         });
 
         if (startParam?.startsWith('registration_')) {
           const eventId = startParam.replace('registration_', '');
           const targetPath = `/event/${eventId}`;
-          
+
           // Проверяем условия для редиректа
-          const shouldRedirect = 
+          const shouldRedirect =
             // Путь отличается от целевого
             location.pathname !== targetPath &&
             // Это не безопасный маршрут
@@ -116,12 +123,11 @@ const TelegramRouter: React.FC = () => {
             navigate('/events');
           }
         }
-        
+
         // Устанавливаем кнопку "назад" только если мы не на /events
         const shouldShowBackButton = location.pathname !== '/events';
         console.log('Back button visibility:', shouldShowBackButton);
         webApp.BackButton.isVisible = shouldShowBackButton;
-        
       } catch (error) {
         console.error('Error initializing Telegram Web App:', error);
       }
@@ -135,7 +141,7 @@ const TelegramRouter: React.FC = () => {
     console.log('Current location:', {
       pathname: location.pathname,
       hash: location.hash,
-      search: location.search
+      search: location.search,
     });
   }, [location]);
 

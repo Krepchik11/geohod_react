@@ -38,7 +38,7 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Avatar src={event?.author?.tgImageUrl} sx={{ width: 32, height: 32, mr: 1 }} />
           <Box>
-            <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5}}>
+            <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
               Инициатор события
             </Typography>
             <Typography sx={{ fontWeight: 500, fontSize: 15 }}>
@@ -75,7 +75,8 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
           </Button>
         </Box>
         <Typography sx={{ fontSize: 14, color: 'black', mb: 1 }}>
-          Человек в группе: <span style={{ color: '#007AFF' }}>{event?.participantsCount}</span> из {event?.maxParticipants}
+          Человек в группе: <span style={{ color: '#007AFF' }}>{event?.participantsCount}</span> из{' '}
+          {event?.maxParticipants}
         </Typography>
         <Button
           fullWidth
@@ -102,4 +103,4 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
   );
 };
 
-export default RegistrationConfirmDialog; 
+export default RegistrationConfirmDialog;

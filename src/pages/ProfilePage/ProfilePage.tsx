@@ -1,8 +1,28 @@
 import React from 'react';
-import { Typography, Box, Avatar, Paper, IconButton, Dialog, DialogTitle, DialogContent, TextField, Button } from '@mui/material';
-import { Star as StarIcon, StarBorder as StarBorderIcon, Settings as SettingsIcon, Close as CloseIcon, People as PeopleIcon } from '@mui/icons-material';
+import {
+  Typography,
+  Box,
+  Avatar,
+  Paper,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  Button,
+} from '@mui/material';
+import {
+  Star as StarIcon,
+  StarBorder as StarBorderIcon,
+  Settings as SettingsIcon,
+  Close as CloseIcon,
+  People as PeopleIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from '@mui/icons-material';
 import { useUserStore } from '../../store/userStore';
 import { useNavigate } from 'react-router-dom';
+import { reviewsApi } from '../../api/telegramApi';
 
 interface Review {
   id: number;
@@ -11,18 +31,8 @@ interface Review {
   rating: number;
   text: string;
   avatar?: string;
+  hidden: boolean;
 }
-
-const reviews: Review[] = [
-  {
-    id: 1,
-    author: 'Мария',
-    date: '04.06.2025',
-    rating: 5,
-    text: 'Интересное событие. Гид красавчик. Пойду ещё раз на такое классное событие и своим знакомым расскажу о нём',
-    avatar: 'https://example.com/avatar1.jpg',
-  },
-];
 
 const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
   return (
@@ -45,6 +55,40 @@ const ProfilePage: React.FC = () => {
   const [donation, setDonation] = React.useState('500 динар');
   const navigate = useNavigate();
 
+  // id профиля, который просматриваем (если есть роутинг на чужой профиль, иначе user.id)
+  const userId = user?.id;
+  const isOwnProfile = user && user.id === userId;
+
+  const [reviews, setReviews] = React.useState<Review[]>([]);
+  const [rating, setRating] = React.useState<number>(0);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!userId) return;
+    setLoading(true);
+    const userIdStr = String(userId);
+    Promise.all([reviewsApi.getUserReviews(userIdStr), reviewsApi.getUserRating(userIdStr)]).then(
+      ([reviews, rating]) => {
+        setReviews(reviews);
+        setRating(rating);
+        setLoading(false);
+      }
+    );
+  }, [userId]);
+
+  console.log(user);
+
+  const handleToggleReviewVisibility = async (review: Review) => {
+    const userIdStr = String(userId);
+    if (review.hidden) {
+      await reviewsApi.unhideReview(String(review.id));
+    } else {
+      await reviewsApi.hideReview(String(review.id));
+    }
+    const updated = await reviewsApi.getUserReviews(userIdStr);
+    setReviews(updated);
+  };
+
   if (!user) {
     return null;
   }
@@ -65,7 +109,7 @@ const ProfilePage: React.FC = () => {
           width: '100%',
           maxWidth: 400,
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: 'column',
           alignItems: 'center',
           textAlign: 'center',
           justifyContent: 'center',
@@ -78,11 +122,15 @@ const ProfilePage: React.FC = () => {
           sx={{
             width: 120,
             height: 120,
-            mb: 2,
+            mb: 1,
             cursor: 'pointer',
           }}
           onClick={() => navigate(`/rate-organizer/${user.id}`)}
         />
+        <Typography sx={{ fontWeight: 600, fontSize: 20, mt: 1 }}>
+          {user.first_name} {user.last_name}
+        </Typography>
+        <Typography sx={{ color: '#8E8E93', fontSize: 15, mb: 1 }}>@{user.username}</Typography>
         <IconButton
           sx={{
             position: 'absolute',
@@ -117,7 +165,7 @@ const ProfilePage: React.FC = () => {
           }}
         >
           <StarIcon sx={{ color: '#007AFF', width: '12px', height: '12px', marginRight: '6px' }} />
-          4.8
+          {Number(rating) ? Number(rating).toFixed(1) : '-'}
         </Typography>
       </Box>
       <Box
@@ -136,51 +184,64 @@ const ProfilePage: React.FC = () => {
         >
           Отзывы
         </Typography>
-        {reviews.map((review) => (
-          <Paper
-            key={review.id}
-            sx={{
-              p: 2,
-              mb: 2,
-              borderRadius: '12px',
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Avatar
-                src={review.avatar}
-                alt={review.author}
-                sx={{ width: 40, height: 40, mr: 2 }}
-              />
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: '16px',
-                    fontWeight: 600,
-                  }}
-                >
-                  {review.author}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: '#8E8E93',
-                  }}
-                >
-                  {review.date}
-                </Typography>
-              </Box>
-            </Box>
-            <RatingStars rating={review.rating} />
-            <Typography
+        {loading ? (
+          <Typography>Загрузка...</Typography>
+        ) : (
+          reviews?.map((review) => (
+            <Paper
+              key={review.id}
               sx={{
-                fontSize: '14px',
-                lineHeight: '20px',
+                p: 2,
+                mb: 2,
+                borderRadius: '12px',
+                position: 'relative',
+                opacity: review.hidden ? 0.5 : 1,
               }}
             >
-              {review.text}
-            </Typography>
-          </Paper>
-        ))}
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Avatar
+                  src={review.avatar}
+                  alt={review.author}
+                  sx={{ width: 40, height: 40, mr: 2 }}
+                />
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize: '16px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {review.author}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '14px',
+                      color: '#8E8E93',
+                    }}
+                  >
+                    {review.date}
+                  </Typography>
+                </Box>
+                {isOwnProfile && (
+                  <Box sx={{ position: 'absolute', right: 12, top: 12 }}>
+                    <IconButton onClick={() => handleToggleReviewVisibility(review)}>
+                      {review.hidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </Box>
+                )}
+              </Box>
+              <RatingStars rating={review.rating} />
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  lineHeight: '20px',
+                }}
+              >
+                {review.text}
+              </Typography>
+            </Paper>
+          ))
+        )}
       </Box>
       <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ position: 'relative', pr: 5 }}>
@@ -203,22 +264,18 @@ const ProfilePage: React.FC = () => {
             <TextField
               label="Максимум участников"
               value={maxParticipants}
-              onChange={e => setMaxParticipants(e.target.value)}
+              onChange={(e) => setMaxParticipants(e.target.value)}
               InputProps={{
-                startAdornment: (
-                  <PeopleIcon sx={{ mr: 1 }} />
-                ),
+                startAdornment: <PeopleIcon sx={{ mr: 1 }} />,
               }}
               fullWidth
             />
             <TextField
               label="Ожидаемый размер доната"
               value={donation}
-              onChange={e => setDonation(e.target.value)}
+              onChange={(e) => setDonation(e.target.value)}
               InputProps={{
-                startAdornment: (
-                  <StarIcon sx={{ mr: 1 }} />
-                ),
+                startAdornment: <StarIcon sx={{ mr: 1 }} />,
               }}
               fullWidth
             />

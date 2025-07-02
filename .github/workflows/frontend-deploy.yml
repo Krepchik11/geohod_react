@@ -2,7 +2,7 @@ name: Frontend Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '**'
       - '.github/workflows/frontend-deploy.yml'
@@ -40,8 +40,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "build/"
-          target: "/var/www/client.geohod.ru"
+          source: 'build/'
+          target: '/var/www/client.geohod.ru'
           strip_components: 1
 
       - name: Set permissions
@@ -51,4 +51,4 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            chmod -R 755 /var/www/client.geohod.ru 
+            chmod -R 755 /var/www/client.geohod.ru

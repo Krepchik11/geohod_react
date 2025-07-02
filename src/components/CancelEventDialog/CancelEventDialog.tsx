@@ -94,7 +94,12 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
             <Checkbox
               checked={notify}
               onChange={(e) => setNotify(e.target.checked)}
-              sx={{ color: '#007AFF' }}
+              sx={{
+                color: '#006FFD',
+                '&.Mui-checked': {
+                  color: '#006FFD',
+                },
+              }}
             />
             <Typography sx={{ fontSize: 14 }}>Оповещение</Typography>
           </Box>

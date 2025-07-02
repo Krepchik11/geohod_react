@@ -4,7 +4,6 @@ import EventForm from '../components/EventForm/EventForm';
 import { api } from '../api';
 import TopBar from '../components/TopBar/TopBar';
 
-
 const EditEventPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -46,9 +45,8 @@ const EditEventPage: React.FC = () => {
         submitLabel="Сохранить"
         onInputFocusChange={setIsInputFocused}
       />
-      
     </>
   );
 };
 
-export default EditEventPage; 
+export default EditEventPage;

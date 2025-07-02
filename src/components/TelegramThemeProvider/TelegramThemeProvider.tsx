@@ -122,7 +122,7 @@ const TelegramThemeProvider: React.FC<TelegramThemeProviderProps> = ({ children 
         platform: telegramWebApp.platform,
         initData: telegramWebApp.initData ? 'present' : 'missing',
         colorScheme: telegramWebApp.colorScheme,
-        BackButton: telegramWebApp.BackButton ? 'available' : 'missing'
+        BackButton: telegramWebApp.BackButton ? 'available' : 'missing',
       });
 
       try {
@@ -143,9 +143,9 @@ const TelegramThemeProvider: React.FC<TelegramThemeProviderProps> = ({ children 
         console.error('Error initializing Telegram WebApp:', error);
       }
     } else {
-      console.log('Telegram WebApp not available:', { 
-        isTelegramWebApp, 
-        telegramWebApp: telegramWebApp ? 'present' : 'missing' 
+      console.log('Telegram WebApp not available:', {
+        isTelegramWebApp,
+        telegramWebApp: telegramWebApp ? 'present' : 'missing',
       });
     }
 

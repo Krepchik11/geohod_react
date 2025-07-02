@@ -81,7 +81,8 @@ const EventCard: React.FC<EventCardProps> = ({
     });
   };
 
-  const showFinishButton = isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED;
+  const showFinishButton =
+    isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED;
 
   return (
     <Box
@@ -114,10 +115,12 @@ const EventCard: React.FC<EventCardProps> = ({
       />
 
       {/* Основной контент */}
-      <Box sx={{
-        flex: 1,
-        minWidth: 0,
-      }}>
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
         <Typography
           sx={{
             fontSize: '14px',
@@ -163,17 +166,18 @@ const EventCard: React.FC<EventCardProps> = ({
       </Box>
 
       {/* Правая колонка со счетчиком и кнопкой */}
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-end',
-        justifyContent: 'flex-start',
-        minHeight: showFinishButton ? 60 : 'unset',
-        minWidth: showFinishButton ? 50 : 'unset',
-        maxWidth: showFinishButton ? 60 : 'unset',
-        flexShrink: 0,
-      }}>
-
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start',
+          minHeight: showFinishButton ? 60 : 'unset',
+          minWidth: showFinishButton ? 50 : 'unset',
+          maxWidth: showFinishButton ? 60 : 'unset',
+          flexShrink: 0,
+        }}
+      >
         {/* Счетчик участников */}
         <ParticipantsCount>
           <Typography
@@ -189,28 +193,31 @@ const EventCard: React.FC<EventCardProps> = ({
             <span style={{ color: '#001E2F' }}> из {maxParticipants}</span>
           </Typography>
         </ParticipantsCount>
-        {isOrganizer && isToday && status !== EventStatus.FINISHED && status !== EventStatus.CANCELED && (
-          <Button
-            variant="contained"
-            size="small"
-            sx={{
-              minWidth: 0,
-              px: 2,
-              fontSize: 14,
-              height: 32,
-              whiteSpace: 'nowrap',
-              backgroundColor: '#007AFF',
-              borderRadius: '20px',
-              textTransform: 'none',
-              position: 'relative',
-              top: 30,
-              right: 0,
-            }}
-            onClick={handleFinishClick}
-          >
-            Завершить событие
-          </Button>
-        )}
+        {isOrganizer &&
+          isToday &&
+          status !== EventStatus.FINISHED &&
+          status !== EventStatus.CANCELED && (
+            <Button
+              variant="contained"
+              size="small"
+              sx={{
+                minWidth: 0,
+                px: 2,
+                fontSize: 14,
+                height: 32,
+                whiteSpace: 'nowrap',
+                backgroundColor: '#007AFF',
+                borderRadius: '20px',
+                textTransform: 'none',
+                position: 'relative',
+                top: 30,
+                right: 0,
+              }}
+              onClick={handleFinishClick}
+            >
+              Завершить событие
+            </Button>
+          )}
       </Box>
     </Box>
   );

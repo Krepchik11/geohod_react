@@ -10,7 +10,12 @@ interface TopBarProps {
   sx?: any;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNotifications = true, sx }) => {
+const TopBar: React.FC<TopBarProps> = ({
+  title,
+  showBackButton = false,
+  showNotifications = true,
+  sx,
+}) => {
   const [showNotificationsPopup, setShowNotificationsPopup] = useState(false);
 
   const handleNotificationsClick = () => {
@@ -34,16 +39,13 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNoti
         }}
       >
         {showBackButton && (
-          <IconButton
-            onClick={() => window.history.back()}
-            sx={{ position: 'absolute', left: 8 }}
-          >
+          <IconButton onClick={() => window.history.back()} sx={{ position: 'absolute', left: 8 }}>
             {/* иконка назад */}
           </IconButton>
         )}
         <Typography
           sx={{
-            fontSize: '20px',
+            fontSize: '16px',
             fontWeight: 600,
             color: '#000',
             lineHeight: 1.2,
@@ -67,7 +69,14 @@ const TopBar: React.FC<TopBarProps> = ({ title, showBackButton = false, showNoti
         {showNotifications && (
           <IconButton
             onClick={handleNotificationsClick}
-            sx={{ position: 'absolute', right: 8, width: 40, height: 40, color: '#007AFF', flexShrink: 0 }}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              width: 40,
+              height: 40,
+              color: '#007AFF',
+              flexShrink: 0,
+            }}
           >
             <NotificationsNoneIcon sx={{ fontSize: 20 }} />
             <Box

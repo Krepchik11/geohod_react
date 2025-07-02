@@ -30,11 +30,13 @@ const EventList: React.FC = () => {
   const handleRegister = async (eventId: string) => {
     try {
       await api.events.registerForEvent(eventId);
-      setEvents((prev) => prev.map((event) => 
-        event.id === eventId 
-          ? { ...event, participantsCount: (event.participantsCount || 0) + 1 }
-          : event
-      ));
+      setEvents((prev) =>
+        prev.map((event) =>
+          event.id === eventId
+            ? { ...event, participantsCount: (event.participantsCount || 0) + 1 }
+            : event
+        )
+      );
     } catch (err: any) {
       alert(err.message || 'Ошибка при регистрации на событие');
     }

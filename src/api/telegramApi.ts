@@ -1,10 +1,9 @@
 import axios from 'axios';
-// import { Event, EventStatus, EventsResponse, User } from './types'; // Удалено, не используется
 
 export const telegramWebApp = window.Telegram?.WebApp;
 export const isTelegramWebApp = Boolean(telegramWebApp);
 
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+const API_BASE_URL = '/api/v2';
 console.log('Using API URL:', API_BASE_URL);
 
 export const getTelegramUser = () => {
@@ -15,8 +14,8 @@ export const getTelegramUser = () => {
   return telegramWebApp.initDataUnsafe.user;
 };
 
-const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+const axiosV1 = axios.create({
+  baseURL: '/api/v1',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
@@ -24,11 +23,20 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-axiosInstance.interceptors.request.use((config) => {
+const axiosV2 = axios.create({
+  baseURL: '/api/v2',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: window.Telegram?.WebApp?.initData || '',
+  },
+  withCredentials: true,
+});
+
+axiosV2.interceptors.request.use((config) => {
   return config;
 });
 
-axiosInstance.interceptors.response.use(
+axiosV2.interceptors.response.use(
   (response) => {
     return response;
   },
@@ -45,7 +53,7 @@ axiosInstance.interceptors.response.use(
 export const eventsApi = {
   getAllEvents: async (params: any = {}) => {
     try {
-      const response = await axiosInstance.get('/events', { params });
+      const response = await axiosV1.get('/events', { params });
       return response.data;
     } catch (error) {
       console.error('Ошибка при получении событий:', error);
@@ -55,7 +63,7 @@ export const eventsApi = {
 
   getEventById: async (eventId: string) => {
     try {
-      const response = await axiosInstance.get(`/events/${eventId}`);
+      const response = await axiosV1.get(`/events/${eventId}`);
       return response.data;
     } catch (error) {
       console.error(`Ошибка при получении события ${eventId}:`, error);
@@ -65,7 +73,7 @@ export const eventsApi = {
 
   createEvent: async (eventData: any) => {
     try {
-      const response = await axiosInstance.post('/events', eventData);
+      const response = await axiosV1.post('/events', eventData);
       return response.data;
     } catch (error) {
       console.error('Ошибка при создании события:', error);
@@ -75,7 +83,7 @@ export const eventsApi = {
 
   updateEvent: async (eventId: string, eventData: any) => {
     try {
-      const response = await axiosInstance.put(`/events/${eventId}`, eventData);
+      const response = await axiosV1.put(`/events/${eventId}`, eventData);
       return response.data;
     } catch (error) {
       console.error(`Ошибка при обновлении события ${eventId}:`, error);
@@ -85,7 +93,7 @@ export const eventsApi = {
 
   cancelEvent: async (eventId: string) => {
     try {
-      const response = await axiosInstance.patch(`/events/${eventId}/cancel`);
+      const response = await axiosV1.patch(`/events/${eventId}/cancel`);
       return response.data;
     } catch (error) {
       console.error(`Ошибка при отмене события ${eventId}:`, error);
@@ -95,7 +103,7 @@ export const eventsApi = {
 
   finishEvent: async (eventId: string, data: any = {}) => {
     try {
-      const response = await axiosInstance.post(`/events/${eventId}/finish`, data);
+      const response = await axiosV1.patch(`/events/${eventId}/finish`, data);
       return response.data;
     } catch (error) {
       console.error(`Ошибка при завершении события ${eventId}:`, error);
@@ -105,7 +113,7 @@ export const eventsApi = {
 
   registerForEvent: async (eventId: string) => {
     try {
-      const response = await axiosInstance.post(`/events/${eventId}/register`);
+      const response = await axiosV1.post(`/events/${eventId}/register`);
       return response.data;
     } catch (error) {
       console.error(`Ошибка при регистрации на событие ${eventId}:`, error);
@@ -115,7 +123,7 @@ export const eventsApi = {
 
   unregisterFromEvent: async (eventId: string) => {
     try {
-      const response = await axiosInstance.delete(`/events/${eventId}/unregister`);
+      const response = await axiosV1.delete(`/events/${eventId}/unregister`);
       return response.data;
     } catch (error) {
       console.error(`Ошибка при отмене регистрации на событие ${eventId}:`, error);
@@ -125,7 +133,7 @@ export const eventsApi = {
 
   getEventParticipants: async (eventId: string) => {
     try {
-      const response = await axiosInstance.get(`/events/${eventId}/participants`);
+      const response = await axiosV1.get(`/events/${eventId}/participants`);
       return response.data;
     } catch (error) {
       console.error(`Ошибка при получении списка участников события ${eventId}:`, error);
@@ -134,8 +142,32 @@ export const eventsApi = {
   },
 };
 
+export const reviewsApi = {
+  getUserReviews: async (userId: string) => {
+    const response = await axiosV2.get(`/users/${userId}/reviews`);
+    return response.data;
+  },
+  getUserRating: async (userId: string) => {
+    const response = await axiosV2.get(`/users/${userId}/rating`);
+    return response.data;
+  },
+  hideReview: async (reviewId: string) => {
+    const response = await axiosV2.post(`/reviews/${reviewId}/hide`);
+    return response.data;
+  },
+  unhideReview: async (reviewId: string) => {
+    const response = await axiosV1.post(`/reviews/${reviewId}/unhide`);
+    return response.data;
+  },
+  postReview: async (data: { userId: string; rating: number; text: string }) => {
+    const response = await axiosV2.post(`/reviews`, data);
+    return response.data;
+  },
+};
+
 export const api = {
   events: eventsApi,
+  reviews: reviewsApi,
 };
 
 export default api;

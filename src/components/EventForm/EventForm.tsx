@@ -46,7 +46,14 @@ interface EventFormProps {
   onInputFocusChange?: (focused: boolean) => void;
 }
 
-const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', initialDate, initialMaxParticipants, submitLabel, onInputFocusChange }) => {
+const EventForm: React.FC<EventFormProps> = ({
+  onSubmit,
+  initialTitle = '',
+  initialDate,
+  initialMaxParticipants,
+  submitLabel,
+  onInputFocusChange,
+}) => {
   const user = useUserStore((state) => state.user);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -60,7 +67,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
     title: initialTitle,
     maxParticipants: initialMaxParticipants !== undefined ? String(initialMaxParticipants) : '30',
     date: initialDate ? initialDate.split('T')[0] : defaultDate,
-    time: initialDate ? (initialDate.split('T')[1]?.slice(0, 5) || defaultTime) : defaultTime,
+    time: initialDate ? initialDate.split('T')[1]?.slice(0, 5) || defaultTime : defaultTime,
   });
 
   const [touched, setTouched] = useState<TouchedFields>({
@@ -101,7 +108,11 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
 
         // Устанавливаем время now к 00:00:00 для сравнения только дат
         const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const selectedDate = new Date(selectedDateTime.getFullYear(), selectedDateTime.getMonth(), selectedDateTime.getDate());
+        const selectedDate = new Date(
+          selectedDateTime.getFullYear(),
+          selectedDateTime.getMonth(),
+          selectedDateTime.getDate()
+        );
 
         if (selectedDate < nowDate) {
           newErrors.date = 'Дата должна быть сегодня или в будущем';
@@ -154,7 +165,7 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
 
   const handleDateChange = (newValue: Date | null) => {
     console.log('handleDateChange called:', newValue);
-    
+
     setTouched((prev) => ({
       ...prev,
       date: true,
@@ -400,8 +411,8 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                   Дата
                 </Typography>
               </Box>
-              <LocalizationProvider 
-                dateAdapter={AdapterDateFns} 
+              <LocalizationProvider
+                dateAdapter={AdapterDateFns}
                 adapterLocale={ru}
                 localeText={{
                   cancelButtonLabel: 'Отмена',
@@ -414,55 +425,57 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialTitle = '', init
                   onChange={handleDateChange}
                   format="dd.MM.yyyy"
                   enableAccessibleFieldDOMStructure={false}
-                    slots={{
-                      textField: TextField,
-                    }}
-                    slotProps={{
-                      actionBar: {
-                        actions: ['cancel', 'accept'],
-                        sx: {
-                          '& .MuiButton-root': {
-                            color: '#000000',
-                            fontWeight: 500,
-                            pointerEvents: 'auto',
-                            cursor: 'pointer',
-                          },
+                  slots={{
+                    textField: TextField,
+                  }}
+                  slotProps={{
+                    actionBar: {
+                      actions: ['cancel', 'accept'],
+                      sx: {
+                        '& .MuiButton-root': {
+                          color: '#000000',
+                          fontWeight: 500,
+                          pointerEvents: 'auto',
+                          cursor: 'pointer',
                         },
                       },
-                      mobilePaper: {
-                        sx: {
-                          '& .MuiPickersToolbar-root': {
-                            color: '#000000',
-                          },
+                    },
+                    mobilePaper: {
+                      sx: {
+                        '& .MuiPickersToolbar-root': {
+                          color: '#000000',
                         },
                       },
-                      textField: {
-                        error: touched.date && !!errors.date,
-                        helperText: touched.date && errors.date ? errors.date : undefined,
-                        fullWidth: true,
-                        onClick: () => {
-                          // Программно открываем календарь при клике на поле
-                          setTimeout(() => {
-                            const calendarButton = document.querySelector('[aria-label="Choose date"], .MuiIconButton-root') as HTMLElement;
-                            if (calendarButton) {
-                              calendarButton.click();
-                            }
-                          }, 0);
-                        },
-                        InputProps: { 
-                          readOnly: true, 
-                          onFocus: handleFocus, 
-                          onBlur: handleBlur,
-                          style: { cursor: 'pointer' },
-                          inputProps: {
-                            readOnly: true,
-                            autoComplete: 'off',
-                            style: { cursor: 'pointer' },
-                            onKeyDown: (e: React.KeyboardEvent) => {
-                              e.preventDefault();
-                            }
+                    },
+                    textField: {
+                      error: touched.date && !!errors.date,
+                      helperText: touched.date && errors.date ? errors.date : undefined,
+                      fullWidth: true,
+                      onClick: () => {
+                        // Программно открываем календарь при клике на поле
+                        setTimeout(() => {
+                          const calendarButton = document.querySelector(
+                            '[aria-label="Choose date"], .MuiIconButton-root'
+                          ) as HTMLElement;
+                          if (calendarButton) {
+                            calendarButton.click();
                           }
+                        }, 0);
+                      },
+                      InputProps: {
+                        readOnly: true,
+                        onFocus: handleFocus,
+                        onBlur: handleBlur,
+                        style: { cursor: 'pointer' },
+                        inputProps: {
+                          readOnly: true,
+                          autoComplete: 'off',
+                          style: { cursor: 'pointer' },
+                          onKeyDown: (e: React.KeyboardEvent) => {
+                            e.preventDefault();
+                          },
                         },
+                      },
                       FormHelperTextProps: {
                         sx: {
                           textAlign: 'right',

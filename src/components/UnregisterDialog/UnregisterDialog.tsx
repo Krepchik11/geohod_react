@@ -37,11 +37,11 @@ const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
         <Typography sx={{ fontSize: 17, fontWeight: 700, mb: 1 }}>{event?.name}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <EventIcon sx={{ fontSize: 20, color: '#8E8E93', mr: 1 }} />
-          <Typography sx={{ fontSize: 14, color: '#8E8E93' }}>{event && formatDate(event.date)}</Typography>
+          <Typography sx={{ fontSize: 14, color: '#8E8E93' }}>
+            {event && formatDate(event.date)}
+          </Typography>
         </Box>
-        <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5}}>
-              Инициатор события
-            </Typography>
+        <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Инициатор события</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Avatar src={event?.author?.tgImageUrl} sx={{ width: 32, height: 32, mr: 1 }} />
           <Box>
@@ -79,7 +79,8 @@ const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
           </Button>
         </Box>
         <Typography sx={{ fontSize: 14, color: 'black', mb: 1 }}>
-          Человек в группе: <span style={{ color: '#007AFF' }}>{event?.participantsCount}</span> из {event?.maxParticipants}
+          Человек в группе: <span style={{ color: '#007AFF' }}>{event?.participantsCount}</span> из{' '}
+          {event?.maxParticipants}
         </Typography>
         <Button
           fullWidth

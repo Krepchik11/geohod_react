@@ -37,9 +37,7 @@ const RateOrganizerPage: React.FC = () => {
     <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         {/* Telegram BackButton теперь нативный, кастомную кнопку убираем */}
-        <Typography sx={{ fontWeight: 500, fontSize: 20 }}>
-          Оценка инициатора события
-        </Typography>
+        <Typography sx={{ fontWeight: 500, fontSize: 20 }}>Оценка инициатора события</Typography>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
         <Avatar
@@ -51,9 +49,7 @@ const RateOrganizerPage: React.FC = () => {
           {organizer.first_name} {organizer.last_name}
         </Typography>
         {organizer.username && (
-          <Typography sx={{ color: '#8E8E93', fontSize: 15 }}>
-            @{organizer.username}
-          </Typography>
+          <Typography sx={{ color: '#8E8E93', fontSize: 15 }}>@{organizer.username}</Typography>
         )}
         <Typography sx={{ mt: 1, fontWeight: 500, fontSize: 15 }}>
           Общий рейтинг
@@ -64,11 +60,11 @@ const RateOrganizerPage: React.FC = () => {
       {isSelf ? (
         <Box>
           {/* Здесь будет список отзывов о себе */}
-          <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 2 }}>
-            Ваши отзывы
-          </Typography>
+          <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 2 }}>Ваши отзывы</Typography>
           {/* TODO: вывести отзывы о себе */}
-          <Typography sx={{ color: '#8E8E93' }}>Здесь будут отзывы других пользователей о вас.</Typography>
+          <Typography sx={{ color: '#8E8E93' }}>
+            Здесь будут отзывы других пользователей о вас.
+          </Typography>
         </Box>
       ) : (
         <>
@@ -93,8 +89,33 @@ const RateOrganizerPage: React.FC = () => {
             </Box>
           </Box>
           <Box sx={{ mb: 2 }}>
-            <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 1, display: 'flex', alignItems: 'center' }}>
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" style={{ marginRight: 6 }}><path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="7" r="4" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <Typography
+              sx={{ fontWeight: 500, fontSize: 15, mb: 1, display: 'flex', alignItems: 'center' }}
+            >
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                viewBox="0 0 24 24"
+                style={{ marginRight: 6 }}
+              >
+                <path
+                  d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"
+                  stroke="#8E8E93"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle
+                  cx="12"
+                  cy="7"
+                  r="4"
+                  stroke="#8E8E93"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               Напишите отзыв
             </Typography>
             <TextField
@@ -102,7 +123,7 @@ const RateOrganizerPage: React.FC = () => {
               minRows={3}
               placeholder="Заблудились в лесу. Спали по ёлкой. Организатор плакал..."
               value={review}
-              onChange={e => setReview(e.target.value)}
+              onChange={(e) => setReview(e.target.value)}
               fullWidth
               sx={{ bgcolor: '#fff', borderRadius: 2 }}
             />
@@ -112,7 +133,9 @@ const RateOrganizerPage: React.FC = () => {
             fullWidth
             sx={{ mt: 2, height: 48, fontSize: 17 }}
             disabled={rating === 0 || !review.trim()}
-            onClick={() => {/* TODO: отправка отзыва */}}
+            onClick={() => {
+              /* TODO: отправка отзыва */
+            }}
           >
             Отправить
           </Button>
@@ -122,4 +145,4 @@ const RateOrganizerPage: React.FC = () => {
   );
 };
 
-export default RateOrganizerPage; 
+export default RateOrganizerPage;

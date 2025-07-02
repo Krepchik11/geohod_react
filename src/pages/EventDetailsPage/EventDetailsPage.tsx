@@ -16,10 +16,7 @@ import {
   ListItemAvatar,
   ListItemText,
 } from '@mui/material';
-import {
-  Event as EventIcon,
-  PeopleAlt as PeopleAltIcon,
-} from '@mui/icons-material';
+import { Event as EventIcon, PeopleAlt as PeopleAltIcon } from '@mui/icons-material';
 import { api, Event, EventStatus, User } from '../../api';
 import TopBar from '../../components/TopBar/TopBar';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -65,38 +62,40 @@ const EventDetailsPage: React.FC = () => {
   const isCanceled = event?.status === EventStatus.CANCELED;
 
   // вычисляем isToday локально
-  const isToday = event ? (() => {
-    const eventDate = new Date(event.date);
-    const now = new Date();
-    return eventDate.getTime() === now.getTime();
-  })() : false;
+  const isToday = event
+    ? (() => {
+        const eventDate = new Date(event.date);
+        const now = new Date();
+        return eventDate.getTime() === now.getTime();
+      })()
+    : false;
 
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
       if (!id || !user?.id) return;
       try {
         const eventData = await api.events.getEventById(id);
-        
+
         // Проверяем, является ли событие прошедшим
         const eventDate = new Date(eventData.date);
         const now = new Date();
-        
+
         // Сбрасываем время до начала дня для корректного сравнения
         eventDate.setHours(0, 0, 0, 0);
         now.setHours(0, 0, 0, 0);
-        
+
         const isPastEvent = eventDate.getTime() < now.getTime();
-        
+
         console.log('Date comparison:', {
           eventDate: eventDate.toISOString(),
           now: now.toISOString(),
           isPastEvent,
-          rawEventDate: eventData.date
+          rawEventDate: eventData.date,
         });
-        
+
         // Проверяем, достигнуто ли максимальное количество участников
         const isMaxParticipants = eventData.currentParticipants >= eventData.maxParticipants;
-        
+
         setEvent({
           ...eventData,
           registrationLink: `https://t.me/geogoddevbot?startapp=registration_${eventData.id}`,
@@ -108,7 +107,7 @@ const EventDetailsPage: React.FC = () => {
             tgUsername: eventData.author.username ?? eventData.author.tgUsername,
           },
         });
-        
+
         // Получаем участников и вычисляем iamParticipant
         const participantsData = await api.events.getEventParticipants(id);
         console.log('Participants data:', participantsData);
@@ -116,7 +115,7 @@ const EventDetailsPage: React.FC = () => {
         const isParticipant = participantsData.participants.some(
           (p: any) => String(p.tgUserId) === String(user.id)
         );
-        
+
         console.log('Registration button state:', {
           operationInProgress,
           eventStatus: eventData.status,
@@ -125,9 +124,9 @@ const EventDetailsPage: React.FC = () => {
           isPastEvent,
           isMaxParticipants,
           currentUser: user.id,
-          isOrganizer: eventData.author.id === String(user.id)
+          isOrganizer: eventData.author.id === String(user.id),
         });
-        
+
         setIamParticipant(isParticipant);
         setIsPast(isPastEvent);
       } catch (error) {
@@ -149,7 +148,7 @@ const EventDetailsPage: React.FC = () => {
     try {
       setOperationInProgress(true);
       await api.events.registerForEvent(event.id);
-      
+
       // Обновляем данные события после регистрации
       const eventData = await api.events.getEventById(event.id);
       setEvent({
@@ -163,7 +162,7 @@ const EventDetailsPage: React.FC = () => {
           tgUsername: eventData.author.username ?? eventData.author.tgUsername,
         },
       });
-      
+
       // Обновляем статус участия
       const participantsData = await api.events.getEventParticipants(event.id);
       const isParticipant = participantsData.participants.some(
@@ -297,9 +296,19 @@ const EventDetailsPage: React.FC = () => {
 
   return (
     <Box>
-      <TopBar 
-        title={iamParticipant ? 'Вы зарегистрированы' : event?.status === EventStatus.FINISHED ? 'Событие завершено' : 'Регистрация'} 
-        showBackButton 
+      <TopBar
+        title={
+          iamParticipant
+            ? 'Вы зарегистрированы'
+            : event?.status === EventStatus.CANCELED
+              ? 'Событие отменено'
+              : event?.status === EventStatus.FINISHED
+                ? 'Событие завершено'
+                : isPast
+                  ? 'Событие прошло'
+                  : 'Регистрация'
+        }
+        showBackButton
         showNotifications={false}
       />
       <Container maxWidth="sm" sx={{ mt: 1, mb: 1 }}>
@@ -359,9 +368,7 @@ const EventDetailsPage: React.FC = () => {
                     px: 0,
                   }}
                 >
-                  <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
-                    Дата
-                  </Typography>
+                  <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Дата</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <EventIcon sx={{ fontSize: 20, color: 'black' }} />
                     <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#000' }}>
@@ -425,7 +432,9 @@ const EventDetailsPage: React.FC = () => {
                         justifyContent: 'center',
                       }}
                     >
-                      <LinkIcon sx={{ color: 'black', fontSize: 20, transform: 'rotate(-45deg)' }} />
+                      <LinkIcon
+                        sx={{ color: 'black', fontSize: 20, transform: 'rotate(-45deg)' }}
+                      />
                     </Box>
                     Копировать ссылку
                   </Typography>
@@ -455,16 +464,24 @@ const EventDetailsPage: React.FC = () => {
                   </Box>
                 </Box>
                 {/* Кнопка завершения события */}
-                {isToday && event.status !== EventStatus.FINISHED && event.status !== EventStatus.CANCELED && (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ height: 40, borderRadius: '14px', fontWeight: 600, fontSize: 15, ml: 2 }}
-                    onClick={() => navigate(`/finish-event/${event.id}`)}
-                  >
-                    Завершить событие
-                  </Button>
-                )}
+                {isToday &&
+                  event.status !== EventStatus.FINISHED &&
+                  event.status !== EventStatus.CANCELED && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      sx={{
+                        height: 40,
+                        borderRadius: '14px',
+                        fontWeight: 600,
+                        fontSize: 15,
+                        ml: 2,
+                      }}
+                      onClick={() => navigate(`/finish-event/${event.id}`)}
+                    >
+                      Завершить событие
+                    </Button>
+                  )}
               </Box>
             )}
             <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid #E5E5EA' }}>
@@ -482,7 +499,7 @@ const EventDetailsPage: React.FC = () => {
                       mr: 0.5,
                     }}
                   >
-                    {event.participantsCount}
+                    {event.participantsCount || 0}
                   </Typography>
                   <Typography sx={{ fontSize: 15, color: 'black', fontWeight: 600 }}>
                     из {event.maxParticipants}
@@ -810,7 +827,11 @@ const EventDetailsPage: React.FC = () => {
                           marginRight: '11px',
                         }}
                       >
-                        <img src="/assets/icons/chat.svg" alt="Chat" style={{ width: 20, height: 20 }} />
+                        <img
+                          src="/assets/icons/chat.svg"
+                          alt="Chat"
+                          style={{ width: 20, height: 20 }}
+                        />
                       </Box>
                       <Typography
                         sx={{
@@ -861,7 +882,11 @@ const EventDetailsPage: React.FC = () => {
                             marginRight: '8px',
                           }}
                         >
-                          <img src="/assets/icons/can.svg" alt="Cancel" style={{ width: 20, height: 20 }} />
+                          <img
+                            src="/assets/icons/can.svg"
+                            alt="Cancel"
+                            style={{ width: 20, height: 20 }}
+                          />
                         </Box>
                         <Typography
                           sx={{
@@ -908,7 +933,7 @@ const EventDetailsPage: React.FC = () => {
                           !user?.id ||
                           operationInProgress ||
                           event.status === EventStatus.CANCELED ||
-                          (event.participantsCount >= event.maxParticipants)
+                          event.participantsCount >= event.maxParticipants
                         }
                       >
                         Зарегистрироваться
@@ -932,17 +957,17 @@ const EventDetailsPage: React.FC = () => {
           registrationLink={event.registrationLink}
         />
       )}
-              <RegistrationConfirmDialog
-          open={registrationDialogOpen}
-          onClose={() => setRegistrationDialogOpen(false)}
-          event={event}
-        />
-        <CancelEventDialog
-          open={cancelDialogOpen}
-          onClose={() => setCancelDialogOpen(false)}
-          participants={cancelParticipants}
-          onCancel={handleCancelEvent}
-        />
+      <RegistrationConfirmDialog
+        open={registrationDialogOpen}
+        onClose={() => setRegistrationDialogOpen(false)}
+        event={event}
+      />
+      <CancelEventDialog
+        open={cancelDialogOpen}
+        onClose={() => setCancelDialogOpen(false)}
+        participants={cancelParticipants}
+        onCancel={handleCancelEvent}
+      />
       <Toast
         message="Ссылка скопирована"
         isVisible={showCopyToast}

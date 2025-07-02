@@ -105,8 +105,9 @@ const ParticipantsPage: React.FC = () => {
                     alt="chat"
                     width={24}
                     height={24}
-                    style={{ 
-                      filter: 'invert(80%) sepia(70%) saturate(5000%) hue-rotate(201deg) brightness(95%) contrast(101%)'
+                    style={{
+                      filter:
+                        'invert(80%) sepia(70%) saturate(5000%) hue-rotate(201deg) brightness(95%) contrast(101%)',
                     }}
                   />
                 </IconButton>
@@ -125,8 +126,9 @@ const ParticipantsPage: React.FC = () => {
                       alt="delete"
                       width={20}
                       height={20}
-                      style={{ 
-                        filter: 'invert(80%) sepia(70%) saturate(5000%) hue-rotate(201deg) brightness(95%) contrast(101%)'
+                      style={{
+                        filter:
+                          'invert(80%) sepia(70%) saturate(5000%) hue-rotate(201deg) brightness(95%) contrast(101%)',
                       }}
                     />
                   </IconButton>
@@ -208,7 +210,7 @@ const ParticipantsPage: React.FC = () => {
                 try {
                   // TODO: Implement participant removal API call
                   // await api.events.removeParticipant(id!, dialog.participant.id);
-                  setParticipants(participants.filter(p => p.id !== dialog.participant.id));
+                  setParticipants(participants.filter((p) => p.id !== dialog.participant.id));
                   setDialog({ open: false, participant: null });
                   setToast({ isVisible: true, message: 'Участник удален' });
                 } catch (error: any) {

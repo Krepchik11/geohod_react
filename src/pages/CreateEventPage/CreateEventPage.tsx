@@ -4,7 +4,6 @@ import EventForm from '../../components/EventForm/EventForm';
 import { api } from '../../api';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
 
-
 interface EventResponse {
   id: string;
   name: string;
@@ -65,8 +64,12 @@ const CreateEventPage: React.FC = () => {
 
   return (
     <>
-      <EventForm onSubmit={handleSubmit} initialTitle={initialTitle} onInputFocusChange={setIsInputFocused} />
-      
+      <EventForm
+        onSubmit={handleSubmit}
+        initialTitle={initialTitle}
+        onInputFocusChange={setIsInputFocused}
+      />
+
       {createdEvent && (
         <SuccessEventDialog
           open={successDialogOpen}
