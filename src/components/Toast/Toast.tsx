@@ -8,11 +8,10 @@ interface ToastProps {
   message: string;
   isVisible: boolean;
   type?: 'error' | 'success' | 'warning';
-  onClose?: () => void;
   icon?: ReactNode;
 }
 
-const Toast: React.FC<ToastProps> = ({ message, isVisible, type = 'error', onClose, icon }) => {
+const Toast: React.FC<ToastProps> = ({ message, isVisible, type = 'error', icon }) => {
   if (!isVisible) return null;
 
   const getIcon = () => {
@@ -68,26 +67,6 @@ const Toast: React.FC<ToastProps> = ({ message, isVisible, type = 'error', onClo
         >
           {message}
         </Typography>
-      </Box>
-      <Box
-        sx={{
-          position: 'fixed',
-          top: 30,
-          right: 30,
-          zIndex: 10000,
-        }}
-      >
-        <Box
-          component="img"
-          src="/images/close-popup.svg"
-          alt="Close"
-          onClick={onClose}
-          sx={{
-            width: 50,
-            height: 50,
-            cursor: 'pointer',
-          }}
-        />
       </Box>
     </>
   );

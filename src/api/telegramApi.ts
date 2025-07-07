@@ -21,7 +21,7 @@ const axiosV1 = axios.create({
 });
 
 const axiosV2 = axios.create({
-  baseURL: 'api/v2',
+  baseURL: '/api/v2',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
@@ -149,7 +149,7 @@ export const eventsApi = {
 export const reviewsApi = {
   getUserReviews: async (userId: string, page: number = 0, size: number = 10) => {
     const response = await axiosV2.get(`/users/${userId}/reviews`, {
-      params: { page, size }
+      params: { page, size },
     });
     return response.data;
   },
@@ -171,10 +171,25 @@ export const reviewsApi = {
   },
 };
 
+export const userSettingsApi = {
+  getSettings: async () => {
+    const response = await axiosV2.get('/user/settings');
+    return response.data;
+  },
+  updateSettings: async (data: {
+    defaultDonationAmount: string;
+    defaultMaxParticipants: number;
+  }) => {
+    const response = await axiosV2.put('/user/settings', data);
+    return response.data;
+  },
+};
+
 export const api = {
   events: eventsApi,
   reviews: reviewsApi,
   users: usersApi,
+  userSettings: userSettingsApi,
 };
 
 export default api;

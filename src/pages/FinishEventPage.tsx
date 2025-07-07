@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { api } from '../api/telegramApi';
 import EventIcon from '@mui/icons-material/Event';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import { useUserStore } from '../store/userStore';
 
 const FinishEventPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,18 @@ const FinishEventPage: React.FC = () => {
   const [donation, setDonation] = useState('');
   const [finishLoading, setFinishLoading] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const settings = useUserStore((state) => state.settings);
+  const fetchSettings = useUserStore((state) => state.fetchSettings);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    if (settings?.defaultDonationAmount) {
+      setDonation(settings.defaultDonationAmount);
+    }
+  }, [settings]);
 
   const formatDateOnly = (dateString: string) => {
     const date = new Date(dateString);
@@ -61,6 +74,11 @@ const FinishEventPage: React.FC = () => {
     } finally {
       setFinishLoading(false);
     }
+  };
+
+  const handleCloseSuccess = () => {
+    setSuccessOpen(false);
+    navigate('/events');
   };
 
   if (!event) return null;
@@ -144,29 +162,31 @@ const FinishEventPage: React.FC = () => {
         </Box>
 
         <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 1.5, mt: 1.5, px: 1 }}>
-            Участники
-          </Typography>
           {participants.length > 0 && (
-            <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 1.6 }}>
-              {participants.slice(0, 5).map((p, idx) => (
-                <Avatar
-                  key={p.id}
-                  src={p.imageUrl || p.tgImageUrl}
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    border: '2px solid #007AFF',
-                    ml: idx === 0 ? 0 : -1.5,
-                    zIndex: participants.length - idx,
-                    background: '#fff',
-                  }}
-                />
-              ))}
-              <Typography sx={{ ml: 1, fontSize: 15, fontWeight: '500' }}>
-                {participants.length || 0} человек
+            <>
+              <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 1.5, mt: 1.5, px: 1 }}>
+                Участники
               </Typography>
-            </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 1.6 }}>
+                {participants.slice(0, 5).map((p, idx) => (
+                  <Avatar
+                    key={p.id}
+                    src={p.imageUrl || p.tgImageUrl}
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      border: '2px solid #007AFF',
+                      ml: idx === 0 ? 0 : -1.5,
+                      zIndex: participants.length - idx,
+                      background: '#fff',
+                    }}
+                  />
+                ))}
+                <Typography sx={{ ml: 1, fontSize: 15, fontWeight: '500' }}>
+                  {participants.length} человек
+                </Typography>
+              </Box>
+            </>
           )}
         </Box>
       </Box>
@@ -213,25 +233,39 @@ const FinishEventPage: React.FC = () => {
           disabled={!sendDonation}
           placeholder="500 динар"
           size="small"
-          sx={{ ml: 2, width: 120 }}
+          sx={{ ml: 0.5, width: 237, borderRadius: '12px' }}
         />
       </Box>
       <Button
         variant="contained"
         fullWidth
-        sx={{ mt: 2, height: 48, fontSize: 17 }}
+        sx={{ mt: 2, height: 48, fontSize: 15, backgroundColor: '#006FFD' }}
         disabled={finishLoading}
         onClick={handleFinish}
       >
         Завершить событие
       </Button>
-      <Dialog
-        open={successOpen}
-        onClose={() => {
-          setSuccessOpen(false);
-          navigate('/events');
-        }}
-      >
+      <Dialog open={successOpen} onClose={handleCloseSuccess}>
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 30,
+            right: 30,
+            zIndex: 10000,
+          }}
+        >
+          <Box
+            component="img"
+            src="/images/close-popup.svg"
+            alt="Close"
+            onClick={handleCloseSuccess}
+            sx={{
+              width: 50,
+              height: 50,
+              cursor: 'pointer',
+            }}
+          />
+        </Box>
         <DialogTitle>
           <Box
             sx={{
@@ -243,12 +277,7 @@ const FinishEventPage: React.FC = () => {
             }}
           >
             <span>Вы успешно завершили событие</span>
-            <IconButton
-              onClick={() => {
-                setSuccessOpen(false);
-                navigate('/events');
-              }}
-            ></IconButton>
+            <IconButton onClick={handleCloseSuccess}></IconButton>
           </Box>
         </DialogTitle>
         <DialogContent>
@@ -265,21 +294,30 @@ const FinishEventPage: React.FC = () => {
           <Box
             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 1, p: 0 }}
           >
-            <Typography sx={{ fontSize: 14, color: '#007AFF', mb: 1.5, mt: 1.5, px: 1 }}>
-              Участники
-            </Typography>
-            {participants.slice(0, 5).map((p) => (
-              <Avatar
-                key={p.id}
-                src={p.imageUrl || p.tgImageUrl}
-                sx={{ width: 32, height: 32, ml: -1 }}
-              />
-            ))}
-            <Typography
-              sx={{ ml: participants.length === 0 ? 0 : 1, fontWeight: 400, p: 0, fontSize: 14 }}
-            >
-              {participants.length} человек
-            </Typography>
+            {participants.length > 0 && (
+              <>
+                <Typography sx={{ fontSize: 14, color: '#007AFF', mb: 1.5, mt: 1.5, px: 1 }}>
+                  Участники
+                </Typography>
+                {participants.slice(0, 5).map((p) => (
+                  <Avatar
+                    key={p.id}
+                    src={p.imageUrl || p.tgImageUrl}
+                    sx={{ width: 32, height: 32, ml: -1 }}
+                  />
+                ))}
+                <Typography
+                  sx={{
+                    ml: participants.length === 0 ? 0 : 1,
+                    fontWeight: 400,
+                    p: 0,
+                    fontSize: 14,
+                  }}
+                >
+                  {participants.length} человек
+                </Typography>
+              </>
+            )}
           </Box>
           <Button
             variant="outlined"
@@ -296,10 +334,7 @@ const FinishEventPage: React.FC = () => {
                 color: '#fff',
               },
             }}
-            onClick={() => {
-              setSuccessOpen(false);
-              navigate('/events');
-            }}
+            onClick={handleCloseSuccess}
           >
             Закрыть
           </Button>

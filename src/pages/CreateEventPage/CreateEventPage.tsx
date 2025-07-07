@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import EventForm from '../../components/EventForm/EventForm';
 import { api } from '../../api';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
+import { useUserStore } from '../../store/userStore';
 
 interface EventResponse {
   id: string;
@@ -18,6 +19,7 @@ const CreateEventPage: React.FC = () => {
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [createdEvent, setCreatedEvent] = useState<EventResponse | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const settings = useUserStore((state) => state.settings);
 
   const formatDate = (dateString: string) => {
     try {
@@ -65,6 +67,7 @@ const CreateEventPage: React.FC = () => {
       <EventForm
         onSubmit={handleSubmit}
         initialTitle={initialTitle}
+        initialMaxParticipants={settings?.defaultMaxParticipants ?? 30}
         onInputFocusChange={setIsInputFocused}
       />
 

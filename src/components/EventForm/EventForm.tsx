@@ -232,22 +232,23 @@ const EventForm: React.FC<EventFormProps> = ({
     <Box sx={{ p: 2 }}>
       <Toast message={toastMessage} isVisible={showToast} type="error" />
 
-      <Typography
-        sx={{
-          fontSize: 20,
-          fontWeight: 600,
-          pb: 0,
-          mb: 3,
-          fontFamily: 'Roboto, sans-serif',
-        }}
-      >
-        Создать событие
-      </Typography>
+      {(!submitLabel || submitLabel !== 'Сохранить') && (
+        <Typography
+          sx={{
+            fontSize: 20,
+            fontWeight: 600,
+            pb: 0,
+            mb: 3,
+            fontFamily: 'Roboto, sans-serif',
+          }}
+        >
+          Создать событие
+        </Typography>
+      )}
 
       <Box
         sx={{
           borderTop: '1px solid rgba(0, 0, 0, 0.1)',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
         }}
       >
         <Box

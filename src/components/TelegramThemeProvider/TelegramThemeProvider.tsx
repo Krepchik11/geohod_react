@@ -117,7 +117,6 @@ const TelegramThemeProvider: React.FC<TelegramThemeProviderProps> = ({ children 
 
   useEffect(() => {
     if (isTelegramWebApp && telegramWebApp) {
-
       try {
         const bgColor = telegramTheme.bg_color || (colorScheme === 'dark' ? '#1f1f1f' : '#f5f5f5');
         telegramWebApp.setBackgroundColor(bgColor);

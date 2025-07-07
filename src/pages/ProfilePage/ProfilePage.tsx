@@ -14,15 +14,16 @@ import {
 import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
-  Settings as SettingsIcon,
   Close as CloseIcon,
   People as PeopleIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
+import settingsIcon from '../../assets/icons/settings.svg';
 import { useUserStore } from '../../store/userStore';
 import { useNavigate } from 'react-router-dom';
-import { reviewsApi } from '../../api/telegramApi';
+import { reviewsApi, userSettingsApi } from '../../api/telegramApi';
+import Toast from '../../components/Toast/Toast';
 
 interface Review {
   id: number;
@@ -50,10 +51,15 @@ const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
 
 const ProfilePage: React.FC = () => {
   const user = useUserStore((state) => state.user);
-  console.log('user:', user);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
-  const [maxParticipants, setMaxParticipants] = React.useState('30');
-  const [donation, setDonation] = React.useState('500 динар');
+  const [maxParticipants, setMaxParticipants] = React.useState('');
+  const [maxParticipantsError, setMaxParticipantsError] = React.useState<string | null>(null);
+  const [donation, setDonation] = React.useState('');
+  const [toast, setToast] = React.useState<{
+    isVisible: boolean;
+    message: string;
+    type: 'success' | 'error';
+  }>({ isVisible: false, message: '', type: 'success' });
   const navigate = useNavigate();
   const userId = user?.uuid;
   const isOwnProfile = user && user.uuid === userId;
@@ -67,15 +73,14 @@ const ProfilePage: React.FC = () => {
   const [rating, setRating] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(true);
 
+  const settings = useUserStore((state) => state.settings);
+  const setSettings = useUserStore((state) => state.setSettings);
+  const fetchSettings = useUserStore((state) => state.fetchSettings);
+
   React.useEffect(() => {
     if (!user || !user.uuid) return;
     setLoading(true);
-    const userIdStr = String(user.uuid);
-    Promise.all([
-      reviewsApi.getUserReviews(userIdStr, 0, 10),
-      reviewsApi.getUserRating(userIdStr)
-    ]).then(([reviews, rating]) => {
-      setReviews(reviews);
+    reviewsApi.getUserRating(String(user.uuid)).then((rating) => {
       setRating(rating);
       setLoading(false);
     });
@@ -92,8 +97,8 @@ const ProfilePage: React.FC = () => {
       if (!user || !user.uuid || loadingReviews || !hasMore) return;
       setLoadingReviews(true);
       const res = await reviewsApi.getUserReviews(user.uuid, page, 10);
-      const newReviews = Array.isArray(res) ? res : res.data || [];
-      setReviews(prev => [...prev, ...newReviews]);
+      const newReviews = res && Array.isArray(res.data) ? res.data : [];
+      setReviews((prev) => [...prev, ...newReviews]);
       setHasMore(newReviews.length === 10);
       setLoadingReviews(false);
     };
@@ -102,20 +107,26 @@ const ProfilePage: React.FC = () => {
   }, [page, user]);
 
   React.useEffect(() => {
-    if (!hasMore || loadingReviews) return;
-    const observer = new window.IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting) {
-          setPage(prev => prev + 1);
-        }
-      },
-      { threshold: 1 }
-    );
-    if (loaderRef.current) observer.observe(loaderRef.current);
-    return () => {
-      if (loaderRef.current) observer.unobserve(loaderRef.current);
-    };
-  }, [hasMore, loadingReviews]);
+    fetchSettings();
+  }, []);
+
+  React.useEffect(() => {
+    if (settings) {
+      setMaxParticipants(
+        settings.defaultMaxParticipants === null ? '' : String(settings.defaultMaxParticipants)
+      );
+      setDonation(settings.defaultDonationAmount === null ? '' : settings.defaultDonationAmount);
+    }
+  }, [settings]);
+
+  React.useEffect(() => {
+    if (toast.isVisible) {
+      const timer = setTimeout(() => {
+        setToast((prev) => ({ ...prev, isVisible: false }));
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.isVisible]);
 
   const handleToggleReviewVisibility = async (review: Review) => {
     const userIdStr = String(userId);
@@ -126,6 +137,50 @@ const ProfilePage: React.FC = () => {
     }
     const updated = await reviewsApi.getUserReviews(userIdStr, 0, 10);
     setReviews(updated);
+  };
+
+  const handleApplySettings = async () => {
+    const data = {
+      defaultDonationAmount: donation,
+      defaultMaxParticipants: Number(maxParticipants),
+    };
+    const res = await userSettingsApi.updateSettings(data);
+    if (res.result === 'SUCCESS') {
+      setSettings(res.data);
+      setSettingsOpen(false);
+      setToast({
+        isVisible: true,
+        message: 'Настройки успешно сохранены',
+        type: 'success',
+      });
+    }
+  };
+
+  const handleMaxParticipantsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    if (value === '') {
+      setMaxParticipants('');
+      setMaxParticipantsError(null);
+      return;
+    }
+    const num = Number(value);
+    if (num > 99) {
+      setToast({
+        isVisible: true,
+        message: 'Максимум 99 участников',
+        type: 'error',
+      });
+      setMaxParticipants('99');
+      setMaxParticipantsError('Максимум 99 участников');
+      return;
+    }
+    if (num < 1) {
+      setMaxParticipants(value);
+      setMaxParticipantsError('Минимум 1 участник');
+      return;
+    }
+    setMaxParticipants(value);
+    setMaxParticipantsError(null);
   };
 
   if (!user) {
@@ -142,6 +197,7 @@ const ProfilePage: React.FC = () => {
         minHeight: '100vh',
       }}
     >
+      <Toast isVisible={toast.isVisible} message={toast.message} type={toast.type} />
       <Box
         sx={{
           p: 0,
@@ -164,7 +220,6 @@ const ProfilePage: React.FC = () => {
             mb: 1,
             cursor: 'pointer',
           }}
-          onClick={() => navigate(`/rate-organizer/${user.id}`)}
         />
         <Typography sx={{ fontWeight: 600, fontSize: 20, mt: 1 }}>
           {user.first_name} {user.last_name}
@@ -175,12 +230,13 @@ const ProfilePage: React.FC = () => {
             position: 'absolute',
             right: 16,
             top: 16,
-            background: '#fff',
-            boxShadow: 1,
+            width: 32,
+            height: 32,
+            p: 0,
           }}
           onClick={() => setSettingsOpen(true)}
         >
-          <SettingsIcon />
+          <img src={settingsIcon} alt="Настройки" width={24} height={24} />
         </IconButton>
       </Box>
       <Box
@@ -193,9 +249,7 @@ const ProfilePage: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-        <Typography sx={{ fontSize: '14px', fontWeight: '500' }}>
-          Рейтинг инициатора события
-        </Typography>
+        <Typography sx={{ fontSize: '14px', fontWeight: '500' }}>Общий рейтинг</Typography>
         <Typography
           sx={{
             fontSize: '20px',
@@ -206,7 +260,7 @@ const ProfilePage: React.FC = () => {
           }}
         >
           <StarIcon sx={{ color: '#007AFF', width: '12px', height: '12px', marginRight: '6px' }} />
-          {Number(rating) ? Number(rating).toFixed(1) : '-'}
+          {Number(rating) ? Number(rating).toFixed(1) : '0.0'}
         </Typography>
       </Box>
       <Box
@@ -293,28 +347,48 @@ const ProfilePage: React.FC = () => {
             <TextField
               label="Максимум участников"
               value={maxParticipants}
-              onChange={(e) => setMaxParticipants(e.target.value)}
-              InputProps={{
-                startAdornment: <PeopleIcon sx={{ mr: 1 }} />,
-              }}
+              onChange={handleMaxParticipantsChange}
+              placeholder="30"
               fullWidth
+              type="number"
+              error={!!maxParticipantsError}
+              helperText={maxParticipantsError}
+              inputProps={{ min: 1, max: 99 }}
             />
             <TextField
               label="Ожидаемый размер доната"
               value={donation}
               onChange={(e) => setDonation(e.target.value)}
-              InputProps={{
-                startAdornment: <StarIcon sx={{ mr: 1 }} />,
-              }}
+              placeholder="500 динар"
               fullWidth
             />
             <Button
               sx={{ mt: 2, backgroundColor: '#007AFF', color: '#fff' }}
-              onClick={() => setSettingsOpen(false)}
+              onClick={handleApplySettings}
               fullWidth
             >
               Применить
             </Button>
+          </Box>
+          <Box
+            sx={{
+              position: 'fixed',
+              top: 30,
+              right: 30,
+              zIndex: 10000,
+            }}
+          >
+            <Box
+              component="img"
+              src="/images/close-popup.svg"
+              alt="Close"
+              onClick={() => setSettingsOpen(false)}
+              sx={{
+                width: 50,
+                height: 50,
+                cursor: 'pointer',
+              }}
+            />
           </Box>
         </DialogContent>
       </Dialog>

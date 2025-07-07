@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Avatar, TextField, Button, IconButton } from '@mui/material';
 import { Star as StarIcon, StarBorder as StarBorderIcon } from '@mui/icons-material';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Navigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 
 const RateOrganizerPage: React.FC = () => {
@@ -30,17 +30,17 @@ const RateOrganizerPage: React.FC = () => {
 
   const isSelf = user && id === String(user.id);
 
+  if (isSelf) {
+    return <Navigate to="/profile" replace />;
+  }
+
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        {/* Telegram BackButton теперь нативный, кастомную кнопку убираем */}
-        <Typography sx={{ fontWeight: 500, fontSize: 20 }}>Оценка инициатора события</Typography>
-      </Box>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: 2, borderTop: '1px solid #EFF1F8', mt: 2 }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
         <Avatar
           src={organizer.photo_url}
           alt={organizer.first_name}
-          sx={{ width: 96, height: 96, mb: 1 }}
+          sx={{ width: 96, height: 96, mb: 1, mt: 2 }}
         />
         <Typography sx={{ fontWeight: 600, fontSize: 20 }}>
           {organizer.first_name} {organizer.last_name}
@@ -56,12 +56,10 @@ const RateOrganizerPage: React.FC = () => {
       </Box>
       {isSelf ? (
         <Box>
-          {/* Здесь будет список отзывов о себе */}
-          <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 2 }}>Ваши отзывы</Typography>
-          {/* TODO: вывести отзывы о себе */}
-          <Typography sx={{ color: '#8E8E93' }}>
-            Здесь будут отзывы других пользователей о вас.
+          <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 2, color: '#707579' }}>
+            Отзывы
           </Typography>
+          <Typography sx={{ color: '#8E8E93', fontSize: 14 }}>Нет отзывов</Typography>
         </Box>
       ) : (
         <>
