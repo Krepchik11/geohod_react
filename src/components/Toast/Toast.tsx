@@ -8,6 +8,7 @@ interface ToastProps {
   message: string;
   isVisible: boolean;
   type?: 'error' | 'success' | 'warning';
+  onClose?: () => void;
   icon?: ReactNode;
 }
 
