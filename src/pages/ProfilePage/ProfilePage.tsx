@@ -24,15 +24,19 @@ import { useUserStore } from '../../store/userStore';
 import { useNavigate } from 'react-router-dom';
 import { reviewsApi, userSettingsApi } from '../../api/telegramApi';
 import Toast from '../../components/Toast/Toast';
+import visibleIcon from '../../assets/icons/visible.svg';
+import invisibleIcon from '../../assets/icons/invisible.svg';
 
 interface Review {
-  id: number;
-  author: string;
-  date: string;
+  id: string;
+  eventId: string;
+  authorId: string;
+  authorUsername: string;
+  authorImageUrl: string | null;
   rating: number;
-  text: string;
-  avatar?: string;
-  hidden: boolean;
+  comment: string;
+  isHidden: boolean;
+  createdAt: string;
 }
 
 const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
@@ -47,6 +51,31 @@ const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
       )}
     </Box>
   );
+};
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+  if (diffInHours < 1) {
+    return 'Только что';
+  } else if (diffInHours < 24) {
+    return `${diffInHours} ч. назад`;
+  } else {
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays === 1) {
+      return 'Вчера';
+    } else if (diffInDays < 7) {
+      return `${diffInDays} дн. назад`;
+    } else {
+      return date.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+    }
+  }
 };
 
 const ProfilePage: React.FC = () => {
@@ -95,9 +124,11 @@ const ProfilePage: React.FC = () => {
   React.useEffect(() => {
     const loadReviews = async () => {
       if (!user || !user.uuid || loadingReviews || !hasMore) return;
+      console.log('Загружаем отзывы, страница:', page);
       setLoadingReviews(true);
       const res = await reviewsApi.getUserReviews(user.uuid, page, 10);
       const newReviews = res && Array.isArray(res.data) ? res.data : [];
+      console.log('Получено отзывов:', newReviews.length);
       setReviews((prev) => [...prev, ...newReviews]);
       setHasMore(newReviews.length === 10);
       setLoadingReviews(false);
@@ -105,6 +136,31 @@ const ProfilePage: React.FC = () => {
     loadReviews();
     // eslint-disable-next-line
   }, [page, user]);
+
+  // Intersection Observer для пагинации
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && hasMore && !loadingReviews) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      {
+        rootMargin: '100px',
+      }
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [hasMore, loadingReviews]);
 
   React.useEffect(() => {
     fetchSettings();
@@ -129,14 +185,18 @@ const ProfilePage: React.FC = () => {
   }, [toast.isVisible]);
 
   const handleToggleReviewVisibility = async (review: Review) => {
-    const userIdStr = String(userId);
-    if (review.hidden) {
-      await reviewsApi.unhideReview(String(review.id));
-    } else {
-      await reviewsApi.hideReview(String(review.id));
+    try {
+      if (review.isHidden) {
+        await reviewsApi.unhideReview(review.id);
+      } else {
+        await reviewsApi.hideReview(review.id);
+      }
+      // После успешного запроса — перезапрашиваем отзывы с первой страницы
+      const res = await reviewsApi.getUserReviews(userId, 0, (page + 1) * 10);
+      setReviews(res.data);
+    } catch (e) {
+      setToast({ isVisible: true, message: 'Ошибка при изменении видимости', type: 'error' });
     }
-    const updated = await reviewsApi.getUserReviews(userIdStr, 0, 10);
-    setReviews(updated);
   };
 
   const handleApplySettings = async () => {
@@ -282,58 +342,83 @@ const ProfilePage: React.FC = () => {
         </Typography>
         {reviews.length === 0 && !loadingReviews && <Typography>Нет отзывов</Typography>}
         {reviews.map((review) => (
-          <Paper
-            key={review.id}
-            sx={{
-              p: 2,
-              mb: 2,
-              borderRadius: '12px',
-              position: 'relative',
-              opacity: review.hidden ? 0.5 : 1,
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Avatar
-                src={review.avatar}
-                alt={review.author}
-                sx={{ width: 40, height: 40, mr: 2 }}
-              />
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: '16px',
-                    fontWeight: 600,
-                  }}
-                >
-                  {review.author}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    color: '#8E8E93',
-                  }}
-                >
-                  {review.date}
-                </Typography>
-              </Box>
-              {isOwnProfile && (
-                <Box sx={{ position: 'absolute', right: 12, top: 12 }}>
-                  <IconButton onClick={() => handleToggleReviewVisibility(review)}>
-                    {review.hidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                  </IconButton>
-                </Box>
-              )}
-            </Box>
-            <RatingStars rating={review.rating} />
-            <Typography
+          <Box key={review.id} sx={{ position: 'relative', mb: 2 }}>
+            <Paper
               sx={{
-                fontSize: '14px',
-                lineHeight: '20px',
+                p: 2,
+                borderRadius: '12px',
+                position: 'relative',
+                opacity: review.isHidden ? 0.5 : 1,
+                filter: review.isHidden ? 'blur(1px)' : 'none',
+                transition: 'filter 0.2s, opacity 0.2s',
               }}
             >
-              {review.text}
-            </Typography>
-          </Paper>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Avatar
+                  src={review.authorImageUrl}
+                  alt={review.authorUsername}
+                  sx={{ width: 40, height: 40, mr: 2 }}
+                />
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize: '15px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {review.authorUsername}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '14px',
+                      color: '#8E8E93',
+                    }}
+                  >
+                    {formatDate(review.createdAt)}
+                  </Typography>
+                </Box>
+              </Box>
+              <RatingStars rating={review.rating} />
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  lineHeight: '20px',
+                }}
+              >
+                {review.comment}
+              </Typography>
+            </Paper>
+            {isOwnProfile && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  right: 20,
+                  top: '30%',
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  pointerEvents: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <IconButton
+                  onClick={() => handleToggleReviewVisibility(review)}
+                  sx={{
+                    p: 0,
+                    background: 'none',
+                    '&:hover': { background: 'none' },
+                  }}
+                >
+                  <img
+                    src={review.isHidden ? invisibleIcon : visibleIcon}
+                    alt={review.isHidden ? 'Скрыто' : 'Видимо'}
+                    style={{ width: 28, height: 28, display: 'block' }}
+                  />
+                </IconButton>
+              </Box>
+            )}
+          </Box>
         ))}
         {loadingReviews && <Typography>Загрузка...</Typography>}
         {hasMore && <div ref={loaderRef} style={{ height: 20 }} />}

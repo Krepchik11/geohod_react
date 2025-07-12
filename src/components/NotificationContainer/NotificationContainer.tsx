@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Box, Slide } from '@mui/material';
 import EventNotification from '../EventNotification/EventNotification';
+import api from '../../api/telegramApi';
 
 interface NotificationContainerProps {
   open: boolean;
@@ -8,28 +9,66 @@ interface NotificationContainerProps {
 }
 
 const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onClose }) => {
-  const notifications = [
-    {
-      type: 'registration',
-      eventTitle: 'Ландшафтный дизайн',
-      timestamp: 'Только что',
-    },
-    {
-      type: 'cancellation',
-      eventTitle: 'Прогулка по городу',
-      timestamp: '1 день назад',
-    },
-    {
-      type: 'reminder',
-      eventTitle: 'Велосипедная прогулка',
-      timestamp: '1 день назад',
-    },
-    {
-      type: 'review',
-      eventTitle: 'Поход по историческим местам города',
-      timestamp: '2 дня назад',
-    },
-  ];
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [cursorId, setCursorId] = useState<number | null>(null);
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+  const PAGE_SIZE = 20;
+
+  const loadNotifications = useCallback(async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    try {
+      const params: any = { limit: PAGE_SIZE };
+      if (cursorId) params.cursorIdAfter = cursorId;
+      const res = await api.notifications.getNotifications(params);
+      const newNotifications = Array.isArray(res.data) ? res.data : [];
+      setNotifications((prev) => [...prev, ...newNotifications]);
+      setHasMore(newNotifications.length === PAGE_SIZE);
+      if (newNotifications.length > 0) {
+        setCursorId(newNotifications[newNotifications.length - 1].id);
+      }
+    } catch (e) {
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [loading, hasMore, cursorId]);
+
+  // Сброс при открытии
+  useEffect(() => {
+    if (open) {
+      setNotifications([]);
+      setCursorId(null);
+      setHasMore(true);
+    }
+  }, [open]);
+
+  // Загрузка первой страницы при открытии
+  useEffect(() => {
+    if (open && notifications.length === 0 && hasMore && !loading) {
+      loadNotifications();
+    }
+  }, [open, notifications.length, hasMore, loading, loadNotifications]);
+
+  // Intersection Observer для пагинации
+  useEffect(() => {
+    if (!open) return;
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && hasMore && !loading) {
+          loadNotifications();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    };
+  }, [open, hasMore, loading, loadNotifications]);
 
   return (
     <>
@@ -88,15 +127,22 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
           }}
         >
           <Box sx={{ px: 2, pt: 2, pb: 2 }}>
+            {notifications.length === 0 && !loading && (
+              <Box sx={{ textAlign: 'center', color: '#8E8E93', py: 4 }}>Нет уведомлений</Box>
+            )}
             {notifications.map((notification, index) => (
               <EventNotification
-                key={index}
-                type={notification.type as any}
-                eventTitle={notification.eventTitle}
-                timestamp={notification.timestamp}
+                key={notification.id || index}
+                type={notification.type || 'review'}
+                eventTitle={notification.payload || ''}
+                timestamp={notification.createdAt || ''}
                 onViewClick={onClose}
               />
             ))}
+            {loading && (
+              <Box sx={{ textAlign: 'center', color: '#8E8E93', py: 2 }}>Загрузка...</Box>
+            )}
+            {hasMore && <div ref={loaderRef} style={{ height: 20 }} />}
           </Box>
         </Box>
       </Slide>

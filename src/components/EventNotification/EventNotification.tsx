@@ -5,6 +5,10 @@ import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfie
 import SentimentDissatisfiedRoundedIcon from '@mui/icons-material/SentimentDissatisfiedRounded';
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import { useNavigate } from 'react-router-dom';
+import { formatDate } from '../../utils/formatDate';
 
 interface NotificationProps {
   type: 'registration' | 'cancellation' | 'reminder' | 'review';
@@ -14,7 +18,27 @@ interface NotificationProps {
 }
 
 const NotificationContent = {
-  registration: {
+  EVENT_CANCELLED: {
+    icon: (props: any) => (
+      <Box
+        sx={{
+          width: 40,
+          height: 40,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#FF3B30',
+          borderRadius: '50%',
+        }}
+      >
+        <SentimentDissatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+      </Box>
+    ),
+    title: 'Мероприятие отменено',
+    getMessage: (payload: any) =>
+      `Событие "${payload.eventName || ''}" было отменено. Причина: ${payload.reason || 'не указана'}`,
+  },
+  PARTICIPANT_REGISTERED: {
     icon: (props: any) => (
       <Box
         sx={{
@@ -30,29 +54,11 @@ const NotificationContent = {
         <SentimentSatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
       </Box>
     ),
-    title: 'Регистрация подтверждена',
-    getMessage: (title: string) => `Вы успешно зарегистрировались на событие "${title}"`,
+    title: 'Новая регистрация',
+    getMessage: (payload: any) =>
+      `${payload.participantName || 'Участник'} зарегистрировался на событие "${payload.eventName || ''}"`,
   },
-  cancellation: {
-    icon: (props: any) => (
-      <Box
-        sx={{
-          width: 40,
-          height: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#FF0000',
-          borderRadius: '50%',
-        }}
-      >
-        <SentimentDissatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
-      </Box>
-    ),
-    title: 'Отменена события',
-    getMessage: (title: string) => `Событие "${title}" было отменено организатором`,
-  },
-  reminder: {
+  PARTICIPANT_UNREGISTERED: {
     icon: (props: any) => (
       <Box
         sx={{
@@ -65,13 +71,33 @@ const NotificationContent = {
           borderRadius: '50%',
         }}
       >
-        <ScheduleRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+        <PersonRemoveIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
       </Box>
     ),
-    title: 'Напоминание о событии',
-    getMessage: (title: string) => `Напоминаем, что завтра состоится событие "${title}"`,
+    title: 'Отмена регистрации',
+    getMessage: (payload: any) =>
+      `${payload.participantName || 'Участник'} отменил регистрацию на событие "${payload.eventName || ''}"`,
   },
-  review: {
+  EVENT_CREATED: {
+    icon: (props: any) => (
+      <Box
+        sx={{
+          width: 40,
+          height: 40,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#007AFF',
+          borderRadius: '50%',
+        }}
+      >
+        <EventAvailableIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+      </Box>
+    ),
+    title: 'Мероприятие создано',
+    getMessage: (payload: any) => `Вы создали мероприятие "${payload.eventName || ''}"`,
+  },
+  EVENT_FINISHED: {
     icon: (props: any) => (
       <Box
         sx={{
@@ -87,9 +113,11 @@ const NotificationContent = {
         <StarBorderIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
       </Box>
     ),
-    title: 'Отзыв об инициаторе события',
-    getMessage: (title: string) =>
-      `Ваше событие "${title}" завершено, пожалуйста оставьте свой отзыв`,
+    title: 'Мероприятие завершено',
+    getMessage: (payload: any) =>
+      payload.reviewText
+        ? `Вам оставили отзыв: "${payload.reviewText}" по событию "${payload.eventName || ''}"`
+        : `Мероприятие "${payload.eventName || ''}" завершено`,
   },
 };
 
@@ -99,7 +127,41 @@ const EventNotification: React.FC<NotificationProps> = ({
   timestamp,
   onViewClick,
 }) => {
-  const content = NotificationContent[type];
+  let parsedPayload: any = eventTitle;
+  try {
+    parsedPayload = typeof eventTitle === 'string' ? JSON.parse(eventTitle) : eventTitle;
+  } catch {}
+
+  const content = NotificationContent[type as keyof typeof NotificationContent] || {
+    icon: (props: any) => (
+      <Box
+        sx={{
+          width: 40,
+          height: 40,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#BDBDBD',
+          borderRadius: '50%',
+        }}
+      >
+        <StarBorderIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+      </Box>
+    ),
+    title: 'Уведомление',
+    getMessage: (payload: any) =>
+      typeof payload === 'string' ? payload : 'У вас новое уведомление',
+  };
+
+  const navigate = useNavigate();
+
+  const handleViewEvent = () => {
+    if (parsedPayload && parsedPayload.eventId) {
+      navigate(`/event/${parsedPayload.eventId}`);
+    } else {
+      onViewClick();
+    }
+  };
 
   return (
     <Box>
@@ -111,7 +173,7 @@ const EventNotification: React.FC<NotificationProps> = ({
           p: 2,
           bgcolor: '#FFFFFF',
           borderRadius: '14px 14px 0 0',
-          boxShadow: '0px 1px 5px 1px #00000026',
+          boxShadow: '0px 1px 5px 1px #00000026 15%',
         }}
       >
         <Box>{content.icon({})}</Box>
@@ -131,7 +193,7 @@ const EventNotification: React.FC<NotificationProps> = ({
               color: '#8E8E93',
             }}
           >
-            {content.getMessage(eventTitle)}
+            {content.getMessage(parsedPayload)}
           </Typography>
         </Box>
       </Box>
@@ -149,7 +211,7 @@ const EventNotification: React.FC<NotificationProps> = ({
         }}
       >
         <Box
-          onClick={onViewClick}
+          onClick={handleViewEvent}
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -179,7 +241,7 @@ const EventNotification: React.FC<NotificationProps> = ({
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
             }}
           >
-            {timestamp}
+            {formatDate(timestamp)}
           </Typography>
         )}
       </Box>
