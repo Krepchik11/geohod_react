@@ -413,7 +413,13 @@ const ProfilePage: React.FC = () => {
                   <img
                     src={review.isHidden ? invisibleIcon : visibleIcon}
                     alt={review.isHidden ? 'Скрыто' : 'Видимо'}
-                    style={{ width: 28, height: 28, display: 'block' }}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      display: 'block',
+                      filter:
+                        window.Telegram?.WebApp?.colorScheme === 'dark' ? 'invert(1)' : 'none',
+                    }}
                   />
                 </IconButton>
               </Box>

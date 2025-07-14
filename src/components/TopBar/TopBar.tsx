@@ -47,7 +47,7 @@ const TopBar: React.FC<TopBarProps> = ({
           sx={{
             fontSize: '16px',
             fontWeight: 600,
-            color: '#000',
+            color: 'text.primary',
             lineHeight: 1.2,
             overflow: 'hidden',
             textOverflow: 'ellipsis',

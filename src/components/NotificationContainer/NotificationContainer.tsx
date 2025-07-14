@@ -116,7 +116,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
             bottom: 0,
             left: 0,
             right: 0,
-            bgcolor: '#F7F7F7',
+            bgcolor: 'background.paper',
             borderTopLeftRadius: '14px',
             borderTopRightRadius: '14px',
             maxHeight: '80vh',

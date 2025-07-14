@@ -164,14 +164,23 @@ const EventNotification: React.FC<NotificationProps> = ({
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: '14px',
+        mb: 2,
+        overflow: 'hidden',
+        background: 'none',
+      }}
+    >
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
           gap: 2,
           p: 2,
-          bgcolor: '#FFFFFF',
+          bgcolor: 'background.paper',
           borderRadius: '14px 14px 0 0',
           boxShadow: '0px 1px 5px 1px #00000026 15%',
         }}
@@ -182,7 +191,7 @@ const EventNotification: React.FC<NotificationProps> = ({
             sx={{
               fontSize: 16,
               fontWeight: 500,
-              color: '#000',
+              color: 'text.primary',
             }}
           >
             {content.title}
@@ -190,7 +199,7 @@ const EventNotification: React.FC<NotificationProps> = ({
           <Typography
             sx={{
               fontSize: 14,
-              color: '#8E8E93',
+              color: 'text.secondary',
             }}
           >
             {content.getMessage(parsedPayload)}
@@ -204,10 +213,10 @@ const EventNotification: React.FC<NotificationProps> = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           p: 2,
-          bgcolor: '#FFFFFF',
+          bgcolor: 'background.paper',
           borderRadius: '0 0 14px 14px',
           boxShadow: '0px 0.5px 0px rgba(0, 0, 0, 0.15)',
-          mb: 1,
+          mb: 0,
         }}
       >
         <Box

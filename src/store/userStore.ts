@@ -25,6 +25,9 @@ interface UserState {
   settings: UserSettings | null;
   setSettings: (settings: UserSettings) => void;
   fetchSettings: () => Promise<void>;
+  hasUnreadNotifications: boolean;
+  setHasUnreadNotifications: (hasUnread: boolean) => void;
+  fetchHasUnreadNotifications: () => Promise<void>;
 }
 
 export const useUserStore = create<UserState>((set) => ({
@@ -32,6 +35,18 @@ export const useUserStore = create<UserState>((set) => ({
   isLoading: false,
   error: null,
   settings: null,
+  hasUnreadNotifications: false,
+  setHasUnreadNotifications: (hasUnread) => set({ hasUnreadNotifications: hasUnread }),
+  fetchHasUnreadNotifications: async () => {
+    try {
+      const res = await import('../api/telegramApi').then((m) =>
+        m.api.notifications.getNotifications({ limit: 1, isRead: false })
+      );
+      set({ hasUnreadNotifications: Array.isArray(res.data) && res.data.length > 0 });
+    } catch {
+      set({ hasUnreadNotifications: false });
+    }
+  },
   setSettings: (settings) => set({ settings }),
   fetchSettings: async () => {
     const res = await userSettingsApi.getSettings();

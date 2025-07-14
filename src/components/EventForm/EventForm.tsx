@@ -275,7 +275,7 @@ const EventForm: React.FC<EventFormProps> = ({
               sx={{
                 fontSize: 15,
                 fontWeight: 600,
-                color: '#000',
+                color: 'text.primary',
               }}
             >
               {user.first_name} {user.last_name}
