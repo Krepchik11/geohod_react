@@ -39,28 +39,28 @@ const RegistrationErrorDialog: React.FC<RegistrationErrorDialogProps> = ({
             <SentimentDissatisfiedRounded sx={{ color: 'white', fontSize: 30 }} />
           </Box>
         </Box>
-        
+
         <Typography
-          sx={{ 
-            fontSize: 16, 
-            fontWeight: 600, 
-            mb: 1, 
-            color: theme.palette.text.primary 
+          sx={{
+            fontSize: 16,
+            fontWeight: 600,
+            mb: 1,
+            color: theme.palette.text.primary,
           }}
         >
           Регистрация на событие окончена
         </Typography>
-        
+
         <Typography
-          sx={{ 
-            fontSize: 14, 
+          sx={{
+            fontSize: 14,
             color: theme.palette.text.secondary,
-            mb: 3
+            mb: 3,
           }}
         >
           {errorMessage}
         </Typography>
-        
+
         <Button
           variant="contained"
           fullWidth
@@ -82,4 +82,4 @@ const RegistrationErrorDialog: React.FC<RegistrationErrorDialogProps> = ({
   );
 };
 
-export default RegistrationErrorDialog; 
+export default RegistrationErrorDialog;

@@ -144,6 +144,21 @@ export const eventsApi = {
       throw error;
     }
   },
+
+  getEventsByAuthor: async (authorId: string, params: any = {}) => {
+    try {
+      const response = await axiosV1.get('/events', {
+        params: {
+          ...params,
+          authorId: authorId,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Ошибка при получении событий автора ${authorId}:`, error);
+      throw error;
+    }
+  },
 };
 
 export const reviewsApi = {

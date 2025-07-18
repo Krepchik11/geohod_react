@@ -188,11 +188,11 @@ const EventCard: React.FC<EventCardProps> = ({
               fontWeight: 600,
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
               whiteSpace: 'nowrap',
-                          color: theme.palette.text.primary,
-          }}
-        >
-          <span style={{ color: theme.palette.primary.main }}>{registeredCount}</span>
-          <span style={{ color: theme.palette.text.secondary }}> из {maxParticipants}</span>
+              color: theme.palette.text.primary,
+            }}
+          >
+            <span style={{ color: theme.palette.primary.main }}>{registeredCount}</span>
+            <span style={{ color: theme.palette.text.secondary }}> из {maxParticipants}</span>
           </Typography>
         </ParticipantsCount>
         {isOrganizer &&

@@ -131,14 +131,14 @@ const ProfilePage: React.FC = () => {
       const res = await reviewsApi.getUserReviews(user.uuid, page, 10);
       const newReviews = res && Array.isArray(res.data) ? res.data : [];
       console.log('Получено отзывов:', newReviews.length);
-      
+
       // Дедупликация отзывов по ID
       setReviews((prev) => {
         const existingIds = new Set(prev.map((review: Review) => review.id));
         const uniqueNewReviews = newReviews.filter((review: Review) => !existingIds.has(review.id));
         return [...prev, ...uniqueNewReviews];
       });
-      
+
       setHasMore(newReviews.length === 10);
       setLoadingReviews(false);
     };
@@ -203,7 +203,7 @@ const ProfilePage: React.FC = () => {
       // После успешного запроса — перезапрашиваем отзывы с первой страницы
       const res = await reviewsApi.getUserReviews(userId, 0, (page + 1) * 10);
       const newReviews = res && Array.isArray(res.data) ? res.data : [];
-      
+
       // Дедупликация отзывов по ID
       const existingIds = new Set<string>();
       const uniqueReviews = newReviews.filter((review: Review) => {
@@ -213,7 +213,7 @@ const ProfilePage: React.FC = () => {
         existingIds.add(review.id);
         return true;
       });
-      
+
       setReviews(uniqueReviews);
     } catch (e) {
       setToast({ isVisible: true, message: 'Ошибка при изменении видимости', type: 'error' });
@@ -341,7 +341,14 @@ const ProfilePage: React.FC = () => {
             justifyContent: 'center',
           }}
         >
-          <StarIcon sx={{ color: theme.palette.primary.main, width: '12px', height: '12px', marginRight: '6px' }} />
+          <StarIcon
+            sx={{
+              color: theme.palette.primary.main,
+              width: '12px',
+              height: '12px',
+              marginRight: '6px',
+            }}
+          />
           {Number(rating) ? Number(rating).toFixed(1) : '0.0'}
         </Typography>
       </Box>

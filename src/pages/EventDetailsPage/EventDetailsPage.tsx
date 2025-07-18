@@ -148,24 +148,30 @@ const EventDetailsPage: React.FC = () => {
       setRegistrationDialogOpen(true);
     } catch (error: any) {
       console.error('Error registering for event:', error);
-      
+
       // Определяем сообщение об ошибке
       let errorMessage = 'Произошла ошибка при регистрации';
-      
+
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       // Проверяем, связана ли ошибка с полной группой
-      if (errorMessage.includes('группа') || errorMessage.includes('полная') || 
-          errorMessage.includes('набрана') || errorMessage.includes('максимум')) {
-        setRegistrationErrorMessage('Группа набрана. Регистрация на это событие больше невозможна.');
+      if (
+        errorMessage.includes('группа') ||
+        errorMessage.includes('полная') ||
+        errorMessage.includes('набрана') ||
+        errorMessage.includes('максимум')
+      ) {
+        setRegistrationErrorMessage(
+          'Группа набрана. Регистрация на это событие больше невозможна.'
+        );
       } else {
         setRegistrationErrorMessage(errorMessage);
       }
-      
+
       setRegistrationErrorDialogOpen(true);
     } finally {
       setOperationInProgress(false);

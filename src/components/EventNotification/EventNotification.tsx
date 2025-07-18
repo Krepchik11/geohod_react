@@ -1,23 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
 import SentimentDissatisfiedRoundedIcon from '@mui/icons-material/SentimentDissatisfiedRounded';
-import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import { useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/formatDate';
+import { api } from '../../api/telegramApi';
 
 interface NotificationProps {
-  type: 'registration' | 'cancellation' | 'reminder' | 'review';
+  type:
+    | 'registration'
+    | 'cancellation'
+    | 'reminder'
+    | 'review'
+    | 'EVENT_CREATED'
+    | 'EVENT_CANCELLED'
+    | 'PARTICIPANT_REGISTERED'
+    | 'PARTICIPANT_UNREGISTERED'
+    | 'EVENT_FINISHED';
   eventTitle: string;
   timestamp?: string;
   onViewClick: () => void;
 }
-
-
 
 const EventNotification: React.FC<NotificationProps> = ({
   type,
@@ -25,11 +32,20 @@ const EventNotification: React.FC<NotificationProps> = ({
   timestamp,
   onViewClick,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const theme = useTheme();
   let parsedPayload: any = eventTitle;
   try {
     parsedPayload = typeof eventTitle === 'string' ? JSON.parse(eventTitle) : eventTitle;
   } catch {}
+
+  // Логируем данные уведомления для отладки
+  console.log('Notification data:', {
+    type,
+    eventTitle,
+    parsedPayload,
+    timestamp,
+  });
 
   const NotificationContent = {
     EVENT_CANCELLED: {
@@ -158,12 +174,88 @@ const EventNotification: React.FC<NotificationProps> = ({
 
   const navigate = useNavigate();
 
-  const handleViewEvent = () => {
+  const handleViewEvent = async () => {
     if (parsedPayload && parsedPayload.eventId) {
       navigate(`/event/${parsedPayload.eventId}`);
-    } else {
-      onViewClick();
+      return;
     }
+
+    if (type === 'EVENT_CREATED' && parsedPayload && parsedPayload.authorId) {
+      setIsLoading(true);
+      try {
+        const eventsResponse = await api.events.getEventsByAuthor(parsedPayload.authorId, {
+          page: 0,
+          size: 20,
+          sort: 'createdAt,desc',
+        });
+
+        if (eventsResponse.content && eventsResponse.content.length > 0) {
+          const notificationTime = timestamp ? new Date(timestamp).getTime() : 0;
+          let targetEvent = eventsResponse.content[0];
+
+          if (notificationTime > 0) {
+            const oneHourMs = 60 * 60 * 1000;
+            const matchingEvent = eventsResponse.content.find((event: any) => {
+              const eventTime = new Date(event.createdAt).getTime();
+              return Math.abs(eventTime - notificationTime) <= oneHourMs;
+            });
+
+            if (matchingEvent) {
+              targetEvent = matchingEvent;
+            }
+          }
+
+          navigate(`/event/${targetEvent.id}`);
+        } else {
+          onViewClick();
+        }
+      } catch (error) {
+        console.error('Ошибка при поиске события:', error);
+        onViewClick();
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    if (parsedPayload) {
+      const possibleEventIdFields = ['eventId', 'event_id', 'id'];
+      for (const field of possibleEventIdFields) {
+        if (parsedPayload[field]) {
+          navigate(`/event/${parsedPayload[field]}`);
+          return;
+        }
+      }
+    }
+
+    if (parsedPayload && parsedPayload.eventName && type !== 'EVENT_CREATED') {
+      setIsLoading(true);
+      try {
+        const eventsResponse = await api.events.getAllEvents({
+          page: 0,
+          size: 50,
+        });
+
+        if (eventsResponse.content && eventsResponse.content.length > 0) {
+          const matchingEvent = eventsResponse.content.find(
+            (event: any) =>
+              event.name && event.name.toLowerCase().includes(parsedPayload.eventName.toLowerCase())
+          );
+
+          if (matchingEvent) {
+            navigate(`/event/${matchingEvent.id}`);
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при поиске события по названию:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    onViewClick();
   };
 
   return (
@@ -223,13 +315,14 @@ const EventNotification: React.FC<NotificationProps> = ({
         }}
       >
         <Box
-          onClick={handleViewEvent}
+          onClick={isLoading ? undefined : handleViewEvent}
           sx={{
             display: 'flex',
             alignItems: 'center',
             gap: 1,
-            color: theme.palette.primary.main,
-            cursor: 'pointer',
+            color: isLoading ? theme.palette.text.disabled : theme.palette.primary.main,
+            cursor: isLoading ? 'default' : 'pointer',
+            opacity: isLoading ? 0.6 : 1,
           }}
         >
           <VisibilityOutlinedIcon sx={{ fontSize: 20 }} />
@@ -241,7 +334,7 @@ const EventNotification: React.FC<NotificationProps> = ({
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
             }}
           >
-            Посмотреть событие
+            {isLoading ? 'Поиск события...' : 'Посмотреть событие'}
           </Typography>
         </Box>
         {timestamp && (

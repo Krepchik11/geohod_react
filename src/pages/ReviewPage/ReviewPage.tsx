@@ -26,7 +26,7 @@ const ReviewPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const user = useUserStore((state) => state.user);
-  
+
   const [eventId, setEventId] = useState<string>('');
   const [event, setEvent] = useState<any>(null);
   const [existingReview, setExistingReview] = useState<any>(null);
@@ -48,7 +48,7 @@ const ReviewPage: React.FC = () => {
         setLoading(true);
 
         const startParam = searchParams.get('startapp') || '';
-        
+
         if (!startParam.startsWith('review_')) {
           setToast({
             isVisible: true,
@@ -86,7 +86,6 @@ const ReviewPage: React.FC = () => {
         } catch (error) {
           console.log('Отзыв не найден');
         }
-
       } catch (error) {
         console.error('Ошибка при загрузке данных:', error);
         setToast({
@@ -103,14 +102,14 @@ const ReviewPage: React.FC = () => {
   }, [searchParams]);
 
   const handleRatingChange = (newValue: number | null) => {
-    setReviewData(prev => ({
+    setReviewData((prev) => ({
       ...prev,
       rating: newValue || 0,
     }));
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setReviewData(prev => ({
+    setReviewData((prev) => ({
       ...prev,
       text: e.target.value,
     }));
@@ -159,7 +158,6 @@ const ReviewPage: React.FC = () => {
           window.Telegram.WebApp.close();
         }
       }, 2000);
-
     } catch (error) {
       console.error('Ошибка при отправке отзыва:', error);
       setToast({
@@ -185,7 +183,9 @@ const ReviewPage: React.FC = () => {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: theme.palette.background.default }}>
         <TopBar title="Отзыв" showBackButton={false} showNotifications={false} />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}
+        >
           <CircularProgress />
         </Box>
       </Box>
@@ -197,9 +197,7 @@ const ReviewPage: React.FC = () => {
       <Box sx={{ minHeight: '100vh', bgcolor: theme.palette.background.default }}>
         <TopBar title="Ошибка" showBackButton={false} showNotifications={false} />
         <Box sx={{ p: 2, textAlign: 'center' }}>
-          <Typography sx={{ color: theme.palette.text.primary }}>
-            Событие не найдено
-          </Typography>
+          <Typography sx={{ color: theme.palette.text.primary }}>Событие не найдено</Typography>
         </Box>
       </Box>
     );
@@ -208,22 +206,19 @@ const ReviewPage: React.FC = () => {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: theme.palette.background.default }}>
       <TopBar title="Отзыв" showBackButton={false} showNotifications={false} />
-      
+
       <Box sx={{ p: 2 }}>
         <Paper sx={{ p: 2, mb: 2, bgcolor: theme.palette.background.paper }}>
           <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
             {event.name}
           </Typography>
-          
+
           <Typography sx={{ mb: 1, color: theme.palette.text.secondary }}>
             {formatDate(event.date)}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Avatar 
-              src={event.author?.tgImageUrl} 
-              sx={{ width: 40, height: 40, mr: 2 }}
-            />
+            <Avatar src={event.author?.tgImageUrl} sx={{ width: 40, height: 40, mr: 2 }} />
             <Box>
               <Typography sx={{ color: theme.palette.text.primary, fontWeight: 500 }}>
                 {event.author?.firstName} {event.author?.lastName}
@@ -241,9 +236,7 @@ const ReviewPage: React.FC = () => {
           </Typography>
 
           <Box sx={{ mb: 3 }}>
-            <Typography sx={{ mb: 1, color: theme.palette.text.primary }}>
-              Оценка
-            </Typography>
+            <Typography sx={{ mb: 1, color: theme.palette.text.primary }}>Оценка</Typography>
             <Rating
               value={reviewData.rating}
               onChange={(_, newValue) => handleRatingChange(newValue)}
@@ -260,9 +253,7 @@ const ReviewPage: React.FC = () => {
           </Box>
 
           <Box sx={{ mb: 3 }}>
-            <Typography sx={{ mb: 1, color: theme.palette.text.primary }}>
-              Комментарий
-            </Typography>
+            <Typography sx={{ mb: 1, color: theme.palette.text.primary }}>Комментарий</Typography>
             <TextField
               fullWidth
               multiline
@@ -304,8 +295,10 @@ const ReviewPage: React.FC = () => {
           >
             {submitting ? (
               <CircularProgress size={24} sx={{ color: 'white' }} />
+            ) : existingReview ? (
+              'Обновить отзыв'
             ) : (
-              existingReview ? 'Обновить отзыв' : 'Отправить отзыв'
+              'Отправить отзыв'
             )}
           </Button>
         </Paper>
@@ -315,10 +308,10 @@ const ReviewPage: React.FC = () => {
         isVisible={toast.isVisible}
         message={toast.message}
         type={toast.type}
-        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+        onClose={() => setToast((prev) => ({ ...prev, isVisible: false }))}
       />
     </Box>
   );
 };
 
-export default ReviewPage; 
+export default ReviewPage;

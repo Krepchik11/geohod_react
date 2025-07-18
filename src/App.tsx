@@ -96,7 +96,7 @@ const TelegramRouter: React.FC = () => {
         } else if (startParam?.startsWith('review_')) {
           // Обработка ссылки на отзыв
           const targetPath = `/review?startapp=${startParam}`;
-          
+
           const shouldRedirect =
             location.pathname !== '/review' &&
             !safeRoutes.includes(location.pathname) &&

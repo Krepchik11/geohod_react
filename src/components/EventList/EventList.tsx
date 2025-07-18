@@ -41,21 +41,25 @@ const EventList: React.FC = () => {
       setRegistrationError(null);
     } catch (err: any) {
       let errorMessage = 'Произошла ошибка при регистрации';
-      
+
       if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
+
       // Проверяем, связана ли ошибка с полной группой
-      if (errorMessage.includes('группа') || errorMessage.includes('полная') || 
-          errorMessage.includes('набрана') || errorMessage.includes('максимум')) {
+      if (
+        errorMessage.includes('группа') ||
+        errorMessage.includes('полная') ||
+        errorMessage.includes('набрана') ||
+        errorMessage.includes('максимум')
+      ) {
         setRegistrationError('Группа набрана. Регистрация на это событие больше невозможна.');
       } else {
         setRegistrationError(errorMessage);
       }
-      
+
       // Автоматически скрываем ошибку через 5 секунд
       setTimeout(() => setRegistrationError(null), 5000);
     }
@@ -77,14 +81,16 @@ const EventList: React.FC = () => {
     <div>
       <h2>Список событий</h2>
       {registrationError && (
-        <div style={{ 
-          color: '#FF3B30', 
-          backgroundColor: '#FFE5E5', 
-          padding: '12px', 
-          borderRadius: '8px', 
-          marginBottom: '16px',
-          fontSize: '14px'
-        }}>
+        <div
+          style={{
+            color: '#FF3B30',
+            backgroundColor: '#FFE5E5',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            fontSize: '14px',
+          }}
+        >
           {registrationError}
         </div>
       )}
