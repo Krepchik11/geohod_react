@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
 import SentimentDissatisfiedRoundedIcon from '@mui/icons-material/SentimentDissatisfiedRounded';
@@ -17,109 +17,7 @@ interface NotificationProps {
   onViewClick: () => void;
 }
 
-const NotificationContent = {
-  EVENT_CANCELLED: {
-    icon: (props: any) => (
-      <Box
-        sx={{
-          width: 40,
-          height: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#FF3B30',
-          borderRadius: '50%',
-        }}
-      >
-        <SentimentDissatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
-      </Box>
-    ),
-    title: 'Мероприятие отменено',
-    getMessage: (payload: any) =>
-      `Событие "${payload.eventName || ''}" было отменено. Причина: ${payload.reason || 'не указана'}`,
-  },
-  PARTICIPANT_REGISTERED: {
-    icon: (props: any) => (
-      <Box
-        sx={{
-          width: 40,
-          height: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#2EBC65',
-          borderRadius: '50%',
-        }}
-      >
-        <SentimentSatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
-      </Box>
-    ),
-    title: 'Новая регистрация',
-    getMessage: (payload: any) =>
-      `${payload.participantName || 'Участник'} зарегистрировался на событие "${payload.eventName || ''}"`,
-  },
-  PARTICIPANT_UNREGISTERED: {
-    icon: (props: any) => (
-      <Box
-        sx={{
-          width: 40,
-          height: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#FBBF0A',
-          borderRadius: '50%',
-        }}
-      >
-        <PersonRemoveIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
-      </Box>
-    ),
-    title: 'Отмена регистрации',
-    getMessage: (payload: any) =>
-      `${payload.participantName || 'Участник'} отменил регистрацию на событие "${payload.eventName || ''}"`,
-  },
-  EVENT_CREATED: {
-    icon: (props: any) => (
-      <Box
-        sx={{
-          width: 40,
-          height: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#007AFF',
-          borderRadius: '50%',
-        }}
-      >
-        <EventAvailableIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
-      </Box>
-    ),
-    title: 'Мероприятие создано',
-    getMessage: (payload: any) => `Вы создали мероприятие "${payload.eventName || ''}"`,
-  },
-  EVENT_FINISHED: {
-    icon: (props: any) => (
-      <Box
-        sx={{
-          width: 40,
-          height: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#A25CE3',
-          borderRadius: '50%',
-        }}
-      >
-        <StarBorderIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
-      </Box>
-    ),
-    title: 'Мероприятие завершено',
-    getMessage: (payload: any) =>
-      payload.reviewText
-        ? `Вам оставили отзыв: "${payload.reviewText}" по событию "${payload.eventName || ''}"`
-        : `Мероприятие "${payload.eventName || ''}" завершено`,
-  },
-};
+
 
 const EventNotification: React.FC<NotificationProps> = ({
   type,
@@ -127,10 +25,115 @@ const EventNotification: React.FC<NotificationProps> = ({
   timestamp,
   onViewClick,
 }) => {
+  const theme = useTheme();
   let parsedPayload: any = eventTitle;
   try {
     parsedPayload = typeof eventTitle === 'string' ? JSON.parse(eventTitle) : eventTitle;
   } catch {}
+
+  const NotificationContent = {
+    EVENT_CANCELLED: {
+      icon: (props: any) => (
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.palette.error.main,
+            borderRadius: '50%',
+          }}
+        >
+          <SentimentDissatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+        </Box>
+      ),
+      title: 'Мероприятие отменено',
+      getMessage: (payload: any) =>
+        `Событие "${payload.eventName || ''}" было отменено. Причина: ${payload.reason || 'не указана'}`,
+    },
+    PARTICIPANT_REGISTERED: {
+      icon: (props: any) => (
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.palette.success.main,
+            borderRadius: '50%',
+          }}
+        >
+          <SentimentSatisfiedRoundedIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+        </Box>
+      ),
+      title: 'Новая регистрация',
+      getMessage: (payload: any) =>
+        `${payload.participantName || 'Участник'} зарегистрировался на событие "${payload.eventName || ''}"`,
+    },
+    PARTICIPANT_UNREGISTERED: {
+      icon: (props: any) => (
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FBBF0A',
+            borderRadius: '50%',
+          }}
+        >
+          <PersonRemoveIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+        </Box>
+      ),
+      title: 'Отмена регистрации',
+      getMessage: (payload: any) =>
+        `${payload.participantName || 'Участник'} отменил регистрацию на событие "${payload.eventName || ''}"`,
+    },
+    EVENT_CREATED: {
+      icon: (props: any) => (
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.palette.primary.main,
+            borderRadius: '50%',
+          }}
+        >
+          <EventAvailableIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+        </Box>
+      ),
+      title: 'Мероприятие создано',
+      getMessage: (payload: any) => `Вы создали мероприятие "${payload.eventName || ''}"`,
+    },
+    EVENT_FINISHED: {
+      icon: (props: any) => (
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#A25CE3',
+            borderRadius: '50%',
+          }}
+        >
+          <StarBorderIcon sx={{ color: 'white', fontSize: 20 }} {...props} />
+        </Box>
+      ),
+      title: 'Мероприятие завершено',
+      getMessage: (payload: any) =>
+        payload.reviewText
+          ? `Вам оставили отзыв: "${payload.reviewText}" по событию "${payload.eventName || ''}"`
+          : `Мероприятие "${payload.eventName || ''}" завершено`,
+    },
+  };
 
   const content = NotificationContent[type as keyof typeof NotificationContent] || {
     icon: (props: any) => (
@@ -225,7 +228,7 @@ const EventNotification: React.FC<NotificationProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: 1,
-            color: '#007AFF',
+            color: theme.palette.primary.main,
             cursor: 'pointer',
           }}
         >

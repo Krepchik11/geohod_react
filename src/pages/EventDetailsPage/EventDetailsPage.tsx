@@ -37,6 +37,7 @@ import chatIcon from '../../assets/icons/chat.svg';
 import canIcon from '../../assets/icons/can.svg';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
 import RegistrationConfirmDialog from '../../components/RegistrationConfirmDialog/RegistrationConfirmDialog';
+import RegistrationErrorDialog from '../../components/RegistrationErrorDialog/RegistrationErrorDialog';
 
 const EventDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +51,8 @@ const EventDetailsPage: React.FC = () => {
   const [operationInProgress, setOperationInProgress] = useState<boolean>(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [registrationDialogOpen, setRegistrationDialogOpen] = useState(false);
+  const [registrationErrorDialogOpen, setRegistrationErrorDialogOpen] = useState(false);
+  const [registrationErrorMessage, setRegistrationErrorMessage] = useState('');
   const user = useUserStore((state) => state.user);
   const isOrganizer = event && user && String(event.author.id) === String(user.id);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -143,8 +146,27 @@ const EventDetailsPage: React.FC = () => {
       );
       setIamParticipant(isParticipant);
       setRegistrationDialogOpen(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error registering for event:', error);
+      
+      // Определяем сообщение об ошибке
+      let errorMessage = 'Произошла ошибка при регистрации';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Проверяем, связана ли ошибка с полной группой
+      if (errorMessage.includes('группа') || errorMessage.includes('полная') || 
+          errorMessage.includes('набрана') || errorMessage.includes('максимум')) {
+        setRegistrationErrorMessage('Группа набрана. Регистрация на это событие больше невозможна.');
+      } else {
+        setRegistrationErrorMessage(errorMessage);
+      }
+      
+      setRegistrationErrorDialogOpen(true);
     } finally {
       setOperationInProgress(false);
     }
@@ -896,14 +918,28 @@ const EventDetailsPage: React.FC = () => {
                         width: '100%',
                         bgcolor: theme.palette.background.default,
                         display: 'flex',
-                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        alignItems: 'center',
                       }}
                     >
+                      {event.participantsCount >= event.maxParticipants && (
+                        <Typography
+                          sx={{
+                            color: theme.palette.error.main,
+                            fontSize: 14,
+                            fontWeight: 500,
+                            mb: 2,
+                            textAlign: 'center',
+                          }}
+                        >
+                          Регистрация на событие окончена! Группа набрана.
+                        </Typography>
+                      )}
                       <Button
                         variant="contained"
                         fullWidth
                         sx={{
-                          marginTop: 5,
+                          marginTop: event.participantsCount >= event.maxParticipants ? 0 : 5,
                           borderRadius: '14px',
                           height: 48,
                           fontSize: 16,
@@ -945,6 +981,11 @@ const EventDetailsPage: React.FC = () => {
         open={registrationDialogOpen}
         onClose={() => setRegistrationDialogOpen(false)}
         event={event}
+      />
+      <RegistrationErrorDialog
+        open={registrationErrorDialogOpen}
+        onClose={() => setRegistrationErrorDialogOpen(false)}
+        errorMessage={registrationErrorMessage}
       />
       <CancelEventDialog
         open={cancelDialogOpen}

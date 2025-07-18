@@ -169,6 +169,10 @@ export const reviewsApi = {
     const response = await axiosV2.post(`/reviews`, data);
     return response.data;
   },
+  getMyReview: async (eventId: string) => {
+    const response = await axiosV2.get(`/reviews/event/${eventId}/my-review`);
+    return response.data;
+  },
 };
 
 export const userSettingsApi = {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, IconButton } from '@mui/material';
+import { Box, Typography, IconButton, useTheme } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import NotificationContainer from '../NotificationContainer/NotificationContainer';
 
@@ -16,6 +16,7 @@ const TopBar: React.FC<TopBarProps> = ({
   showNotifications = true,
   sx,
 }) => {
+  const theme = useTheme();
   const [showNotificationsPopup, setShowNotificationsPopup] = useState(false);
 
   const handleNotificationsClick = () => {
@@ -47,7 +48,7 @@ const TopBar: React.FC<TopBarProps> = ({
           sx={{
             fontSize: '16px',
             fontWeight: 600,
-            color: 'text.primary',
+            color: theme.palette.text.primary,
             lineHeight: 1.2,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -74,7 +75,7 @@ const TopBar: React.FC<TopBarProps> = ({
               right: 8,
               width: 40,
               height: 40,
-              color: '#007AFF',
+              color: theme.palette.primary.main,
               flexShrink: 0,
             }}
           >

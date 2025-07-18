@@ -59,10 +59,17 @@ const TelegramThemeProvider: React.FC<TelegramThemeProviderProps> = ({ children 
         palette: {
           mode: colorScheme as 'light' | 'dark',
           primary: {
-            main: themeParams.button_color,
+            main: '#007AFF',
+            dark: '#0056b3',
           },
           secondary: {
             main: themeParams.link_color,
+          },
+          success: {
+            main: '#2EBC65',
+          },
+          error: {
+            main: '#FF3B30',
           },
           background: {
             default: themeParams.bg_color,

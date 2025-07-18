@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Avatar, Button } from '@mui/material';
+import { Box, Typography, Avatar, Button, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { EventStatus } from '../../api';
@@ -18,15 +18,15 @@ interface EventCardProps {
   registrationCanceled?: boolean;
 }
 
-const ParticipantsCount = styled('div')({
+const ParticipantsCount = styled('div')(({ theme }) => ({
   display: 'inline',
   '& .blue-digit': {
-    color: '#007AFF',
+    color: theme.palette.primary.main,
   },
   '& .black-digits': {
-    color: '#000000',
+    color: theme.palette.text.primary,
   },
-});
+}));
 
 const EventCard: React.FC<EventCardProps> = ({
   id,
@@ -42,6 +42,7 @@ const EventCard: React.FC<EventCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
+  const theme = useTheme();
 
   const handleCardClick = () => {
     navigate(`/event/${id}`);
@@ -142,24 +143,24 @@ const EventCard: React.FC<EventCardProps> = ({
         <Typography
           sx={{
             fontSize: '14px',
-            color: 'text.secondary',
+            color: theme.palette.text.secondary,
             fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
           }}
         >
           {formatDateTime(date)}
         </Typography>
         {status === EventStatus.CANCELED && (
-          <Typography sx={{ color: '#FF3B30', fontSize: 14, fontWeight: 500 }}>
+          <Typography sx={{ color: theme.palette.error.main, fontSize: 14, fontWeight: 500 }}>
             Событие отменено
           </Typography>
         )}
         {status === EventStatus.FINISHED && (
-          <Typography sx={{ color: '#007AFF', fontSize: 14, fontWeight: 500 }}>
+          <Typography sx={{ color: theme.palette.primary.main, fontSize: 14, fontWeight: 500 }}>
             Событие завершено
           </Typography>
         )}
         {registrationCanceled && (
-          <Typography sx={{ color: '#FF3B30', fontSize: 14, fontWeight: 500 }}>
+          <Typography sx={{ color: theme.palette.error.main, fontSize: 14, fontWeight: 500 }}>
             Регистрация отменена
           </Typography>
         )}
@@ -187,11 +188,11 @@ const EventCard: React.FC<EventCardProps> = ({
               fontWeight: 600,
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
               whiteSpace: 'nowrap',
-              color: 'text.primary',
-            }}
-          >
-            <span style={{ color: '#007AFF' }}>{registeredCount}</span>
-            <span style={{ color: 'text.secondary' }}> из {maxParticipants}</span>
+                          color: theme.palette.text.primary,
+          }}
+        >
+          <span style={{ color: theme.palette.primary.main }}>{registeredCount}</span>
+          <span style={{ color: theme.palette.text.secondary }}> из {maxParticipants}</span>
           </Typography>
         </ParticipantsCount>
         {isOrganizer &&
@@ -207,7 +208,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 fontSize: 14,
                 height: 32,
                 whiteSpace: 'nowrap',
-                backgroundColor: '#007AFF',
+                backgroundColor: theme.palette.primary.main,
                 borderRadius: '20px',
                 textTransform: 'none',
                 position: 'relative',

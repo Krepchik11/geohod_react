@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, TextField, Button } from '@mui/material';
+import { Box, Typography, TextField, Button, useTheme } from '@mui/material';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
@@ -54,6 +54,7 @@ const EventForm: React.FC<EventFormProps> = ({
   submitLabel,
   onInputFocusChange,
 }) => {
+  const theme = useTheme();
   const user = useUserStore((state) => state.user);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -501,9 +502,9 @@ const EventForm: React.FC<EventFormProps> = ({
                 borderRadius: '14px',
                 textTransform: 'none',
                 fontSize: 16,
-                backgroundColor: '#007AFF',
+                backgroundColor: theme.palette.primary.main,
                 '&:hover': {
-                  backgroundColor: '#0056b3',
+                  backgroundColor: theme.palette.primary.dark,
                 },
                 '&.Mui-disabled': {
                   backgroundColor: 'rgba(0, 122, 255, 0.5)',

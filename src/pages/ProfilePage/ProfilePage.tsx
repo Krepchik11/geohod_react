@@ -10,6 +10,7 @@ import {
   DialogContent,
   TextField,
   Button,
+  useTheme,
 } from '@mui/material';
 import {
   Star as StarIcon,
@@ -79,6 +80,7 @@ const formatDate = (dateString: string) => {
 };
 
 const ProfilePage: React.FC = () => {
+  const theme = useTheme();
   const user = useUserStore((state) => state.user);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [maxParticipants, setMaxParticipants] = React.useState('');
@@ -129,7 +131,14 @@ const ProfilePage: React.FC = () => {
       const res = await reviewsApi.getUserReviews(user.uuid, page, 10);
       const newReviews = res && Array.isArray(res.data) ? res.data : [];
       console.log('Получено отзывов:', newReviews.length);
-      setReviews((prev) => [...prev, ...newReviews]);
+      
+      // Дедупликация отзывов по ID
+      setReviews((prev) => {
+        const existingIds = new Set(prev.map((review: Review) => review.id));
+        const uniqueNewReviews = newReviews.filter((review: Review) => !existingIds.has(review.id));
+        return [...prev, ...uniqueNewReviews];
+      });
+      
       setHasMore(newReviews.length === 10);
       setLoadingReviews(false);
     };
@@ -193,7 +202,19 @@ const ProfilePage: React.FC = () => {
       }
       // После успешного запроса — перезапрашиваем отзывы с первой страницы
       const res = await reviewsApi.getUserReviews(userId, 0, (page + 1) * 10);
-      setReviews(res.data);
+      const newReviews = res && Array.isArray(res.data) ? res.data : [];
+      
+      // Дедупликация отзывов по ID
+      const existingIds = new Set<string>();
+      const uniqueReviews = newReviews.filter((review: Review) => {
+        if (existingIds.has(review.id)) {
+          return false;
+        }
+        existingIds.add(review.id);
+        return true;
+      });
+      
+      setReviews(uniqueReviews);
     } catch (e) {
       setToast({ isVisible: true, message: 'Ошибка при изменении видимости', type: 'error' });
     }
@@ -320,7 +341,7 @@ const ProfilePage: React.FC = () => {
             justifyContent: 'center',
           }}
         >
-          <StarIcon sx={{ color: '#007AFF', width: '12px', height: '12px', marginRight: '6px' }} />
+          <StarIcon sx={{ color: theme.palette.primary.main, width: '12px', height: '12px', marginRight: '6px' }} />
           {Number(rating) ? Number(rating).toFixed(1) : '0.0'}
         </Typography>
       </Box>
@@ -342,8 +363,8 @@ const ProfilePage: React.FC = () => {
           Отзывы
         </Typography>
         {reviews.length === 0 && !loadingReviews && <Typography>Нет отзывов</Typography>}
-        {reviews.map((review) => (
-          <Box key={review.id} sx={{ position: 'relative', mb: 2 }}>
+        {reviews.map((review, index) => (
+          <Box key={`${review.id}-${index}`} sx={{ position: 'relative', mb: 2 }}>
             <Paper
               sx={{
                 p: 2,
@@ -454,7 +475,7 @@ const ProfilePage: React.FC = () => {
               fullWidth
             />
             <Button
-              sx={{ mt: 2, backgroundColor: '#007AFF', color: '#fff' }}
+              sx={{ mt: 2, backgroundColor: theme.palette.primary.main, color: '#fff' }}
               onClick={handleApplySettings}
               fullWidth
             >

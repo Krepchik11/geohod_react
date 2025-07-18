@@ -25,6 +25,7 @@ import ParticipantsPage from './pages/ParticipantsPage/ParticipantsPage';
 import RateOrganizerPage from './pages/RateOrganizerPage';
 import FinishEventPage from './pages/FinishEventPage';
 import EditEventPage from './pages/EditEventPage';
+import ReviewPage from './pages/ReviewPage/ReviewPage';
 
 const TelegramRouter: React.FC = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const TelegramRouter: React.FC = () => {
   const initUser = useUserStore((state) => state.initUser);
   const [lastRedirect, setLastRedirect] = useState<string | null>(null);
 
-  const hideBottomNavPaths = ['/create-event', '/edit-event', '/finish-event'];
+  const hideBottomNavPaths = ['/create-event', '/edit-event', '/finish-event', '/review'];
 
   const shouldHideBottomNav =
     hideBottomNavPaths.some((path) => location.pathname.startsWith(path)) ||
@@ -92,6 +93,19 @@ const TelegramRouter: React.FC = () => {
             setLastRedirect(targetPath);
             navigate(targetPath);
           }
+        } else if (startParam?.startsWith('review_')) {
+          // Обработка ссылки на отзыв
+          const targetPath = `/review?startapp=${startParam}`;
+          
+          const shouldRedirect =
+            location.pathname !== '/review' &&
+            !safeRoutes.includes(location.pathname) &&
+            lastRedirect !== targetPath;
+
+          if (shouldRedirect) {
+            setLastRedirect(targetPath);
+            navigate(targetPath);
+          }
         } else if (location.pathname === '/') {
           if (!lastRedirect) {
             navigate('/events');
@@ -128,6 +142,7 @@ const TelegramRouter: React.FC = () => {
         <Route path="/rate-organizer/:id" element={<RateOrganizerPage />} />
         <Route path="/finish-event/:id" element={<FinishEventPage />} />
         <Route path="/edit-event/:id" element={<EditEventPage />} />
+        <Route path="/review" element={<ReviewPage />} />
         <Route path="*" element={<Navigate to="/events" replace />} />
       </Routes>
       {!shouldHideBottomNav && <BottomNavigation />}

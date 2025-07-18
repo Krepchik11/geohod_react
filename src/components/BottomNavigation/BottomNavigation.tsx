@@ -91,7 +91,7 @@ const BottomNavigation: React.FC = () => {
             },
           },
           '& .MuiBottomNavigationAction-root.Mui-selected': {
-            bgcolor: '#007AFF',
+            bgcolor: theme.palette.primary.main,
             borderRadius: 0,
             color: '#FFFFFF',
           },
