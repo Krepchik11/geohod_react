@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogContent,
   IconButton,
+  useTheme,
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
@@ -30,6 +31,7 @@ const FinishEventPage: React.FC = () => {
   const [successOpen, setSuccessOpen] = useState(false);
   const settings = useUserStore((state) => state.settings);
   const fetchSettings = useUserStore((state) => state.fetchSettings);
+  const theme = useTheme();
 
   useEffect(() => {
     fetchSettings();
@@ -84,19 +86,13 @@ const FinishEventPage: React.FC = () => {
   if (!event) return null;
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: 2 }}>
+    <Box sx={{ bgcolor: theme.palette.background.default, minHeight: '100vh', p: 2 }}>
       <Typography
         sx={{
+          fontSize: 20,
           fontWeight: 600,
-          fontSize: 16,
           mb: 2,
-          borderBottom: '1px solid',
-          borderTop: '1px solid',
-          borderColor: '#EFF1F8',
-          pb: 2,
-          pt: 2,
-          mx: -2,
-          px: 2,
+          color: theme.palette.text.primary,
         }}
       >
         Завершение события
@@ -106,14 +102,16 @@ const FinishEventPage: React.FC = () => {
           sx={{
             mb: 2,
             borderBottom: '1px solid',
-            borderColor: '#EFF1F8',
+            borderColor: theme.palette.divider,
             pb: 2,
             mx: -2,
             px: 2,
           }}
         >
-          <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Название события</Typography>
-          <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#000' }}>
+          <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
+            Название события
+          </Typography>
+          <Typography sx={{ fontSize: 15, fontWeight: 600, color: theme.palette.text.primary }}>
             {event.name}
           </Typography>
         </Box>
@@ -122,39 +120,48 @@ const FinishEventPage: React.FC = () => {
           sx={{
             mb: 2,
             borderBottom: '1px solid',
-            borderColor: '#EFF1F8',
+            borderColor: theme.palette.divider,
             pb: 2,
             mx: -2,
             px: 2,
           }}
         >
-          <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Дата</Typography>
+          <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
+            Дата
+          </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <EventIcon sx={{ fontSize: 20, color: 'black' }} />
-            <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#000' }}>
+            <EventIcon sx={{ fontSize: 20, color: theme.palette.text.primary }} />
+            <Typography sx={{ fontSize: 15, fontWeight: 600, color: theme.palette.text.primary }}>
               {formatDateOnly(event.date)}
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid #EFF1F8', mx: -2, px: 2 }}>
+        <Box
+          sx={{
+            bgcolor: theme.palette.background.default,
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            mx: -2,
+            px: 2,
+          }}
+        >
           <Box sx={{ px: 1, pt: 0, pb: 1.5, display: 'flex', flexDirection: 'column' }}>
-            <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
+            <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
               Человек в группе
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <PeopleAltIcon sx={{ fontSize: 20, color: 'black', mr: 1 }} />
+              <PeopleAltIcon sx={{ fontSize: 20, color: theme.palette.text.primary, mr: 1 }} />
               <Typography
                 sx={{
                   fontSize: 15,
-                  color: '#007AFF',
+                  color: theme.palette.primary.main,
                   fontWeight: 600,
                   mr: 0.5,
                 }}
               >
                 {event.participantsCount || 0}
               </Typography>
-              <Typography sx={{ fontSize: 15, color: 'black', fontWeight: 600 }}>
+              <Typography sx={{ fontSize: 15, color: theme.palette.text.primary, fontWeight: 600 }}>
                 из {event.maxParticipants}
               </Typography>
             </Box>
@@ -164,7 +171,9 @@ const FinishEventPage: React.FC = () => {
         <Box sx={{ mb: 2 }}>
           {participants.length > 0 && (
             <>
-              <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 1.5, mt: 1.5, px: 1 }}>
+              <Typography
+                sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 1.5, mt: 1.5, px: 1 }}
+              >
                 Участники
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 1.6 }}>
@@ -175,14 +184,16 @@ const FinishEventPage: React.FC = () => {
                     sx={{
                       width: 32,
                       height: 32,
-                      border: '2px solid #007AFF',
+                      border: `2px solid ${theme.palette.primary.main}`,
                       ml: idx === 0 ? 0 : -1.5,
                       zIndex: participants.length - idx,
-                      background: '#fff',
+                      background: theme.palette.background.paper,
                     }}
                   />
                 ))}
-                <Typography sx={{ ml: 1, fontSize: 15, fontWeight: '500' }}>
+                <Typography
+                  sx={{ ml: 1, fontSize: 15, fontWeight: '500', color: theme.palette.text.primary }}
+                >
                   {participants.length} человек
                 </Typography>
               </Box>
@@ -191,7 +202,9 @@ const FinishEventPage: React.FC = () => {
         </Box>
       </Box>
       <Box sx={{ mb: 2 }}>
-        <Typography sx={{ fontWeight: 500, fontSize: 14, mb: 0.5, color: '#8E8E93' }}>
+        <Typography
+          sx={{ fontWeight: 500, fontSize: 14, mb: 0.5, color: theme.palette.text.secondary }}
+        >
           Направить участникам
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -202,14 +215,16 @@ const FinishEventPage: React.FC = () => {
               p: 0,
               mr: 1,
               mt: 1,
-              color: '#C5C6CC',
+              color: theme.palette.text.disabled,
               borderRadius: '6px',
               '&.Mui-checked': {
-                color: '#006FFD',
+                color: theme.palette.primary.main,
               },
             }}
           />
-          <Typography sx={{ fontSize: 14, mt: 1 }}>Ссылку для голосования</Typography>
+          <Typography sx={{ fontSize: 14, mt: 1, color: theme.palette.text.primary }}>
+            Ссылку для голосования
+          </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <Checkbox
@@ -218,14 +233,16 @@ const FinishEventPage: React.FC = () => {
             sx={{
               p: 0,
               mr: 1,
-              color: '#C5C6CC',
+              color: theme.palette.text.disabled,
               borderRadius: '6px',
               '&.Mui-checked': {
-                color: '#006FFD',
+                color: theme.palette.primary.main,
               },
             }}
           />
-          <Typography sx={{ fontSize: 14 }}>Информация о донате</Typography>
+          <Typography sx={{ fontSize: 14, color: theme.palette.text.primary }}>
+            Информация о донате
+          </Typography>
         </Box>
         <TextField
           value={donation}
@@ -239,7 +256,7 @@ const FinishEventPage: React.FC = () => {
       <Button
         variant="contained"
         fullWidth
-        sx={{ mt: 2, height: 48, fontSize: 15, backgroundColor: '#006FFD' }}
+        sx={{ mt: 2, height: 48, fontSize: 15, backgroundColor: theme.palette.primary.main }}
         disabled={finishLoading}
         onClick={handleFinish}
       >
@@ -274,6 +291,7 @@ const FinishEventPage: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              color: theme.palette.text.primary,
             }}
           >
             <span>Вы успешно завершили событие</span>
@@ -281,14 +299,18 @@ const FinishEventPage: React.FC = () => {
           </Box>
         </DialogTitle>
         <DialogContent>
-          <Typography sx={{ fontWeight: 600, fontSize: 17 }}>{event.name}</Typography>
+          <Typography sx={{ fontWeight: 600, fontSize: 15, color: theme.palette.text.primary }}>
+            {event.name}
+          </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 1 }}>
-            <EventIcon sx={{ fontSize: 20, color: '#707579' }} />
-            <Typography sx={{ fontSize: 14, fontWeight: 400, color: '#707579' }}>
+            <EventIcon sx={{ fontSize: 20, color: theme.palette.text.secondary }} />
+            <Typography sx={{ fontSize: 14, fontWeight: 400, color: theme.palette.text.secondary }}>
               {formatDateOnly(event.date)}
             </Typography>
           </Box>
-          <Typography sx={{ fontWeight: 400, fontSize: 14, mb: 1 }}>
+          <Typography
+            sx={{ fontWeight: 400, fontSize: 14, mb: 1, color: theme.palette.text.primary }}
+          >
             Следующие участники получили уведомление о завершении события
           </Typography>
           <Box
@@ -296,26 +318,35 @@ const FinishEventPage: React.FC = () => {
           >
             {participants.length > 0 && (
               <>
-                <Typography sx={{ fontSize: 14, color: '#007AFF', mb: 1.5, mt: 1.5, px: 1 }}>
-                  Участники
-                </Typography>
-                {participants.slice(0, 5).map((p) => (
-                  <Avatar
-                    key={p.id}
-                    src={p.imageUrl || p.tgImageUrl}
-                    sx={{ width: 32, height: 32, ml: -1 }}
-                  />
-                ))}
                 <Typography
-                  sx={{
-                    ml: participants.length === 0 ? 0 : 1,
-                    fontWeight: 400,
-                    p: 0,
-                    fontSize: 14,
-                  }}
+                  sx={{ fontSize: 14, color: theme.palette.primary.main, mb: 1.5, mt: 1.5, px: 1 }}
                 >
-                  {participants.length} человек
+                  Участники ({participants.length})
                 </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, px: 1 }}>
+                  {participants.map((participant) => (
+                    <Box
+                      key={participant.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        bgcolor: theme.palette.action.hover,
+                        borderRadius: '8px',
+                        px: 1,
+                        py: 0.5,
+                      }}
+                    >
+                      <Avatar
+                        src={participant.imageUrl || participant.tgImageUrl}
+                        sx={{ width: 24, height: 24 }}
+                      />
+                      <Typography sx={{ fontSize: 12, color: theme.palette.text.primary }}>
+                        {participant.firstName || participant.name}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
               </>
             )}
           </Box>

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Avatar, TextField, Button, IconButton } from '@mui/material';
+import { Box, Typography, Avatar, TextField, Button, IconButton, useTheme } from '@mui/material';
 import { Star as StarIcon, StarBorder as StarBorderIcon } from '@mui/icons-material';
 import { useNavigate, useParams, Navigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 
 const RateOrganizerPage: React.FC = () => {
+  const theme = useTheme();
   const user = useUserStore((state) => state.user);
   const { id } = useParams<{ id: string }>();
   const [rating, setRating] = useState(0);
@@ -35,36 +36,58 @@ const RateOrganizerPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: 2, borderTop: '1px solid #EFF1F8', mt: 2 }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: theme.palette.background.default,
+        p: 2,
+        borderTop: `1px solid ${theme.palette.divider}`,
+        mt: 2,
+      }}
+    >
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
         <Avatar
           src={organizer.photo_url}
           alt={organizer.first_name}
           sx={{ width: 96, height: 96, mb: 1, mt: 2 }}
         />
-        <Typography sx={{ fontWeight: 600, fontSize: 20 }}>
+        <Typography sx={{ fontWeight: 600, fontSize: 20, color: theme.palette.text.primary }}>
           {organizer.first_name} {organizer.last_name}
         </Typography>
         {organizer.username && (
-          <Typography sx={{ color: '#8E8E93', fontSize: 15 }}>@{organizer.username}</Typography>
+          <Typography sx={{ color: theme.palette.text.secondary, fontSize: 15 }}>
+            @{organizer.username}
+          </Typography>
         )}
-        <Typography sx={{ mt: 1, fontWeight: 500, fontSize: 15 }}>
+        <Typography
+          sx={{ mt: 1, fontWeight: 500, fontSize: 15, color: theme.palette.text.primary }}
+        >
           Общий рейтинг
-          <StarIcon sx={{ color: '#007AFF', width: 16, height: 16, ml: 1, mr: 0.5 }} />
+          <StarIcon
+            sx={{ color: theme.palette.primary.main, width: 16, height: 16, ml: 1, mr: 0.5 }}
+          />
           4.8
         </Typography>
       </Box>
       {isSelf ? (
         <Box>
-          <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 2, color: '#707579' }}>
+          <Typography
+            sx={{ fontWeight: 500, fontSize: 15, mb: 2, color: theme.palette.text.secondary }}
+          >
             Отзывы
           </Typography>
-          <Typography sx={{ color: '#8E8E93', fontSize: 14 }}>Нет отзывов</Typography>
+          <Typography sx={{ color: theme.palette.text.secondary, fontSize: 14 }}>
+            Нет отзывов
+          </Typography>
         </Box>
       ) : (
         <>
           <Box sx={{ mb: 2 }}>
-            <Typography sx={{ fontWeight: 500, fontSize: 15, mb: 1 }}>Оцените</Typography>
+            <Typography
+              sx={{ fontWeight: 500, fontSize: 15, mb: 1, color: theme.palette.text.primary }}
+            >
+              Оцените
+            </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <IconButton
@@ -85,7 +108,14 @@ const RateOrganizerPage: React.FC = () => {
           </Box>
           <Box sx={{ mb: 2 }}>
             <Typography
-              sx={{ fontWeight: 500, fontSize: 15, mb: 1, display: 'flex', alignItems: 'center' }}
+              sx={{
+                fontWeight: 500,
+                fontSize: 15,
+                mb: 1,
+                display: 'flex',
+                alignItems: 'center',
+                color: theme.palette.text.primary,
+              }}
             >
               <svg
                 width="20"
@@ -96,7 +126,7 @@ const RateOrganizerPage: React.FC = () => {
               >
                 <path
                   d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"
-                  stroke="#8E8E93"
+                  stroke={theme.palette.text.secondary}
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -105,7 +135,7 @@ const RateOrganizerPage: React.FC = () => {
                   cx="12"
                   cy="7"
                   r="4"
-                  stroke="#8E8E93"
+                  stroke={theme.palette.text.secondary}
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -120,7 +150,7 @@ const RateOrganizerPage: React.FC = () => {
               value={review}
               onChange={(e) => setReview(e.target.value)}
               fullWidth
-              sx={{ bgcolor: '#fff', borderRadius: 2 }}
+              sx={{ bgcolor: theme.palette.background.paper, borderRadius: 2 }}
             />
           </Box>
           <Button

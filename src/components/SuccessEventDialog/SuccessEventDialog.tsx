@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogActions, Button, Typography, Box } from '@mui/material';
-import TodayIcon from '@mui/icons-material/Today';
-import LinkIcon from '@mui/icons-material/Link';
+import {
+  Dialog,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Button,
+  Box,
+  useTheme,
+} from '@mui/material';
+import { Today as TodayIcon, Link as LinkIcon } from '@mui/icons-material';
 import Toast from '../Toast/Toast';
 
 interface SuccessEventDialogProps {
@@ -19,6 +26,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
   eventDate,
   registrationLink,
 }) => {
+  const theme = useTheme();
   const [showCopyNotification, setShowCopyNotification] = useState(false);
 
   const handleCopyLink = async () => {
@@ -72,17 +80,20 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
           sx: {
             borderRadius: '14px',
             margin: '16px',
+            padding: '0px',
             position: 'relative',
+            backgroundColor: theme.palette.background.default,
           },
         }}
       >
         <DialogContent sx={{ p: 3, pb: 2 }}>
           <Typography
             sx={{
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: 400,
-              mb: '23px',
+              mb: '15px',
               fontFamily: 'Roboto, sans-serif',
+              color: theme.palette.text.primary,
             }}
           >
             Вы успешно создали событие
@@ -90,21 +101,22 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
 
           <Typography
             sx={{
-              fontSize: 20,
-              fontWeight: 500,
+              fontSize: 15,
+              fontWeight: 400,
               mb: '6px',
               fontFamily: 'Roboto, sans-serif',
+              color: theme.palette.text.primary,
             }}
           >
             {eventName}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <TodayIcon sx={{ fontSize: 20, color: '#8E8E93' }} />
+            <TodayIcon sx={{ fontSize: 20, color: theme.palette.text.secondary }} />
             <Typography
               sx={{
                 fontSize: 14,
-                color: '#8E8E93',
+                color: theme.palette.text.secondary,
               }}
             >
               {eventDate}
@@ -116,7 +128,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
               sx={{
                 fontSize: 16,
                 fontWeight: 500,
-                color: '#000',
+                color: theme.palette.text.primary,
                 fontFamily: 'Roboto, sans-serif',
                 mb: 0.5,
                 display: 'flex',
@@ -127,7 +139,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
               <LinkIcon
                 sx={{
                   fontSize: 20,
-                  color: '#000000',
+                  color: theme.palette.text.primary,
                   transform: 'rotate(-45deg)',
                   fontWeight: 500,
                 }}
@@ -145,7 +157,7 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
               <Typography
                 sx={{
                   fontSize: 13,
-                  color: '#007AFF',
+                  color: theme.palette.primary.main,
                   fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
                   wordBreak: 'break-all',
                 }}
@@ -166,17 +178,17 @@ const SuccessEventDialog: React.FC<SuccessEventDialogProps> = ({
               borderRadius: '14px',
               textTransform: 'none',
               fontSize: 16,
-              color: '#007AFF',
-              borderColor: '#007AFF',
+              color: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
               '&:hover': {
-                backgroundColor: '#007AFF',
-                color: '#FFFFFF',
-                borderColor: '#007AFF',
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                borderColor: theme.palette.primary.main,
               },
               '&:active': {
-                backgroundColor: '#007AFF',
-                color: '#FFFFFF',
-                borderColor: '#007AFF',
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                borderColor: theme.palette.primary.main,
               },
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
             }}

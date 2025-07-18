@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Box, Slide } from '@mui/material';
+import { Box, Slide, useTheme } from '@mui/material';
 import EventNotification from '../EventNotification/EventNotification';
 import api from '../../api/telegramApi';
 
@@ -9,6 +9,7 @@ interface NotificationContainerProps {
 }
 
 const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onClose }) => {
+  const theme = useTheme();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -36,7 +37,6 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
     }
   }, [loading, hasMore, cursorId]);
 
-  // Сброс при открытии
   useEffect(() => {
     if (open) {
       setNotifications([]);
@@ -45,14 +45,12 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
     }
   }, [open]);
 
-  // Загрузка первой страницы при открытии
   useEffect(() => {
     if (open && notifications.length === 0 && hasMore && !loading) {
       loadNotifications();
     }
   }, [open, notifications.length, hasMore, loading, loadNotifications]);
 
-  // Intersection Observer для пагинации
   useEffect(() => {
     if (!open) return;
     const observer = new window.IntersectionObserver(
@@ -128,7 +126,9 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
         >
           <Box sx={{ px: 2, pt: 2, pb: 2 }}>
             {notifications.length === 0 && !loading && (
-              <Box sx={{ textAlign: 'center', color: '#8E8E93', py: 4 }}>Нет уведомлений</Box>
+              <Box sx={{ textAlign: 'center', color: theme.palette.text.secondary, py: 4 }}>
+                Нет уведомлений
+              </Box>
             )}
             {notifications.map((notification, index) => (
               <EventNotification
@@ -140,7 +140,9 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
               />
             ))}
             {loading && (
-              <Box sx={{ textAlign: 'center', color: '#8E8E93', py: 2 }}>Загрузка...</Box>
+              <Box sx={{ textAlign: 'center', color: theme.palette.text.secondary, py: 2 }}>
+                Загрузка...
+              </Box>
             )}
             {hasMore && <div ref={loaderRef} style={{ height: 20 }} />}
           </Box>

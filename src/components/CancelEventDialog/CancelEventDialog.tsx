@@ -8,6 +8,7 @@ import {
   Box,
   Checkbox,
   Avatar,
+  useTheme,
 } from '@mui/material';
 
 interface Participant {
@@ -31,6 +32,7 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
   participants,
   onCancel,
 }) => {
+  const theme = useTheme();
   const [notify, setNotify] = useState(true);
 
   return (
@@ -66,11 +68,19 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
         }}
       >
         <DialogContent sx={{ p: 3, pb: 2 }}>
-          <Typography sx={{ fontSize: 15, fontWeight: 400, mb: 2 }}>
+          <Typography
+            sx={{ fontSize: 15, fontWeight: 400, mb: 2, color: theme.palette.text.primary }}
+          >
             Вы отменяете событие, на которое записаны люди
           </Typography>
           <Typography
-            sx={{ fontSize: 14, fontWeight: 500, mb: 1, color: '#007AFF', cursor: 'pointer' }}
+            sx={{
+              fontSize: 14,
+              fontWeight: 500,
+              mb: 1,
+              color: theme.palette.primary.main,
+              cursor: 'pointer',
+            }}
           >
             Участники
           </Typography>
@@ -85,9 +95,11 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
                 {!p.imageUrl && p.firstName?.[0]}
               </Avatar>
             ))}
-            <Typography sx={{ fontSize: 14, ml: 1 }}>{participants.length} человек</Typography>
+            <Typography sx={{ fontSize: 14, ml: 1, color: theme.palette.text.primary }}>
+              {participants.length} человек
+            </Typography>
           </Box>
-          <Typography sx={{ fontSize: 14, color: '#007AFF', mb: 1 }}>
+          <Typography sx={{ fontSize: 14, color: theme.palette.primary.main, mb: 1 }}>
             Направить участникам
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -95,13 +107,15 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
               checked={notify}
               onChange={(e) => setNotify(e.target.checked)}
               sx={{
-                color: '#006FFD',
+                color: theme.palette.primary.main,
                 '&.Mui-checked': {
-                  color: '#006FFD',
+                  color: theme.palette.primary.main,
                 },
               }}
             />
-            <Typography sx={{ fontSize: 14 }}>Оповещение</Typography>
+            <Typography sx={{ fontSize: 14, color: theme.palette.text.primary }}>
+              Оповещение
+            </Typography>
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
@@ -114,17 +128,17 @@ const CancelEventDialog: React.FC<CancelEventDialogProps> = ({
               borderRadius: '14px',
               textTransform: 'none',
               fontSize: 16,
-              color: '#007AFF',
-              borderColor: '#007AFF',
+              color: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
               '&:hover': {
-                backgroundColor: '#007AFF',
-                color: '#FFFFFF',
-                borderColor: '#007AFF',
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                borderColor: theme.palette.primary.main,
               },
               '&:active': {
-                backgroundColor: '#007AFF',
-                color: '#FFFFFF',
-                borderColor: '#007AFF',
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                borderColor: theme.palette.primary.main,
               },
               fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
             }}

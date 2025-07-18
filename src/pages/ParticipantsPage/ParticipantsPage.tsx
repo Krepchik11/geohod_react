@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, Avatar, IconButton, CircularProgress } from '@mui/material';
+import { Box, Typography, Avatar, IconButton, CircularProgress, useTheme } from '@mui/material';
 import Toast from '../../components/Toast/Toast';
 import { useUserStore } from '../../store/userStore';
 import Dialog from '@mui/material/Dialog';
@@ -11,6 +11,7 @@ import TopBar from '../../components/TopBar/TopBar';
 import CloseIcon from '@mui/icons-material/Close';
 
 const ParticipantsPage: React.FC = () => {
+  const theme = useTheme();
   const { id } = useParams<{ id: string }>();
   const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,7 @@ const ParticipantsPage: React.FC = () => {
   }, [id]);
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fff' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: theme.palette.background.default }}>
       <TopBar title="Список участников" showBackButton showNotifications={false} />
       <Toast
         isVisible={toast.isVisible}
@@ -54,7 +55,7 @@ const ParticipantsPage: React.FC = () => {
           <CircularProgress />
         </Box>
       ) : participants.length === 0 ? (
-        <Typography align="center" sx={{ mt: 4, color: '#8E8E93' }}>
+        <Typography align="center" sx={{ mt: 4, color: theme.palette.text.secondary }}>
           У данного события отсутствуют участники
         </Typography>
       ) : (
@@ -65,10 +66,11 @@ const ParticipantsPage: React.FC = () => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                borderBottom: '1px solid #E5E5EA',
-                borderTop: '1px solid #E5E5EA',
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                borderTop: `1px solid ${theme.palette.divider}`,
                 py: 2,
                 gap: 2,
+                bgcolor: theme.palette.background.paper,
               }}
             >
               <Avatar
@@ -77,11 +79,13 @@ const ParticipantsPage: React.FC = () => {
                 sx={{ width: 44, height: 44, mr: 0 }}
               />
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
+                <Typography
+                  sx={{ fontSize: 16, fontWeight: 600, color: theme.palette.text.primary }}
+                >
                   {p.name || `${p.firstName || ''} ${p.lastName || ''}`}
                 </Typography>
                 {p.username || p.tgUsername ? (
-                  <Typography sx={{ color: '#8E8E93', fontSize: 14 }}>
+                  <Typography sx={{ color: theme.palette.text.secondary, fontSize: 14 }}>
                     @{p.username || p.tgUsername}
                   </Typography>
                 ) : null}
@@ -97,7 +101,7 @@ const ParticipantsPage: React.FC = () => {
                     height: 40,
                     mr: 1,
                     borderRadius: '50%',
-                    color: '#007AFF',
+                    color: theme.palette.primary.main,
                   }}
                 >
                   <img
@@ -153,7 +157,7 @@ const ParticipantsPage: React.FC = () => {
               zIndex: 10,
               width: 36,
               height: 36,
-              bgcolor: '#F2F2F7',
+              bgcolor: theme.palette.action.hover,
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
@@ -163,14 +167,18 @@ const ParticipantsPage: React.FC = () => {
             }}
             onClick={() => setDialog({ open: false, participant: null })}
           >
-            <CloseIcon sx={{ color: '#8E8E93', fontSize: 22 }} />
+            <CloseIcon sx={{ color: theme.palette.text.secondary, fontSize: 22 }} />
           </Box>
         )}
         <DialogContent sx={{ p: 3, pb: 2 }}>
-          <Typography sx={{ fontSize: 15, fontWeight: 400, mb: 2 }}>
+          <Typography
+            sx={{ fontSize: 15, fontWeight: 400, mb: 2, color: theme.palette.text.primary }}
+          >
             Вы удаляете запись на событие для следующего участника
           </Typography>
-          <Typography sx={{ fontSize: 15, fontWeight: 500, mb: 1, color: '#007AFF' }}>
+          <Typography
+            sx={{ fontSize: 15, fontWeight: 500, mb: 1, color: theme.palette.primary.main }}
+          >
             Участники
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -179,7 +187,7 @@ const ParticipantsPage: React.FC = () => {
               alt={dialog.participant?.name || dialog.participant?.firstName}
               sx={{ width: 44, height: 44, mr: 1 }}
             />
-            <Typography sx={{ fontWeight: 600, fontSize: 16 }}>
+            <Typography sx={{ fontWeight: 600, fontSize: 16, color: theme.palette.text.primary }}>
               {dialog.participant?.name ||
                 `${dialog.participant?.firstName || ''} ${dialog.participant?.lastName || ''}`}
             </Typography>
@@ -194,9 +202,12 @@ const ParticipantsPage: React.FC = () => {
                 fontSize: 16,
                 textTransform: 'none',
                 height: 44,
-                color: '#007AFF',
-                border: '1.5px solid #007AFF',
-                '&:hover': { bgcolor: '#007AFF', color: '#fff' },
+                color: theme.palette.primary.main,
+                border: `1.5px solid ${theme.palette.primary.main}`,
+                '&:hover': {
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
+                },
               }}
             >
               Отменить

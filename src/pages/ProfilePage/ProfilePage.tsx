@@ -202,7 +202,8 @@ const ProfilePage: React.FC = () => {
   const handleApplySettings = async () => {
     const data = {
       defaultDonationAmount: donation,
-      defaultMaxParticipants: Number(maxParticipants),
+      defaultMaxParticipants:
+        maxParticipants === '' ? settings?.defaultMaxParticipants || 30 : Number(maxParticipants),
     };
     const res = await userSettingsApi.updateSettings(data);
     if (res.result === 'SUCCESS') {
@@ -414,8 +415,7 @@ const ProfilePage: React.FC = () => {
                     src={review.isHidden ? invisibleIcon : visibleIcon}
                     alt={review.isHidden ? 'Скрыто' : 'Видимо'}
                     style={{
-                      width: 28,
-                      height: 28,
+                      width: 20,
                       display: 'block',
                       filter:
                         window.Telegram?.WebApp?.colorScheme === 'dark' ? 'invert(1)' : 'none',

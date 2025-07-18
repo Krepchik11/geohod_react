@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, Button, Typography, Avatar, Box } from '@mui/material';
+import { Dialog, DialogContent, Button, Typography, Avatar, Box, useTheme } from '@mui/material';
 import { Event as EventIcon } from '@mui/icons-material';
 import { Event } from '../../api';
 import StarIcon from '@mui/icons-material/Star';
@@ -15,6 +15,8 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
   onClose,
   event,
 }) => {
+  const theme = useTheme();
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU', {
@@ -27,26 +29,36 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogContent sx={{ p: 3, pb: 2 }}>
-        <Typography sx={{ fontSize: 14, fontWeight: 400, mb: 2 }}>
+        <Typography
+          sx={{ fontSize: 14, fontWeight: 400, mb: 2, color: theme.palette.text.primary }}
+        >
           Вы успешно зарегистрировались на событие
         </Typography>
-        <Typography sx={{ fontSize: 16, fontWeight: 700, mb: 1 }}>{event?.name}</Typography>
+        <Typography
+          sx={{ fontSize: 16, fontWeight: 700, mb: 1, color: theme.palette.text.primary }}
+        >
+          {event?.name}
+        </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <EventIcon sx={{ fontSize: 20, color: '#8E8E93', mr: 1 }} />
-          <Typography sx={{ fontSize: 14 }}>{event && formatDate(event.date)}</Typography>
+          <EventIcon sx={{ fontSize: 20, color: theme.palette.text.secondary, mr: 1 }} />
+          <Typography sx={{ fontSize: 14, color: theme.palette.text.primary }}>
+            {event && formatDate(event.date)}
+          </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Avatar src={event?.author?.tgImageUrl} sx={{ width: 32, height: 32, mr: 1 }} />
           <Box>
-            <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
+            <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
               Инициатор события
             </Typography>
-            <Typography sx={{ fontWeight: 500, fontSize: 15 }}>
+            <Typography sx={{ fontWeight: 500, fontSize: 15, color: theme.palette.text.primary }}>
               {event?.author?.firstName} {event?.author?.lastName}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <StarIcon sx={{ color: '#007AFF', width: '16px', height: '16px' }} />
-              <Typography sx={{ fontSize: 14, color: '#8E8E93' }}>4.8</Typography>
+              <StarIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
+              <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
+                4.8
+              </Typography>
             </Box>
           </Box>
           <Button
@@ -65,8 +77,8 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
               height: 36,
               textTransform: 'none',
               boxShadow: 'none',
-              bgcolor: '#007AFF',
-              '&:hover': { bgcolor: '#0056b3' },
+              bgcolor: theme.palette.primary.main,
+              '&:hover': { bgcolor: theme.palette.primary.dark },
               marginLeft: 'auto',
             }}
             disabled={!event?.author?.tgUsername}
@@ -74,8 +86,9 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
             Связаться
           </Button>
         </Box>
-        <Typography sx={{ fontSize: 14, color: 'black', mb: 1 }}>
-          Человек в группе: <span style={{ color: '#007AFF' }}>{event?.participantsCount}</span> из{' '}
+        <Typography sx={{ fontSize: 14, color: theme.palette.text.primary, mb: 1 }}>
+          Человек в группе:{' '}
+          <span style={{ color: theme.palette.primary.main }}>{event?.participantsCount}</span> из{' '}
           {event?.maxParticipants}
         </Typography>
         <Button
@@ -87,11 +100,11 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
             fontSize: 16,
             textTransform: 'none',
             mt: 2,
-            color: '#006FFD',
-            border: '1.5px solid #006FFD',
+            color: theme.palette.primary.main,
+            border: `1.5px solid ${theme.palette.primary.main}`,
             '&:hover': {
-              bgcolor: '#006FFD',
-              color: '#fff',
+              bgcolor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
             },
           }}
           onClick={onClose}

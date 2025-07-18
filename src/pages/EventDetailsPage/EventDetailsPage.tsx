@@ -15,6 +15,7 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  useTheme,
 } from '@mui/material';
 import { Event as EventIcon, PeopleAlt as PeopleAltIcon } from '@mui/icons-material';
 import { api, Event, EventStatus, User } from '../../api';
@@ -58,6 +59,7 @@ const EventDetailsPage: React.FC = () => {
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState(false);
   const [iamParticipant, setIamParticipant] = useState(false);
   const [isPast, setIsPast] = useState(false);
+  const theme = useTheme();
 
   const isCanceled = event?.status === EventStatus.CANCELED;
 
@@ -295,8 +297,8 @@ const EventDetailsPage: React.FC = () => {
               sx={{
                 borderRadius: '14px',
                 textTransform: 'none',
-                bgcolor: '#007AFF',
-                '&:hover': { bgcolor: '#0056b3' },
+                bgcolor: theme.palette.primary.main,
+                '&:hover': { bgcolor: theme.palette.primary.dark },
               }}
             >
               Вернуться на главную
@@ -308,21 +310,21 @@ const EventDetailsPage: React.FC = () => {
               <>
                 <Box
                   sx={{
-                    bgcolor: '#fff',
-                    borderTop: '1px solid #E5E5EA',
-                    borderBottom: '1px solid #E5E5EA',
+                    bgcolor: theme.palette.background.default,
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    borderBottom: `1px solid ${theme.palette.divider}`,
                     py: 1.5,
                     px: 0,
                   }}
                 >
-                  <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
+                  <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
                     Название события
                   </Typography>
                   <Typography
                     sx={{
                       fontSize: 17,
                       fontWeight: 600,
-                      color: '#000',
+                      color: theme.palette.text.primary,
                     }}
                   >
                     {event.name}
@@ -330,16 +332,20 @@ const EventDetailsPage: React.FC = () => {
                 </Box>
                 <Box
                   sx={{
-                    bgcolor: '#fff',
-                    borderBottom: '1px solid #E5E5EA',
+                    bgcolor: theme.palette.background.default,
+                    borderBottom: `1px solid ${theme.palette.divider}`,
                     py: 1.5,
                     px: 0,
                   }}
                 >
-                  <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>Дата</Typography>
+                  <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
+                    Дата
+                  </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <EventIcon sx={{ fontSize: 20, color: 'black' }} />
-                    <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#000' }}>
+                    <EventIcon sx={{ fontSize: 20, color: theme.palette.text.primary }} />
+                    <Typography
+                      sx={{ fontSize: 15, fontWeight: 600, color: theme.palette.text.primary }}
+                    >
                       {formatDateOnly(event.date)}
                     </Typography>
                   </Box>
@@ -347,13 +353,13 @@ const EventDetailsPage: React.FC = () => {
                 {isPast && false && (
                   <Box
                     sx={{
-                      bgcolor: '#fff',
-                      borderBottom: '1px solid #E5E5EA',
+                      bgcolor: theme.palette.background.default,
+                      borderBottom: `1px solid ${theme.palette.divider}`,
                       py: 1.5,
                       px: 0,
                     }}
                   >
-                    <Typography sx={{ color: '#8E8E93', fontSize: 15 }}>
+                    <Typography sx={{ color: theme.palette.text.secondary, fontSize: 15 }}>
                       Данное событие завершено
                     </Typography>
                   </Box>
@@ -366,9 +372,9 @@ const EventDetailsPage: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  bgcolor: '#fff',
-                  borderTop: '1px solid #E5E5EA',
-                  borderBottom: '1px solid #E5E5EA',
+                  bgcolor: theme.palette.background.default,
+                  borderTop: `1px solid ${theme.palette.divider}`,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
                   width: '100vw',
                   position: 'relative',
                   left: '50%',
@@ -385,7 +391,7 @@ const EventDetailsPage: React.FC = () => {
                     sx={{
                       fontSize: 16,
                       fontWeight: 500,
-                      color: '#000',
+                      color: theme.palette.text.primary,
                       fontFamily: 'Roboto, sans-serif',
                       mb: 0.5,
                       display: 'flex',
@@ -401,7 +407,11 @@ const EventDetailsPage: React.FC = () => {
                       }}
                     >
                       <LinkIcon
-                        sx={{ color: 'black', fontSize: 20, transform: 'rotate(-45deg)' }}
+                        sx={{
+                          color: theme.palette.text.primary,
+                          fontSize: 20,
+                          transform: 'rotate(-45deg)',
+                        }}
                       />
                     </Box>
                     Копировать ссылку
@@ -417,7 +427,7 @@ const EventDetailsPage: React.FC = () => {
                     <Typography
                       sx={{
                         fontSize: 13,
-                        color: '#007AFF',
+                        color: theme.palette.primary.main,
                         fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
                         wordBreak: 'break-all',
                         display: '-webkit-box',
@@ -452,24 +462,31 @@ const EventDetailsPage: React.FC = () => {
                   )}
               </Box>
             )}
-            <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid #E5E5EA' }}>
+            <Box
+              sx={{
+                bgcolor: theme.palette.background.default,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+              }}
+            >
               <Box sx={{ px: 1, pt: 2, pb: 1.5, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
+                <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
                   Человек в группе
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <PeopleAltIcon sx={{ fontSize: 20, color: 'black', mr: 1 }} />
+                  <PeopleAltIcon sx={{ fontSize: 20, color: theme.palette.text.primary, mr: 1 }} />
                   <Typography
                     sx={{
                       fontSize: 15,
-                      color: '#007AFF',
+                      color: theme.palette.primary.main,
                       fontWeight: 600,
                       mr: 0.5,
                     }}
                   >
                     {event.participantsCount || 0}
                   </Typography>
-                  <Typography sx={{ fontSize: 15, color: 'black', fontWeight: 600 }}>
+                  <Typography
+                    sx={{ fontSize: 15, color: theme.palette.text.primary, fontWeight: 600 }}
+                  >
                     из {event.maxParticipants}
                   </Typography>
                 </Box>
@@ -477,7 +494,7 @@ const EventDetailsPage: React.FC = () => {
             </Box>
             <Box
               sx={{
-                bgcolor: '#fff',
+                bgcolor: theme.palette.background.default,
               }}
             >
               <Box
@@ -491,7 +508,7 @@ const EventDetailsPage: React.FC = () => {
                   flexDirection: 'column',
                 }}
               >
-                <Typography sx={{ fontSize: 14, color: '#8E8E93', mb: 0.5 }}>
+                <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
                   Инициатор события
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
@@ -505,7 +522,7 @@ const EventDetailsPage: React.FC = () => {
                       sx={{
                         fontSize: 17,
                         fontWeight: 600,
-                        color: '#000',
+                        color: theme.palette.text.primary,
                       }}
                     >
                       {event.author.firstName}
@@ -514,11 +531,16 @@ const EventDetailsPage: React.FC = () => {
                       sx={{
                         fontSize: '15px',
                         fontWeight: 600,
-                        color: '#707579',
+                        color: theme.palette.text.secondary,
                       }}
                     >
                       <StarIcon
-                        sx={{ color: '#007AFF', width: '12px', height: '12px', marginRight: '6px' }}
+                        sx={{
+                          color: theme.palette.primary.main,
+                          width: '12px',
+                          height: '12px',
+                          marginRight: '6px',
+                        }}
                       />
                       4.8
                     </Typography>
@@ -526,7 +548,7 @@ const EventDetailsPage: React.FC = () => {
                 </Box>
               </Box>
             </Box>
-            <Box sx={{ px: 0, pb: 3, bgcolor: '#fff' }}>
+            <Box sx={{ px: 0, pb: 3, bgcolor: theme.palette.background.default }}>
               {isOrganizer ? (
                 <>
                   <Box
@@ -536,7 +558,7 @@ const EventDetailsPage: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      bgcolor: '#F7F7F7',
+                      bgcolor: theme.palette.action.hover,
                       borderRadius: '16px',
                       px: 2,
                       py: '12px',
@@ -545,12 +567,6 @@ const EventDetailsPage: React.FC = () => {
                       boxShadow: 'none',
                       cursor: 'pointer',
                       transition: 'background 0.2s',
-                      '&:hover': {
-                        background: '#E5F1FF',
-                        '& .button-text': {
-                          background: '#E5F1FF',
-                        },
-                      },
                       opacity: 1,
                       pointerEvents: 'auto',
                     }}
@@ -575,7 +591,7 @@ const EventDetailsPage: React.FC = () => {
                       <Typography
                         className="button-text"
                         sx={{
-                          color: '#000',
+                          color: theme.palette.text.primary,
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
                           fontSize: 16,
@@ -586,7 +602,7 @@ const EventDetailsPage: React.FC = () => {
                       </Typography>
                     </Box>
                     <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
-                      <ArrowForwardIosIcon sx={{ color: '#8E8E93' }} />
+                      <ArrowForwardIosIcon sx={{ color: theme.palette.text.secondary }} />
                     </Box>
                   </Box>
                   <Box
@@ -598,7 +614,7 @@ const EventDetailsPage: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      bgcolor: '#F7F7F7',
+                      bgcolor: theme.palette.action.hover,
                       borderRadius: '16px',
                       px: 2,
                       py: '12px',
@@ -607,12 +623,6 @@ const EventDetailsPage: React.FC = () => {
                       boxShadow: 'none',
                       cursor: 'pointer',
                       transition: 'background 0.2s',
-                      '&:hover': {
-                        background: '#E5F1FF',
-                        '& .button-text': {
-                          background: '#E5F1FF',
-                        },
-                      },
                     }}
                     onClick={handleEditEvent}
                   >
@@ -635,7 +645,7 @@ const EventDetailsPage: React.FC = () => {
                       <Typography
                         className="button-text"
                         sx={{
-                          color: '#000',
+                          color: theme.palette.text.primary,
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
                           fontSize: 16,
@@ -646,7 +656,9 @@ const EventDetailsPage: React.FC = () => {
                       </Typography>
                     </Box>
                     <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
-                      <ArrowForwardIosIcon sx={{ color: '#8E8E93', fontSize: 20 }} />
+                      <ArrowForwardIosIcon
+                        sx={{ color: theme.palette.text.secondary, fontSize: 20 }}
+                      />
                     </Box>
                   </Box>
                   <Box
@@ -658,7 +670,7 @@ const EventDetailsPage: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      bgcolor: '#F7F7F7',
+                      bgcolor: theme.palette.action.hover,
                       borderRadius: '16px',
                       px: 2,
                       py: '12px',
@@ -690,7 +702,7 @@ const EventDetailsPage: React.FC = () => {
                       <Typography
                         className="button-text"
                         sx={{
-                          color: '#000',
+                          color: theme.palette.text.primary,
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
                           fontSize: 16,
@@ -701,7 +713,7 @@ const EventDetailsPage: React.FC = () => {
                       </Typography>
                     </Box>
                     <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
-                      <ArrowForwardIosIcon sx={{ color: '#8E8E93' }} />
+                      <ArrowForwardIosIcon sx={{ color: theme.palette.text.secondary }} />
                     </Box>
                   </Box>
                   <Box
@@ -713,7 +725,7 @@ const EventDetailsPage: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      bgcolor: '#F7F7F7',
+                      bgcolor: theme.palette.action.hover,
                       borderRadius: '16px',
                       px: 2,
                       py: '8px',
@@ -748,13 +760,16 @@ const EventDetailsPage: React.FC = () => {
                           fontWeight: 400,
                           fontSize: 16,
                           transition: 'background 0.2s',
+                          color: theme.palette.text.primary,
                         }}
                       >
                         Отменить событие
                       </Typography>
                     </Box>
                     <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
-                      <ArrowForwardIosIcon sx={{ color: '#8E8E93', fontSize: 20 }} />
+                      <ArrowForwardIosIcon
+                        sx={{ color: theme.palette.text.secondary, fontSize: 20 }}
+                      />
                     </Box>
                   </Box>
                 </>
@@ -769,7 +784,7 @@ const EventDetailsPage: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      bgcolor: '#F7F7F7',
+                      bgcolor: theme.palette.action.hover,
                       borderRadius: '14px',
                       px: 2,
                       py: '8px',
@@ -778,7 +793,6 @@ const EventDetailsPage: React.FC = () => {
                       boxShadow: 'none',
                       cursor: 'pointer',
                       transition: 'background 0.2s',
-                      '&:hover': { background: '#E5F1FF' },
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -787,7 +801,7 @@ const EventDetailsPage: React.FC = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          backgroundColor: '#007AFF',
+                          backgroundColor: theme.palette.primary.main,
                           borderRadius: '50%',
                           padding: '8px',
                           width: '40px',
@@ -803,7 +817,7 @@ const EventDetailsPage: React.FC = () => {
                       </Box>
                       <Typography
                         sx={{
-                          color: '#000',
+                          color: theme.palette.text.primary,
                           fontFamily: 'Roboto, sans-serif',
                           fontWeight: 400,
                           fontSize: 16,
@@ -814,7 +828,9 @@ const EventDetailsPage: React.FC = () => {
                       </Typography>
                     </Box>
                     <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
-                      <ArrowForwardIosIcon sx={{ color: '#8E8E93', fontSize: 20 }} />
+                      <ArrowForwardIosIcon
+                        sx={{ color: theme.palette.text.secondary, fontSize: 20 }}
+                      />
                     </Box>
                   </Box>
                   {iamParticipant && !isPast && (
@@ -823,7 +839,7 @@ const EventDetailsPage: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        bgcolor: '#F7F7F7',
+                        bgcolor: theme.palette.action.hover,
                         borderRadius: '14px',
                         px: 2,
                         py: '12px',
@@ -832,7 +848,6 @@ const EventDetailsPage: React.FC = () => {
                         boxShadow: 'none',
                         cursor: 'pointer',
                         transition: 'background 0.2s',
-                        '&:hover': { background: '#E5F1FF' },
                       }}
                       onClick={() => setUnregisterDialogOpen(true)}
                     >
@@ -869,7 +884,9 @@ const EventDetailsPage: React.FC = () => {
                         </Typography>
                       </Box>
                       <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
-                        <ArrowForwardIosIcon sx={{ color: '#8E8E93', fontSize: 20 }} />
+                        <ArrowForwardIosIcon
+                          sx={{ color: theme.palette.text.secondary, fontSize: 20 }}
+                        />
                       </Box>
                     </Box>
                   )}
@@ -877,7 +894,7 @@ const EventDetailsPage: React.FC = () => {
                     <Box
                       sx={{
                         width: '100%',
-                        bgcolor: '#fff',
+                        bgcolor: theme.palette.background.default,
                         display: 'flex',
                         justifyContent: 'center',
                       }}
@@ -892,9 +909,8 @@ const EventDetailsPage: React.FC = () => {
                           fontSize: 16,
                           textTransform: 'none',
                           fontWeight: 600,
-                          bgcolor: '#007AFF',
-                          color: '#fff',
-                          '&:hover': { bgcolor: '#0056b3' },
+                          bgcolor: theme.palette.primary.main,
+                          color: theme.palette.primary.contrastText,
                         }}
                         onClick={handleRegister}
                         disabled={
