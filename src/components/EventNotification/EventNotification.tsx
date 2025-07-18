@@ -39,12 +39,24 @@ const EventNotification: React.FC<NotificationProps> = ({
     parsedPayload = typeof eventTitle === 'string' ? JSON.parse(eventTitle) : eventTitle;
   } catch {}
 
+  // Дополнительная попытка парсинга, если payload может быть вложенным JSON
+  if (typeof parsedPayload === 'string' && parsedPayload.startsWith('{')) {
+    try {
+      const nestedPayload = JSON.parse(parsedPayload);
+      if (nestedPayload && typeof nestedPayload === 'object') {
+        parsedPayload = nestedPayload;
+      }
+    } catch {}
+  }
+
   // Логируем данные уведомления для отладки
   console.log('Notification data:', {
     type,
     eventTitle,
     parsedPayload,
     timestamp,
+    payloadKeys: parsedPayload ? Object.keys(parsedPayload) : [],
+    payloadValues: parsedPayload ? Object.values(parsedPayload) : [],
   });
 
   const NotificationContent = {
@@ -175,38 +187,55 @@ const EventNotification: React.FC<NotificationProps> = ({
   const navigate = useNavigate();
 
   const handleViewEvent = async () => {
+    // Если есть eventId, переходим сразу
     if (parsedPayload && parsedPayload.eventId) {
+      console.log('Найден eventId в payload:', parsedPayload.eventId);
       navigate(`/event/${parsedPayload.eventId}`);
       return;
     }
 
+    // Проверяем все возможные поля для eventId
+    if (parsedPayload) {
+      const possibleEventIdFields = ['eventId', 'event_id', 'id'];
+      for (const field of possibleEventIdFields) {
+        if (parsedPayload[field]) {
+          console.log(`Найден eventId в поле ${field}:`, parsedPayload[field]);
+          navigate(`/event/${parsedPayload[field]}`);
+          return;
+        }
+      }
+    }
+
+    // Проверяем, может ли сам payload быть eventId
+    if (typeof parsedPayload === 'string' && /^\d+$/.test(parsedPayload)) {
+      console.log('Payload является eventId:', parsedPayload);
+      navigate(`/event/${parsedPayload}`);
+      return;
+    }
+
+    // Проверяем, может ли eventTitle быть eventId
+    if (typeof eventTitle === 'string' && /^\d+$/.test(eventTitle)) {
+      console.log('eventTitle является eventId:', eventTitle);
+      navigate(`/event/${eventTitle}`);
+      return;
+    }
+
+    // Для EVENT_CREATED - просто получаем все события и берем самое последнее
     if (type === 'EVENT_CREATED' && parsedPayload && parsedPayload.authorId) {
       setIsLoading(true);
       try {
         const eventsResponse = await api.events.getEventsByAuthor(parsedPayload.authorId, {
           page: 0,
-          size: 20,
+          size: 1,
           sort: 'createdAt,desc',
         });
 
         if (eventsResponse.content && eventsResponse.content.length > 0) {
-          const notificationTime = timestamp ? new Date(timestamp).getTime() : 0;
-          let targetEvent = eventsResponse.content[0];
-
-          if (notificationTime > 0) {
-            const oneHourMs = 60 * 60 * 1000;
-            const matchingEvent = eventsResponse.content.find((event: any) => {
-              const eventTime = new Date(event.createdAt).getTime();
-              return Math.abs(eventTime - notificationTime) <= oneHourMs;
-            });
-
-            if (matchingEvent) {
-              targetEvent = matchingEvent;
-            }
-          }
-
-          navigate(`/event/${targetEvent.id}`);
+          const latestEvent = eventsResponse.content[0];
+          console.log('Найдено последнее событие автора:', latestEvent.id);
+          navigate(`/event/${latestEvent.id}`);
         } else {
+          console.log('События автора не найдены');
           onViewClick();
         }
       } catch (error) {
@@ -218,16 +247,7 @@ const EventNotification: React.FC<NotificationProps> = ({
       return;
     }
 
-    if (parsedPayload) {
-      const possibleEventIdFields = ['eventId', 'event_id', 'id'];
-      for (const field of possibleEventIdFields) {
-        if (parsedPayload[field]) {
-          navigate(`/event/${parsedPayload[field]}`);
-          return;
-        }
-      }
-    }
-
+    // Если eventId не найден, но есть eventName, пытаемся найти событие по названию
     if (parsedPayload && parsedPayload.eventName && type !== 'EVENT_CREATED') {
       setIsLoading(true);
       try {
@@ -243,6 +263,7 @@ const EventNotification: React.FC<NotificationProps> = ({
           );
 
           if (matchingEvent) {
+            console.log('Найдено событие по названию:', matchingEvent.id);
             navigate(`/event/${matchingEvent.id}`);
             setIsLoading(false);
             return;
@@ -255,6 +276,7 @@ const EventNotification: React.FC<NotificationProps> = ({
       }
     }
 
+    console.log('Событие не найдено, закрываем попап');
     onViewClick();
   };
 

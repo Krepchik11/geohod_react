@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import TopBar from '../../components/TopBar/TopBar';
 import EventCard from '../../components/EventCard/EventCard';
-import { api } from '../../api/telegramApi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Toast from '../../components/Toast/Toast';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import { useEventsStore } from '../../store/eventsStore';
 
 interface Author {
   id: string;
@@ -26,31 +26,14 @@ interface Event {
 }
 
 const EventsPage: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { events, loading, error, fetchEvents } = useEventsStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [showUnregisterToast, setShowUnregisterToast] = useState(false);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const response = await api.events.getAllEvents();
-        if (response && response.content) {
-          setEvents(response.content);
-        }
-      } catch (err) {
-        console.error('Ошибка при загрузке событий:', err);
-        setError('Не удалось загрузить события');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
   useEffect(() => {
     if (location.state?.showUnregisterToast) {
