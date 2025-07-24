@@ -18,6 +18,7 @@ export default defineConfig({
       NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
       REACT_APP_TELEGRAM_WEBAPP: process.env.REACT_APP_TELEGRAM_WEBAPP || true,
       REACT_APP_API_URL: JSON.stringify('https://app.geohod.ru/api/v1'),
+      REACT_APP_BOT_USERNAME: JSON.stringify(process.env.REACT_APP_BOT_USERNAME || ''),
     },
     global: 'window',
   },

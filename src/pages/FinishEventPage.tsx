@@ -83,6 +83,13 @@ const FinishEventPage: React.FC = () => {
     navigate('/events');
   };
 
+  const pluralizePerson = (count: number): string => {
+    if (count % 10 === 1 && count % 100 !== 11) return `${count} человек`;
+    if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100))
+      return `${count} человека`;
+    return `${count} человек`;
+  };
+
   if (!event) return null;
 
   return (
@@ -159,7 +166,7 @@ const FinishEventPage: React.FC = () => {
                   mr: 0.5,
                 }}
               >
-                {event.participantsCount || 0}
+                {participants.length || 0}
               </Typography>
               <Typography sx={{ fontSize: 15, color: theme.palette.text.primary, fontWeight: 600 }}>
                 из {event.maxParticipants}
@@ -176,7 +183,7 @@ const FinishEventPage: React.FC = () => {
               >
                 Участники
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 1.6 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 1 }}>
                 {participants.slice(0, 5).map((p, idx) => (
                   <Avatar
                     key={p.id}
@@ -250,7 +257,7 @@ const FinishEventPage: React.FC = () => {
           disabled={!sendDonation}
           placeholder="500 динар"
           size="small"
-          sx={{ ml: 0.5, width: 237, borderRadius: '12px' }}
+          sx={{ ml: 0.5, width: 237, borderRadius: '17px' }}
         />
       </Box>
       <Button
@@ -319,9 +326,9 @@ const FinishEventPage: React.FC = () => {
             {participants.length > 0 && (
               <>
                 <Typography
-                  sx={{ fontSize: 14, color: theme.palette.primary.main, mb: 1.5, mt: 1.5, px: 1 }}
+                  sx={{ fontSize: 14, color: theme.palette.primary.main, mb: 1.5, mt: 1.5 }}
                 >
-                  Участники ({participants.length})
+                  Участники
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, px: 1 }}>
                   {participants.map((participant) => (
@@ -331,21 +338,19 @@ const FinishEventPage: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 0.5,
-                        bgcolor: theme.palette.action.hover,
                         borderRadius: '8px',
-                        px: 1,
-                        py: 0.5,
+                        px: 0,
                       }}
                     >
                       <Avatar
                         src={participant.imageUrl || participant.tgImageUrl}
-                        sx={{ width: 24, height: 24 }}
+                        sx={{ width: 24, height: 24, p: 0 }}
                       />
-                      <Typography sx={{ fontSize: 12, color: theme.palette.text.primary }}>
-                        {participant.firstName || participant.name}
-                      </Typography>
                     </Box>
                   ))}
+                  <Typography sx={{ fontSize: 14 }}>
+                    {pluralizePerson(participants.length)}
+                  </Typography>
                 </Box>
               </>
             )}

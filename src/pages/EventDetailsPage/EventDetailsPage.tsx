@@ -38,6 +38,8 @@ import canIcon from '../../assets/icons/can.svg';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
 import RegistrationConfirmDialog from '../../components/RegistrationConfirmDialog/RegistrationConfirmDialog';
 import RegistrationErrorDialog from '../../components/RegistrationErrorDialog/RegistrationErrorDialog';
+import { getRegistrationLink } from '../../config/botConfig';
+import { canShowFinishButton } from '../../utils/eventUtils';
 
 const EventDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -90,7 +92,7 @@ const EventDetailsPage: React.FC = () => {
 
         setEvent({
           ...eventData,
-          registrationLink: `https://t.me/geohodton_bot?startapp=registration_${eventData.id}`,
+          registrationLink: getRegistrationLink(eventData.id),
           participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
           author: {
             ...eventData.author,
@@ -130,7 +132,7 @@ const EventDetailsPage: React.FC = () => {
       const eventData = await api.events.getEventById(event.id);
       setEvent({
         ...eventData,
-        registrationLink: `https://t.me/geohodton_bot?startapp=registration_${eventData.id}`,
+        registrationLink: getRegistrationLink(eventData.id),
         participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
         author: {
           ...eventData.author,
@@ -194,7 +196,7 @@ const EventDetailsPage: React.FC = () => {
       const eventData = await api.events.getEventById(id);
       setEvent({
         ...eventData,
-        registrationLink: `https://t.me/geohodton_bot?startapp=registration_${eventData.id}`,
+        registrationLink: getRegistrationLink(eventData.id),
         participantsCount: eventData.currentParticipants ?? eventData.participantsCount,
         author: {
           ...eventData.author,
@@ -637,8 +639,9 @@ const EventDetailsPage: React.FC = () => {
                     sx={{
                       width: '100%',
                       minWidth: 200,
-                      opacity: isCanceled ? 0.5 : 1,
-                      pointerEvents: isCanceled ? 'none' : 'auto',
+                      opacity: event.status === EventStatus.FINISHED || isCanceled ? 0.5 : 1,
+                      pointerEvents:
+                        event.status === EventStatus.FINISHED || isCanceled ? 'none' : 'auto',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
@@ -652,7 +655,11 @@ const EventDetailsPage: React.FC = () => {
                       cursor: 'pointer',
                       transition: 'background 0.2s',
                     }}
-                    onClick={handleEditEvent}
+                    onClick={
+                      event.status === EventStatus.FINISHED || isCanceled
+                        ? undefined
+                        : handleEditEvent
+                    }
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Box
@@ -748,8 +755,9 @@ const EventDetailsPage: React.FC = () => {
                     sx={{
                       width: '100%',
                       minWidth: 200,
-                      opacity: isCanceled ? 0.5 : 1,
-                      pointerEvents: isCanceled ? 'none' : 'auto',
+                      opacity: event.status === EventStatus.FINISHED || isCanceled ? 0.5 : 1,
+                      pointerEvents:
+                        event.status === EventStatus.FINISHED || isCanceled ? 'none' : 'auto',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
@@ -763,7 +771,11 @@ const EventDetailsPage: React.FC = () => {
                       cursor: 'pointer',
                       transition: 'background 0.2s',
                     }}
-                    onClick={handleOpenCancelDialog}
+                    onClick={
+                      event.status === EventStatus.FINISHED || isCanceled
+                        ? undefined
+                        : handleOpenCancelDialog
+                    }
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Box
@@ -861,7 +873,7 @@ const EventDetailsPage: React.FC = () => {
                       />
                     </Box>
                   </Box>
-                  {iamParticipant && !isPast && (
+                  {iamParticipant && !isPast && event.status !== EventStatus.FINISHED && (
                     <Box
                       sx={{
                         display: 'flex',
@@ -1025,6 +1037,34 @@ const EventDetailsPage: React.FC = () => {
         onUnregister={handleUnregister}
         event={event}
       />
+
+      {canShowFinishButton(event, user) && (
+        <Box sx={{ mt: 3, mb: 2, display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{
+              height: 48,
+              borderRadius: '14px',
+              width: '90%',
+              fontWeight: 600,
+              fontSize: 17,
+              minWidth: 220,
+            }}
+            onClick={() => navigate(`/finish-event/${event.id}`)}
+          >
+            Завершить событие
+          </Button>
+        </Box>
+      )}
+
+      {event && iamParticipant && event.status === EventStatus.FINISHED && (
+        <Box sx={{ mt: 3, mb: 2, display: 'flex', justifyContent: 'center' }}>
+          <Typography sx={{ color: theme.palette.primary.main, fontWeight: 600, fontSize: 18 }}>
+            Событие завершено
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 };

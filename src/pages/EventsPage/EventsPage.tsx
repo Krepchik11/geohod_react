@@ -43,6 +43,13 @@ const EventsPage: React.FC = () => {
     }
   }, [location, navigate]);
 
+  // Новый useEffect для обновления при возврате на /events
+  useEffect(() => {
+    if (location.pathname === '/events') {
+      fetchEvents();
+    }
+  }, [location.pathname, fetchEvents]);
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Дата не указана';
     try {

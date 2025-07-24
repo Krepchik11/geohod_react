@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Box, Slide, useTheme } from '@mui/material';
 import EventNotification from '../EventNotification/EventNotification';
 import api from '../../api/telegramApi';
+import { Notification } from '../../types/notification';
 
 interface NotificationContainerProps {
   open: boolean;
@@ -10,7 +11,7 @@ interface NotificationContainerProps {
 
 const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onClose }) => {
   const theme = useTheme();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [cursorId, setCursorId] = useState<number | null>(null);
@@ -24,7 +25,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
       const params: any = { limit: PAGE_SIZE };
       if (cursorId) params.cursorIdAfter = cursorId;
       const res = await api.notifications.getNotifications(params);
-      const newNotifications = Array.isArray(res.data) ? res.data : [];
+      const newNotifications = res.data || [];
       setNotifications((prev) => [...prev, ...newNotifications]);
       setHasMore(newNotifications.length === PAGE_SIZE);
       if (newNotifications.length > 0) {
@@ -137,6 +138,8 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
                 eventTitle={notification.payload || ''}
                 timestamp={notification.createdAt || ''}
                 onViewClick={onClose}
+                notificationId={notification.id}
+                eventId={notification.eventId}
               />
             ))}
             {loading && (

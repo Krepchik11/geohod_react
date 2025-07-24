@@ -70,7 +70,6 @@ const ParticipantsPage: React.FC = () => {
                 borderTop: `1px solid ${theme.palette.divider}`,
                 py: 2,
                 gap: 2,
-                bgcolor: theme.palette.background.paper,
               }}
             >
               <Avatar
@@ -80,7 +79,16 @@ const ParticipantsPage: React.FC = () => {
               />
               <Box sx={{ flex: 1 }}>
                 <Typography
-                  sx={{ fontSize: 16, fontWeight: 600, color: theme.palette.text.primary }}
+                  sx={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: theme.palette.text.primary,
+                    maxWidth: 180,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    display: 'block',
+                  }}
                 >
                   {p.name || `${p.firstName || ''} ${p.lastName || ''}`}
                 </Typography>

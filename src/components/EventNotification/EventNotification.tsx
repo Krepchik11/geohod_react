@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import SentimentSatisfiedRoundedIcon from '@mui/icons-material/SentimentSatisfiedRounded';
@@ -9,6 +9,8 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import { useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/formatDate';
 import { api } from '../../api/telegramApi';
+import { NotificationPayload } from '../../types/notification';
+import { useEventsStore } from '../../store/eventsStore';
 
 interface NotificationProps {
   type:
@@ -24,6 +26,8 @@ interface NotificationProps {
   eventTitle: string;
   timestamp?: string;
   onViewClick: () => void;
+  notificationId?: number;
+  eventId?: string | null; // Добавляем eventId из уведомления
 }
 
 const EventNotification: React.FC<NotificationProps> = ({
@@ -31,10 +35,13 @@ const EventNotification: React.FC<NotificationProps> = ({
   eventTitle,
   timestamp,
   onViewClick,
+  notificationId,
+  eventId,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const theme = useTheme();
-  let parsedPayload: any = eventTitle;
+  const events = useEventsStore((state) => state.events);
+  let parsedPayload: NotificationPayload | string = eventTitle;
   try {
     parsedPayload = typeof eventTitle === 'string' ? JSON.parse(eventTitle) : eventTitle;
   } catch {}
@@ -49,6 +56,28 @@ const EventNotification: React.FC<NotificationProps> = ({
     } catch {}
   }
 
+  // Функция для безопасного получения значения из payload
+  const getPayloadValue = (key: keyof NotificationPayload): any => {
+    if (typeof parsedPayload === 'object' && parsedPayload !== null) {
+      return (parsedPayload as NotificationPayload)[key];
+    }
+    return undefined;
+  };
+
+  // Функция для получения названия события по eventId из стора
+  const getEventName = (payload: any): string => {
+    if (!payload) return 'Событие';
+
+    // Ищем по eventId в сторе событий
+    const eventId = payload.eventId;
+    if (eventId && events) {
+      const found = events.find((e) => String(e.id) === String(eventId));
+      if (found) return found.name || 'Событие';
+    }
+
+    return 'Событие';
+  };
+
   // Логируем данные уведомления для отладки
   console.log('Notification data:', {
     type,
@@ -57,6 +86,9 @@ const EventNotification: React.FC<NotificationProps> = ({
     timestamp,
     payloadKeys: parsedPayload ? Object.keys(parsedPayload) : [],
     payloadValues: parsedPayload ? Object.values(parsedPayload) : [],
+    rawPayload: eventTitle,
+    parsedPayloadType: typeof parsedPayload,
+    eventTitleType: typeof eventTitle,
   });
 
   const NotificationContent = {
@@ -77,8 +109,10 @@ const EventNotification: React.FC<NotificationProps> = ({
         </Box>
       ),
       title: 'Мероприятие отменено',
-      getMessage: (payload: any) =>
-        `Событие "${payload.eventName || ''}" было отменено. Причина: ${payload.reason || 'не указана'}`,
+      getMessage: (payload: any) => {
+        const eventName = getEventName(payload);
+        return `Событие "${eventName}" было отменено. Причина: ${payload.reason || 'не указана'}`;
+      },
     },
     PARTICIPANT_REGISTERED: {
       icon: (props: any) => (
@@ -97,8 +131,10 @@ const EventNotification: React.FC<NotificationProps> = ({
         </Box>
       ),
       title: 'Новая регистрация',
-      getMessage: (payload: any) =>
-        `${payload.participantName || 'Участник'} зарегистрировался на событие "${payload.eventName || ''}"`,
+      getMessage: (payload: any) => {
+        const eventName = getEventName(payload);
+        return `${payload.participantName || 'Участник'} зарегистрировался на событие "${eventName}"`;
+      },
     },
     PARTICIPANT_UNREGISTERED: {
       icon: (props: any) => (
@@ -117,8 +153,10 @@ const EventNotification: React.FC<NotificationProps> = ({
         </Box>
       ),
       title: 'Отмена регистрации',
-      getMessage: (payload: any) =>
-        `${payload.participantName || 'Участник'} отменил регистрацию на событие "${payload.eventName || ''}"`,
+      getMessage: (payload: any) => {
+        const eventName = getEventName(payload);
+        return `${payload.participantName || 'Участник'} отменил регистрацию на событие "${eventName}"`;
+      },
     },
     EVENT_CREATED: {
       icon: (props: any) => (
@@ -137,7 +175,10 @@ const EventNotification: React.FC<NotificationProps> = ({
         </Box>
       ),
       title: 'Мероприятие создано',
-      getMessage: (payload: any) => `Вы создали мероприятие "${payload.eventName || ''}"`,
+      getMessage: (payload: any) => {
+        const eventName = getEventName(payload);
+        return `Вы создали мероприятие "${eventName}"`;
+      },
     },
     EVENT_FINISHED: {
       icon: (props: any) => (
@@ -156,10 +197,12 @@ const EventNotification: React.FC<NotificationProps> = ({
         </Box>
       ),
       title: 'Мероприятие завершено',
-      getMessage: (payload: any) =>
-        payload.reviewText
-          ? `Вам оставили отзыв: "${payload.reviewText}" по событию "${payload.eventName || ''}"`
-          : `Мероприятие "${payload.eventName || ''}" завершено`,
+      getMessage: (payload: any) => {
+        const eventName = getEventName(payload);
+        return payload.reviewText
+          ? `Вам оставили отзыв: "${payload.reviewText}" по событию "${eventName}"`
+          : `Мероприятие "${eventName}" завершено`;
+      },
     },
   };
 
@@ -187,44 +230,46 @@ const EventNotification: React.FC<NotificationProps> = ({
   const navigate = useNavigate();
 
   const handleViewEvent = async () => {
-    // Если есть eventId, переходим сразу
-    if (parsedPayload && parsedPayload.eventId) {
-      console.log('Найден eventId в payload:', parsedPayload.eventId);
-      navigate(`/event/${parsedPayload.eventId}`);
+    if (eventId) {
+      navigate(`/event/${eventId}`);
       return;
     }
 
-    // Проверяем все возможные поля для eventId
-    if (parsedPayload) {
+    const payloadEventId = getPayloadValue('eventId');
+    if (payloadEventId) {
+      console.log('Найден eventId в payload:', payloadEventId);
+      navigate(`/event/${payloadEventId}`);
+      return;
+    }
+
+    if (typeof parsedPayload === 'object' && parsedPayload !== null) {
       const possibleEventIdFields = ['eventId', 'event_id', 'id'];
       for (const field of possibleEventIdFields) {
-        if (parsedPayload[field]) {
-          console.log(`Найден eventId в поле ${field}:`, parsedPayload[field]);
-          navigate(`/event/${parsedPayload[field]}`);
+        if ((parsedPayload as any)[field]) {
+          navigate(`/event/${(parsedPayload as any)[field]}`);
           return;
         }
       }
     }
 
-    // Проверяем, может ли сам payload быть eventId
     if (typeof parsedPayload === 'string' && /^\d+$/.test(parsedPayload)) {
       console.log('Payload является eventId:', parsedPayload);
       navigate(`/event/${parsedPayload}`);
       return;
     }
 
-    // Проверяем, может ли eventTitle быть eventId
     if (typeof eventTitle === 'string' && /^\d+$/.test(eventTitle)) {
       console.log('eventTitle является eventId:', eventTitle);
       navigate(`/event/${eventTitle}`);
       return;
     }
 
-    // Для EVENT_CREATED - просто получаем все события и берем самое последнее
-    if (type === 'EVENT_CREATED' && parsedPayload && parsedPayload.authorId) {
+    const authorId = getPayloadValue('authorId');
+    if (type === 'EVENT_CREATED' && authorId) {
+      console.log('Временное решение: берем последнее событие автора');
       setIsLoading(true);
       try {
-        const eventsResponse = await api.events.getEventsByAuthor(parsedPayload.authorId, {
+        const eventsResponse = await api.events.getEventsByAuthor(authorId, {
           page: 0,
           size: 1,
           sort: 'createdAt,desc',
@@ -248,7 +293,8 @@ const EventNotification: React.FC<NotificationProps> = ({
     }
 
     // Если eventId не найден, но есть eventName, пытаемся найти событие по названию
-    if (parsedPayload && parsedPayload.eventName && type !== 'EVENT_CREATED') {
+    const eventName = getPayloadValue('eventName');
+    if (eventName && type !== 'EVENT_CREATED') {
       setIsLoading(true);
       try {
         const eventsResponse = await api.events.getAllEvents({
@@ -258,8 +304,7 @@ const EventNotification: React.FC<NotificationProps> = ({
 
         if (eventsResponse.content && eventsResponse.content.length > 0) {
           const matchingEvent = eventsResponse.content.find(
-            (event: any) =>
-              event.name && event.name.toLowerCase().includes(parsedPayload.eventName.toLowerCase())
+            (event: any) => event.name && event.name.toLowerCase().includes(eventName.toLowerCase())
           );
 
           if (matchingEvent) {

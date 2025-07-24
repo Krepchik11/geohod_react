@@ -4,6 +4,7 @@ import EventForm from '../../components/EventForm/EventForm';
 import { api } from '../../api';
 import SuccessEventDialog from '../../components/SuccessEventDialog/SuccessEventDialog';
 import { useUserStore } from '../../store/userStore';
+import { getRegistrationLink } from '../../config/botConfig';
 
 interface EventResponse {
   id: string;
@@ -47,7 +48,7 @@ const CreateEventPage: React.FC = () => {
         id: response.id,
         name: data.title,
         date: data.date,
-        registrationLink: `https://t.me/geohodton_bot/app?startapp=registration_${response.id}`,
+        registrationLink: getRegistrationLink(response.id),
       };
 
       setCreatedEvent(eventData);
