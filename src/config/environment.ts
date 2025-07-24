@@ -17,7 +17,7 @@ export const environment = {
       return process.env.VITE_BOT_USERNAME;
     }
     // По умолчанию всегда geohod_bot
-    return 'geohod_bot';
+    return 'geohodton_bot';
   },
 
   // Получаем URL API

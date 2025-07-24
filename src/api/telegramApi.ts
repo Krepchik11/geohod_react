@@ -13,7 +13,7 @@ export const getTelegramUser = () => {
 };
 
 const axiosV1 = axios.create({
-  baseURL: '/api/v1',
+  baseURL: process.env.VITE_APP_API_URL || '/api/v1',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
@@ -22,7 +22,7 @@ const axiosV1 = axios.create({
 });
 
 const axiosV2 = axios.create({
-  baseURL: '/api/v2',
+  baseURL: process.env.VITE_APP_API_URL || '/api/v2',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
