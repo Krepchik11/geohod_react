@@ -47,7 +47,10 @@ const ReviewPage: React.FC = () => {
       try {
         setLoading(true);
 
-        const startParam = searchParams.get('startapp') || window.Telegram?.WebApp?.initDataUnsafe?.start_param || '';
+        // Получаем параметр из URL или из Telegram Web App
+        const startParam = searchParams.get('startapp') || 
+                          searchParams.get('start_param') || 
+                          window.Telegram?.WebApp?.initDataUnsafe?.start_param || '';
         
         console.log('ReviewPage: startParam =', startParam);
 
@@ -63,25 +66,33 @@ const ReviewPage: React.FC = () => {
         // Пытаемся извлечь eventId из разных форматов ссылки
         let extractedEventId = '';
         
-        // Формат: review_&_event_123
-        const eventIdMatch1 = startParam.match(/&_event_(\d+)/);
+        // Формат: review_f0f7e348-f3c2-464e-8f60-a703abfe0b73 (UUID)
+        const eventIdMatch1 = startParam.match(/review_([a-f0-9-]{36})/);
         if (eventIdMatch1) {
           extractedEventId = eventIdMatch1[1];
         }
         
-        // Формат: review_123 (если eventId идет сразу после review_)
+        // Формат: review_&_event_123 (числовой ID)
         if (!extractedEventId) {
-          const eventIdMatch2 = startParam.match(/review_(\d+)/);
+          const eventIdMatch2 = startParam.match(/&_event_(\d+)/);
           if (eventIdMatch2) {
             extractedEventId = eventIdMatch2[1];
           }
         }
         
-        // Формат: review_event_123
+        // Формат: review_123 (числовой ID)
         if (!extractedEventId) {
-          const eventIdMatch3 = startParam.match(/review_event_(\d+)/);
+          const eventIdMatch3 = startParam.match(/review_(\d+)/);
           if (eventIdMatch3) {
             extractedEventId = eventIdMatch3[1];
+          }
+        }
+        
+        // Формат: review_event_123 (числовой ID)
+        if (!extractedEventId) {
+          const eventIdMatch4 = startParam.match(/review_event_(\d+)/);
+          if (eventIdMatch4) {
+            extractedEventId = eventIdMatch4[1];
           }
         }
         
@@ -96,6 +107,7 @@ const ReviewPage: React.FC = () => {
         setEventId(extractedEventId);
         
         console.log('ReviewPage: extracted eventId =', extractedEventId);
+        console.log('ReviewPage: URL search params =', Object.fromEntries(searchParams.entries()));
 
         const eventResponse = await api.events.getEventById(extractedEventId);
         setEvent(eventResponse);

@@ -78,7 +78,7 @@ const TelegramRouter: React.FC = () => {
         webApp.ready();
 
         const urlParams = new URLSearchParams(window.location.search);
-        const startParam = urlParams.get('start_param') || webApp.initDataUnsafe?.start_param;
+        const startParam = urlParams.get('startapp') || urlParams.get('start_param') || webApp.initDataUnsafe?.start_param;
 
         if (startParam?.startsWith('registration_')) {
           const eventId = startParam.replace('registration_', '');
