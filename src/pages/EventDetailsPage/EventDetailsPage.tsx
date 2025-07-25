@@ -572,7 +572,7 @@ const EventDetailsPage: React.FC = () => {
                           marginRight: '6px',
                         }}
                       />
-                      4.8
+                      {(event.author as any).rating ? (event.author as any).rating.toFixed(1) : '0.0'}
                     </Typography>
                   </Box>
                 </Box>

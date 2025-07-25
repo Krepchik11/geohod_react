@@ -146,6 +146,16 @@ export const eventsApi = {
     }
   },
 
+  removeEventParticipant: async (eventId: string, participantId: string) => {
+    try {
+      const response = await axiosV1.delete(`/events/${eventId}/participants/${participantId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Ошибка при удалении участника ${participantId} из события ${eventId}:`, error);
+      throw error;
+    }
+  },
+
   getEventsByAuthor: async (authorId: string, params: any = {}) => {
     try {
       const response = await axiosV1.get('/events', {

@@ -194,9 +194,7 @@ const ReviewPage: React.FC = () => {
       });
 
       setTimeout(() => {
-        if (window.Telegram?.WebApp) {
-          window.Telegram.WebApp.close();
-        }
+        navigate('/events');
       }, 2000);
     } catch (error) {
       console.error('Ошибка при отправке отзыва:', error);
@@ -247,30 +245,27 @@ const ReviewPage: React.FC = () => {
     <Box sx={{ minHeight: '100vh', bgcolor: theme.palette.background.default }}>
       <TopBar title="Отзыв" showBackButton={false} showNotifications={false} />
 
-      <Box sx={{ p: 2 }}>
-        <Paper sx={{ p: 2, mb: 2, bgcolor: theme.palette.background.paper }}>
-          <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
+      <Box sx={{ p: 1 }}>
+        <Box sx={{ p: 2, mb: 2, bgcolor: theme.palette.background.default, borderBottom: `1px solid ${theme.palette.divider}` }}>
+          <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary, fontSize: 17 }}>
             {event.name}
           </Typography>
 
-          <Typography sx={{ mb: 1, color: theme.palette.text.secondary }}>
+          <Typography sx={{ mb: 1, color: theme.palette.text.secondary, fontSize: 14 }}>
             {formatDate(event.date)}
           </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <Avatar src={event.author?.tgImageUrl} sx={{ width: 40, height: 40, mr: 2 }} />
             <Box>
-              <Typography sx={{ color: theme.palette.text.primary, fontWeight: 500 }}>
-                {event.author?.firstName} {event.author?.lastName}
-              </Typography>
               <Typography sx={{ color: theme.palette.text.secondary, fontSize: 14 }}>
-                Организатор события
+              {event.author?.name}
               </Typography>
             </Box>
           </Box>
-        </Paper>
+        </Box>
 
-        <Paper sx={{ p: 2, bgcolor: theme.palette.background.paper }}>
+        <Box sx={{ p: 2, bgcolor: theme.palette.background.default }}>
           <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary }}>
             {existingReview ? 'Обновить отзыв' : 'Оставить отзыв'}
           </Typography>
@@ -303,6 +298,7 @@ const ReviewPage: React.FC = () => {
               placeholder="Расскажите о своем опыте участия в событии..."
               variant="outlined"
               sx={{
+                width: '100%',
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
                   '& fieldset': {
@@ -341,7 +337,7 @@ const ReviewPage: React.FC = () => {
               'Отправить отзыв'
             )}
           </Button>
-        </Paper>
+        </Box>
       </Box>
 
       <Toast

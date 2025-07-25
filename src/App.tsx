@@ -7,6 +7,8 @@ import {
   useNavigate,
   useLocation,
 } from 'react-router-dom';
+import { useScrollToTop } from './hooks/useScrollToTop';
+// import { useUnreadNotifications } from './hooks/useUnreadNotifications';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ru } from 'date-fns/locale';
@@ -32,6 +34,16 @@ const TelegramRouter: React.FC = () => {
   const location = useLocation();
   const initUser = useUserStore((state) => state.initUser);
   const [lastRedirect, setLastRedirect] = useState<string | null>(null);
+  
+  // Автоматический скролл наверх при смене маршрута
+  useScrollToTop();
+  
+  // Проверяем непрочитанные уведомления при смене маршрута
+  // const { checkUnreadNotifications } = useUnreadNotifications();
+  
+  // useEffect(() => {
+  //   checkUnreadNotifications();
+  // }, [location.pathname, checkUnreadNotifications]);
 
   const hideBottomNavPaths = ['/create-event', '/edit-event', '/finish-event', '/review'];
 

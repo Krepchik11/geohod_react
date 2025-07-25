@@ -230,6 +230,15 @@ const EventNotification: React.FC<NotificationProps> = ({
   const navigate = useNavigate();
 
   const handleViewEvent = async () => {
+    // Отмечаем уведомление как прочитанное при клике
+    // if (notificationId) {
+    //   try {
+    //     await api.notifications.dismissNotification(notificationId);
+    //   } catch (error) {
+    //     console.error('Error marking notification as read:', error);
+    //   }
+    // }
+
     if (eventId) {
       navigate(`/event/${eventId}`);
       return;

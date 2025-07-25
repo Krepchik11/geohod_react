@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Typography, IconButton, useTheme } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import NotificationContainer from '../NotificationContainer/NotificationContainer';
+// import { useUnreadNotifications } from '../../hooks/useUnreadNotifications';
 
 interface TopBarProps {
   title: string;
@@ -18,9 +19,12 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const theme = useTheme();
   const [showNotificationsPopup, setShowNotificationsPopup] = useState(false);
+  // const { hasUnread, markAllAsRead } = useUnreadNotifications();
 
   const handleNotificationsClick = () => {
     setShowNotificationsPopup(true);
+    // Отмечаем все уведомления как прочитанные при открытии
+    // markAllAsRead();
   };
 
   const handleCloseNotifications = () => {
@@ -80,6 +84,19 @@ const TopBar: React.FC<TopBarProps> = ({
             }}
           >
             <NotificationsNoneIcon sx={{ fontSize: 20 }} />
+            {/* {hasUnread && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  width: 8,
+                  height: 8,
+                  bgcolor: '#FF3B30',
+                  borderRadius: '50%',
+                }}
+              />
+            )} */}
             <Box
               sx={{
                 position: 'absolute',

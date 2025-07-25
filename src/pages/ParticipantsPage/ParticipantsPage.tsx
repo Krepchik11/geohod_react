@@ -22,6 +22,7 @@ const ParticipantsPage: React.FC = () => {
     open: false,
     participant: null,
   });
+  const [isDeleting, setIsDeleting] = useState(false);
   const isOrganizer = event && user && event.author.id === String(user.id);
 
   useEffect(() => {
@@ -152,7 +153,7 @@ const ParticipantsPage: React.FC = () => {
       )}
       <Dialog
         open={dialog.open}
-        onClose={() => setDialog({ open: false, participant: null })}
+        onClose={() => !isDeleting && setDialog({ open: false, participant: null })}
         maxWidth="xs"
         fullWidth
       >
@@ -173,7 +174,7 @@ const ParticipantsPage: React.FC = () => {
               boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
               cursor: 'pointer',
             }}
-            onClick={() => setDialog({ open: false, participant: null })}
+            onClick={() => !isDeleting && setDialog({ open: false, participant: null })}
           >
             <CloseIcon sx={{ color: theme.palette.text.secondary, fontSize: 22 }} />
           </Box>
@@ -204,6 +205,7 @@ const ParticipantsPage: React.FC = () => {
             <Button
               variant="outlined"
               fullWidth
+              disabled={isDeleting}
               onClick={() => setDialog({ open: false, participant: null })}
               sx={{
                 borderRadius: '14px',
@@ -224,18 +226,26 @@ const ParticipantsPage: React.FC = () => {
               variant="contained"
               color="error"
               fullWidth
+              disabled={isDeleting}
               sx={{ borderRadius: '14px', fontSize: 17, textTransform: 'none', height: 44 }}
               onClick={async () => {
                 try {
+                  setIsDeleting(true);
+                  // Отправляем запрос на удаление участника
+                  await api.events.removeEventParticipant(id!, dialog.participant.id);
+                  
+                  // Обновляем локальное состояние
                   setParticipants(participants.filter((p) => p.id !== dialog.participant.id));
                   setDialog({ open: false, participant: null });
                   setToast({ isVisible: true, message: 'Участник удален' });
                 } catch (error: any) {
-                  setToast({ isVisible: true, message: error.message || 'Ошибка при удалении' });
+                  setToast({ isVisible: true, message: error.message || 'Ошибка при удалении участника' });
+                } finally {
+                  setIsDeleting(false);
                 }
               }}
             >
-              Удалить
+              {isDeleting ? 'Удаление...' : 'Удалить'}
             </Button>
           </Box>
         </DialogContent>

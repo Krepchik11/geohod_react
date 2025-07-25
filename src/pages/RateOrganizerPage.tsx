@@ -66,7 +66,7 @@ const RateOrganizerPage: React.FC = () => {
           <StarIcon
             sx={{ color: theme.palette.primary.main, width: 16, height: 16, ml: 1, mr: 0.5 }}
           />
-          4.8
+          {(organizer as any).rating ? (organizer as any).rating.toFixed(1) : '0.0'}
         </Typography>
       </Box>
       {isSelf ? (

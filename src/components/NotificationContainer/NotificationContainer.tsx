@@ -3,6 +3,7 @@ import { Box, Slide, useTheme } from '@mui/material';
 import EventNotification from '../EventNotification/EventNotification';
 import api from '../../api/telegramApi';
 import { Notification } from '../../types/notification';
+// import { useUnreadNotifications } from '../../hooks/useUnreadNotifications';
 
 interface NotificationContainerProps {
   open: boolean;
@@ -17,6 +18,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
   const [cursorId, setCursorId] = useState<number | null>(null);
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const PAGE_SIZE = 20;
+  // const { markAsRead } = useUnreadNotifications();
 
   const loadNotifications = useCallback(async () => {
     if (loading || !hasMore) return;

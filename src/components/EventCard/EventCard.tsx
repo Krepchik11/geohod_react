@@ -63,7 +63,11 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const isOrganizer = user && user.id && organizerId && String(user.id) === String(organizerId);
 
-  const formatDateTime = (dateStr: string) => {
+  const formatDateTime = (dateStr: string | null | undefined) => {
+    if (!dateStr) {
+      return '';
+    }
+
     if (dateStr.includes('.')) {
       const [day, month, year] = dateStr.split('.');
       return `${day}.${month}.${year}`;
