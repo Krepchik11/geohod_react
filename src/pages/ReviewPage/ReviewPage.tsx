@@ -48,10 +48,12 @@ const ReviewPage: React.FC = () => {
         setLoading(true);
 
         // Получаем параметр из URL или из Telegram Web App
-        const startParam = searchParams.get('startapp') || 
-                          searchParams.get('start_param') || 
-                          window.Telegram?.WebApp?.initDataUnsafe?.start_param || '';
-        
+        const startParam =
+          searchParams.get('startapp') ||
+          searchParams.get('start_param') ||
+          window.Telegram?.WebApp?.initDataUnsafe?.start_param ||
+          '';
+
         console.log('ReviewPage: startParam =', startParam);
 
         if (!startParam.startsWith('review_')) {
@@ -65,13 +67,13 @@ const ReviewPage: React.FC = () => {
 
         // Пытаемся извлечь eventId из разных форматов ссылки
         let extractedEventId = '';
-        
+
         // Формат: review_f0f7e348-f3c2-464e-8f60-a703abfe0b73 (UUID)
         const eventIdMatch1 = startParam.match(/review_([a-f0-9-]{36})/);
         if (eventIdMatch1) {
           extractedEventId = eventIdMatch1[1];
         }
-        
+
         // Формат: review_&_event_123 (числовой ID)
         if (!extractedEventId) {
           const eventIdMatch2 = startParam.match(/&_event_(\d+)/);
@@ -79,7 +81,7 @@ const ReviewPage: React.FC = () => {
             extractedEventId = eventIdMatch2[1];
           }
         }
-        
+
         // Формат: review_123 (числовой ID)
         if (!extractedEventId) {
           const eventIdMatch3 = startParam.match(/review_(\d+)/);
@@ -87,7 +89,7 @@ const ReviewPage: React.FC = () => {
             extractedEventId = eventIdMatch3[1];
           }
         }
-        
+
         // Формат: review_event_123 (числовой ID)
         if (!extractedEventId) {
           const eventIdMatch4 = startParam.match(/review_event_(\d+)/);
@@ -95,7 +97,7 @@ const ReviewPage: React.FC = () => {
             extractedEventId = eventIdMatch4[1];
           }
         }
-        
+
         if (!extractedEventId) {
           setToast({
             isVisible: true,
@@ -105,7 +107,7 @@ const ReviewPage: React.FC = () => {
           return;
         }
         setEventId(extractedEventId);
-        
+
         console.log('ReviewPage: extracted eventId =', extractedEventId);
         console.log('ReviewPage: URL search params =', Object.fromEntries(searchParams.entries()));
 
@@ -182,7 +184,7 @@ const ReviewPage: React.FC = () => {
         rating: reviewData.rating,
         comment: reviewData.text.trim(),
       };
-      
+
       console.log('ReviewPage: sending review payload =', reviewPayload);
 
       await api.reviews.postReview(reviewPayload);
@@ -246,7 +248,14 @@ const ReviewPage: React.FC = () => {
       <TopBar title="Отзыв" showBackButton={false} showNotifications={false} />
 
       <Box sx={{ p: 1 }}>
-        <Box sx={{ p: 2, mb: 2, bgcolor: theme.palette.background.default, borderBottom: `1px solid ${theme.palette.divider}` }}>
+        <Box
+          sx={{
+            p: 2,
+            mb: 2,
+            bgcolor: theme.palette.background.default,
+            borderBottom: `1px solid ${theme.palette.divider}`,
+          }}
+        >
           <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.primary, fontSize: 17 }}>
             {event.name}
           </Typography>
@@ -259,7 +268,7 @@ const ReviewPage: React.FC = () => {
             <Avatar src={event.author?.tgImageUrl} sx={{ width: 40, height: 40, mr: 2 }} />
             <Box>
               <Typography sx={{ color: theme.palette.text.secondary, fontSize: 14 }}>
-              {event.author?.name}
+                {event.author?.name}
               </Typography>
             </Box>
           </Box>

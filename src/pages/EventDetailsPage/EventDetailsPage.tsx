@@ -345,6 +345,12 @@ const EventDetailsPage: React.FC = () => {
                     borderBottom: `1px solid ${theme.palette.divider}`,
                     py: 1.5,
                     px: 0,
+                    width: '100vw',
+                    position: 'relative',
+                    left: '50%',
+                    right: '50%',
+                    ml: '-50vw',
+                    mr: '-50vw',
                   }}
                 >
                   <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
@@ -397,99 +403,114 @@ const EventDetailsPage: React.FC = () => {
               </>
             )}
             {event && isOrganizer && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  bgcolor: theme.palette.background.default,
-                  borderTop: `1px solid ${theme.palette.divider}`,
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                  width: '100vw',
-                  position: 'relative',
-                  left: '50%',
-                  right: '50%',
-                  ml: '-50vw',
-                  mr: '-50vw',
-                  px: 2,
-                  py: 1,
-                  mb: 0,
-                }}
-              >
-                <Box>
+              <Box>
+                <Box
+                  sx={{
+                    bgcolor: theme.palette.background.default,
+                    py: 1.5,
+                    px: 0,
+                    width: '100vw',
+                  }}
+                >
+                  <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
+                    Название события
+                  </Typography>
                   <Typography
                     sx={{
-                      fontSize: 16,
-                      fontWeight: 500,
+                      fontSize: 17,
+                      fontWeight: 600,
                       color: theme.palette.text.primary,
-                      fontFamily: 'Roboto, sans-serif',
-                      mb: 0.5,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <LinkIcon
-                        sx={{
-                          color: theme.palette.text.primary,
-                          fontSize: 20,
-                          transform: 'rotate(-45deg)',
-                        }}
-                      />
-                    </Box>
-                    Копировать ссылку
+                    {event.name}
                   </Typography>
-                  <Box
-                    onClick={handleCopyLink}
-                    sx={{
-                      cursor: 'pointer',
-                      p: 0.5,
-                      borderRadius: '8px',
-                    }}
-                  >
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    bgcolor: theme.palette.background.default,
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                  }}
+                >
+                  <Box>
                     <Typography
                       sx={{
-                        fontSize: 13,
-                        color: theme.palette.primary.main,
-                        fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
-                        wordBreak: 'break-all',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
+                        fontSize: 16,
+                        fontWeight: 500,
+                        color: theme.palette.text.primary,
+                        fontFamily: 'Roboto, sans-serif',
+                        mb: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        py: 2,
                       }}
                     >
-                      {event.registrationLink}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <LinkIcon
+                          sx={{
+                            color: theme.palette.text.primary,
+                            fontSize: 20,
+                            transform: 'rotate(-45deg)',
+                          }}
+                        />
+                      </Box>
+                      Копировать ссылку
                     </Typography>
-                  </Box>
-                </Box>
-                {/* Кнопка завершения события */}
-                {isToday &&
-                  event.status !== EventStatus.FINISHED &&
-                  event.status !== EventStatus.CANCELED && (
-                    <Button
-                      variant="contained"
-                      color="primary"
+                    <Box
+                      onClick={handleCopyLink}
                       sx={{
-                        height: 40,
-                        borderRadius: '14px',
-                        fontWeight: 600,
-                        fontSize: 15,
-                        ml: 2,
+                        cursor: 'pointer',
+                        p: 0.5,
+                        borderRadius: '8px',
                       }}
-                      onClick={() => navigate(`/finish-event/${event.id}`)}
                     >
-                      Завершить событие
-                    </Button>
-                  )}
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          color: theme.palette.primary.main,
+                          fontFamily: '-apple-system, system-ui, Roboto, sans-serif',
+                          wordBreak: 'break-all',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {event.registrationLink}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  {/* Кнопка завершения события */}
+                  {isToday &&
+                    event.status !== EventStatus.FINISHED &&
+                    event.status !== EventStatus.CANCELED && (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        sx={{
+                          height: 40,
+                          borderRadius: '14px',
+                          fontWeight: 600,
+                          fontSize: 15,
+                          ml: 2,
+                        }}
+                        onClick={() => navigate(`/finish-event/${event.id}`)}
+                      >
+                        Завершить событие
+                      </Button>
+                    )}
+                </Box>
               </Box>
             )}
             <Box
@@ -572,7 +593,9 @@ const EventDetailsPage: React.FC = () => {
                           marginRight: '6px',
                         }}
                       />
-                      {(event.author as any).rating ? (event.author as any).rating.toFixed(1) : '0.0'}
+                      {(event.author as any).rating
+                        ? (event.author as any).rating.toFixed(1)
+                        : '0.0'}
                     </Typography>
                   </Box>
                 </Box>

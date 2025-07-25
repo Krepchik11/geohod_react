@@ -66,29 +66,45 @@ const EventNotification: React.FC<NotificationProps> = ({
 
   // Функция для получения названия события по eventId из стора
   const getEventName = (payload: any): string => {
-    if (!payload) return 'Событие';
-
-    // Ищем по eventId в сторе событий
-    const eventId = payload.eventId;
-    if (eventId && events) {
-      const found = events.find((e) => String(e.id) === String(eventId));
-      if (found) return found.name || 'Событие';
+    if (!events || events.length === 0) {
+      console.log('События не загружены в стор');
+      return 'Событие';
     }
+
+    // Сначала пробуем eventId из пропсов компонента
+    if (eventId) {
+      const found = events.find((e) => String(e.id) === String(eventId));
+      if (found) {
+        console.log('Найдено событие по eventId из пропсов:', found.name);
+        return found.name || 'Событие';
+      }
+    }
+
+    // Затем пробуем eventId из payload
+    if (payload && payload.eventId) {
+      const found = events.find((e) => String(e.id) === String(payload.eventId));
+      if (found) {
+        console.log('Найдено событие по eventId из payload:', found.name);
+        return found.name || 'Событие';
+      }
+    }
+
+    // Если eventId не найден, логируем для отладки
+    console.log(
+      'Событие не найдено в сторе. Доступные события:',
+      events.map((e) => ({ id: e.id, name: e.name }))
+    );
+    console.log('Ищем eventId:', { eventId, payloadEventId: payload?.eventId });
 
     return 'Событие';
   };
 
   // Логируем данные уведомления для отладки
-  console.log('Notification data:', {
+  console.log('Notification debug:', {
     type,
-    eventTitle,
-    parsedPayload,
-    timestamp,
-    payloadKeys: parsedPayload ? Object.keys(parsedPayload) : [],
-    payloadValues: parsedPayload ? Object.values(parsedPayload) : [],
-    rawPayload: eventTitle,
-    parsedPayloadType: typeof parsedPayload,
-    eventTitleType: typeof eventTitle,
+    eventId,
+    payloadEventId: typeof parsedPayload === 'object' ? parsedPayload?.eventId : undefined,
+    eventsCount: events?.length || 0,
   });
 
   const NotificationContent = {

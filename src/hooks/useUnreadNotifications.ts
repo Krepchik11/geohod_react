@@ -18,15 +18,18 @@ export const useUnreadNotifications = () => {
     }
   }, []);
 
-  const markAsRead = useCallback(async (notificationId: number) => {
-    try {
-      await api.notifications.dismissNotification(notificationId);
-      // Перепроверяем непрочитанные уведомления
-      await checkUnreadNotifications();
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-    }
-  }, [checkUnreadNotifications]);
+  const markAsRead = useCallback(
+    async (notificationId: number) => {
+      try {
+        await api.notifications.dismissNotification(notificationId);
+        // Перепроверяем непрочитанные уведомления
+        await checkUnreadNotifications();
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    },
+    [checkUnreadNotifications]
+  );
 
   const markAllAsRead = useCallback(async () => {
     try {
@@ -48,4 +51,4 @@ export const useUnreadNotifications = () => {
     markAsRead,
     markAllAsRead,
   };
-}; 
+};

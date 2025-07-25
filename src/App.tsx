@@ -34,13 +34,13 @@ const TelegramRouter: React.FC = () => {
   const location = useLocation();
   const initUser = useUserStore((state) => state.initUser);
   const [lastRedirect, setLastRedirect] = useState<string | null>(null);
-  
+
   // Автоматический скролл наверх при смене маршрута
   useScrollToTop();
-  
+
   // Проверяем непрочитанные уведомления при смене маршрута
   // const { checkUnreadNotifications } = useUnreadNotifications();
-  
+
   // useEffect(() => {
   //   checkUnreadNotifications();
   // }, [location.pathname, checkUnreadNotifications]);
@@ -90,7 +90,10 @@ const TelegramRouter: React.FC = () => {
         webApp.ready();
 
         const urlParams = new URLSearchParams(window.location.search);
-        const startParam = urlParams.get('startapp') || urlParams.get('start_param') || webApp.initDataUnsafe?.start_param;
+        const startParam =
+          urlParams.get('startapp') ||
+          urlParams.get('start_param') ||
+          webApp.initDataUnsafe?.start_param;
 
         if (startParam?.startsWith('registration_')) {
           const eventId = startParam.replace('registration_', '');

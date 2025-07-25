@@ -61,7 +61,11 @@ const UnregisterDialog: React.FC<UnregisterDialogProps> = ({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <StarIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
               <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
-                {event?.author ? ((event.author as any).rating ? (event.author as any).rating.toFixed(1) : '0.0') : '0.0'}
+                {event?.author
+                  ? (event.author as any).rating
+                    ? (event.author as any).rating.toFixed(1)
+                    : '0.0'
+                  : '0.0'}
               </Typography>
             </Box>
           </Box>

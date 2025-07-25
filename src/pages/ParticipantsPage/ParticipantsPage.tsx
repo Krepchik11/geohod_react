@@ -233,13 +233,16 @@ const ParticipantsPage: React.FC = () => {
                   setIsDeleting(true);
                   // Отправляем запрос на удаление участника
                   await api.events.removeEventParticipant(id!, dialog.participant.id);
-                  
+
                   // Обновляем локальное состояние
                   setParticipants(participants.filter((p) => p.id !== dialog.participant.id));
                   setDialog({ open: false, participant: null });
                   setToast({ isVisible: true, message: 'Участник удален' });
                 } catch (error: any) {
-                  setToast({ isVisible: true, message: error.message || 'Ошибка при удалении участника' });
+                  setToast({
+                    isVisible: true,
+                    message: error.message || 'Ошибка при удалении участника',
+                  });
                 } finally {
                   setIsDeleting(false);
                 }

@@ -3,6 +3,7 @@ import { Box, Slide, useTheme } from '@mui/material';
 import EventNotification from '../EventNotification/EventNotification';
 import api from '../../api/telegramApi';
 import { Notification } from '../../types/notification';
+import { useEventsStore } from '../../store/eventsStore';
 // import { useUnreadNotifications } from '../../hooks/useUnreadNotifications';
 
 interface NotificationContainerProps {
@@ -18,6 +19,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
   const [cursorId, setCursorId] = useState<number | null>(null);
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const PAGE_SIZE = 20;
+  const { events, fetchEvents } = useEventsStore();
   // const { markAsRead } = useUnreadNotifications();
 
   const loadNotifications = useCallback(async () => {
@@ -40,13 +42,25 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
     }
   }, [loading, hasMore, cursorId]);
 
+  // Пометить все непрочитанные уведомления как прочитанные
+  const markAllVisibleAsRead = async (notifs: Notification[]) => {
+    const unread = notifs.filter((n) => !n.isRead);
+    await Promise.all(
+      unread.map((n) => api.notifications.dismissNotification(n.id).catch(() => {}))
+    );
+  };
+
   useEffect(() => {
     if (open) {
       setNotifications([]);
       setCursorId(null);
       setHasMore(true);
+      // Загружаем события, если они еще не загружены
+      if (!events || events.length === 0) {
+        fetchEvents();
+      }
     }
-  }, [open]);
+  }, [open, events, fetchEvents]);
 
   useEffect(() => {
     if (open && notifications.length === 0 && hasMore && !loading) {
@@ -70,6 +84,12 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
       if (loaderRef.current) observer.unobserve(loaderRef.current);
     };
   }, [open, hasMore, loading, loadNotifications]);
+
+  useEffect(() => {
+    if (open && notifications.length > 0) {
+      markAllVisibleAsRead(notifications);
+    }
+  }, [open, notifications]);
 
   return (
     <>
