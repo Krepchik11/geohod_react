@@ -18,28 +18,6 @@ export const useUnreadNotifications = () => {
     }
   }, []);
 
-  const markAsRead = useCallback(
-    async (notificationId: number) => {
-      try {
-        await api.notifications.dismissNotification(notificationId);
-        // Перепроверяем непрочитанные уведомления
-        await checkUnreadNotifications();
-      } catch (error) {
-        console.error('Error marking notification as read:', error);
-      }
-    },
-    [checkUnreadNotifications]
-  );
-
-  const markAllAsRead = useCallback(async () => {
-    try {
-      await api.notifications.dismissAllNotifications();
-      setHasUnread(false);
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-    }
-  }, []);
-
   useEffect(() => {
     checkUnreadNotifications();
   }, [checkUnreadNotifications]);
@@ -48,7 +26,5 @@ export const useUnreadNotifications = () => {
     hasUnread,
     loading,
     checkUnreadNotifications,
-    markAsRead,
-    markAllAsRead,
   };
 };

@@ -13,7 +13,7 @@ export const getTelegramUser = () => {
 };
 
 const axiosV1 = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'http://localhost:8080/api/v1',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
@@ -22,7 +22,7 @@ const axiosV1 = axios.create({
 });
 
 const axiosV2 = axios.create({
-  baseURL: '/api/v2',
+  baseURL: 'http://localhost:8080/api/v2',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
@@ -222,14 +222,14 @@ export const notificationsApi = {
     const response = await axiosV2.get('/notifications', { params });
     return response.data;
   },
-  dismissNotification: async (id: number) => {
-    const response = await axiosV2.post(`/notifications/${id}/dismiss`);
-    return response.data;
-  },
-  dismissAllNotifications: async () => {
-    const response = await axiosV2.post('/notifications/dismiss-all');
-    return response.data;
-  },
+  // dismissNotification: async (id: number) => {
+  //   const response = await axiosV2.post(`/notifications/${id}/dismiss`);
+  //   return response.data;
+  // },
+  // dismissAllNotifications: async () => {
+  //   const response = await axiosV2.post('/notifications/dismiss-all');
+  //   return response.data;
+  // },
 };
 
 export const api = {

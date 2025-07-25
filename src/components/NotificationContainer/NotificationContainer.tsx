@@ -30,25 +30,20 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
       if (cursorId) params.cursorIdAfter = cursorId;
       const res = await api.notifications.getNotifications(params);
       const newNotifications = res.data || [];
+      console.log('Загружены уведомления:', newNotifications);
       setNotifications((prev) => [...prev, ...newNotifications]);
       setHasMore(newNotifications.length === PAGE_SIZE);
       if (newNotifications.length > 0) {
         setCursorId(newNotifications[newNotifications.length - 1].id);
       }
     } catch (e) {
+      console.error('Ошибка загрузки уведомлений:', e);
       setHasMore(false);
     } finally {
       setLoading(false);
     }
   }, [loading, hasMore, cursorId]);
 
-  // Пометить все непрочитанные уведомления как прочитанные
-  const markAllVisibleAsRead = async (notifs: Notification[]) => {
-    const unread = notifs.filter((n) => !n.isRead);
-    await Promise.all(
-      unread.map((n) => api.notifications.dismissNotification(n.id).catch(() => {}))
-    );
-  };
 
   useEffect(() => {
     if (open) {
@@ -63,6 +58,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
   }, [open, events, fetchEvents]);
 
   useEffect(() => {
+    console.log('useEffect для загрузки уведомлений:', { open, notificationsLength: notifications.length, hasMore, loading });
     if (open && notifications.length === 0 && hasMore && !loading) {
       loadNotifications();
     }
@@ -85,11 +81,12 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
     };
   }, [open, hasMore, loading, loadNotifications]);
 
-  useEffect(() => {
-    if (open && notifications.length > 0) {
-      markAllVisibleAsRead(notifications);
-    }
-  }, [open, notifications]);
+  // Временно отключаем автоматическое пометку как прочитанные
+  // useEffect(() => {
+  //   if (open && notifications.length > 0) {
+  //     markAllVisibleAsRead(notifications);
+  //   }
+  // }, [open, notifications]);
 
   return (
     <>

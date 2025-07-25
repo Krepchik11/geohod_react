@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, IconButton, useTheme } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import NotificationContainer from '../NotificationContainer/NotificationContainer';
+import { api } from '../../api/telegramApi';
 // import { useUnreadNotifications } from '../../hooks/useUnreadNotifications';
 
 interface TopBarProps {

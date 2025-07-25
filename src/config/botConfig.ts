@@ -4,13 +4,6 @@ import { environment } from './environment';
 export const getBotUsername = (): string => {
   const botUsername = environment.getBotUsername();
 
-  console.log('Определение бота:', {
-    hostname: window.location.hostname,
-    nodeEnv: process.env.NODE_ENV,
-    isDev: environment.isDevelopment(),
-    botUsername,
-  });
-
   return botUsername;
 };
 

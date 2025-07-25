@@ -89,23 +89,8 @@ const EventNotification: React.FC<NotificationProps> = ({
       }
     }
 
-    // Если eventId не найден, логируем для отладки
-    console.log(
-      'Событие не найдено в сторе. Доступные события:',
-      events.map((e) => ({ id: e.id, name: e.name }))
-    );
-    console.log('Ищем eventId:', { eventId, payloadEventId: payload?.eventId });
-
     return 'Событие';
   };
-
-  // Логируем данные уведомления для отладки
-  console.log('Notification debug:', {
-    type,
-    eventId,
-    payloadEventId: typeof parsedPayload === 'object' ? parsedPayload?.eventId : undefined,
-    eventsCount: events?.length || 0,
-  });
 
   const NotificationContent = {
     EVENT_CANCELLED: {
