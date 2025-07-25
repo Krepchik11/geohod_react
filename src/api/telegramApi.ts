@@ -13,7 +13,7 @@ export const getTelegramUser = () => {
 };
 
 const axiosV1 = axios.create({
-  baseURL: process.env.VITE_APP_API_URL || '/api/v1',
+  baseURL: '/api/v1',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
@@ -22,7 +22,7 @@ const axiosV1 = axios.create({
 });
 
 const axiosV2 = axios.create({
-  baseURL: process.env.VITE_APP_API_URL || '/api/v2',
+  baseURL: '/api/v2',
   headers: {
     'Content-Type': 'application/json',
     Authorization: window.Telegram?.WebApp?.initData || '',
@@ -181,7 +181,7 @@ export const reviewsApi = {
     const response = await axiosV2.patch(`/reviews/${reviewId}/unhide`);
     return response.data;
   },
-  postReview: async (data: { userId: string; rating: number; text: string }) => {
+  postReview: async (data: { eventId: string; rating: number; comment: string }) => {
     const response = await axiosV2.post(`/reviews`, data);
     return response.data;
   },

@@ -47,7 +47,9 @@ const ReviewPage: React.FC = () => {
       try {
         setLoading(true);
 
-        const startParam = searchParams.get('startapp') || '';
+        const startParam = searchParams.get('startapp') || window.Telegram?.WebApp?.initDataUnsafe?.start_param || '';
+        
+        console.log('ReviewPage: startParam =', startParam);
 
         if (!startParam.startsWith('review_')) {
           setToast({
@@ -58,18 +60,42 @@ const ReviewPage: React.FC = () => {
           return;
         }
 
-        const eventIdMatch = startParam.match(/&_event_(\d+)/);
-        if (!eventIdMatch) {
+        // Пытаемся извлечь eventId из разных форматов ссылки
+        let extractedEventId = '';
+        
+        // Формат: review_&_event_123
+        const eventIdMatch1 = startParam.match(/&_event_(\d+)/);
+        if (eventIdMatch1) {
+          extractedEventId = eventIdMatch1[1];
+        }
+        
+        // Формат: review_123 (если eventId идет сразу после review_)
+        if (!extractedEventId) {
+          const eventIdMatch2 = startParam.match(/review_(\d+)/);
+          if (eventIdMatch2) {
+            extractedEventId = eventIdMatch2[1];
+          }
+        }
+        
+        // Формат: review_event_123
+        if (!extractedEventId) {
+          const eventIdMatch3 = startParam.match(/review_event_(\d+)/);
+          if (eventIdMatch3) {
+            extractedEventId = eventIdMatch3[1];
+          }
+        }
+        
+        if (!extractedEventId) {
           setToast({
             isVisible: true,
-            message: 'Не найден ID события',
+            message: 'Не найден ID события в ссылке',
             type: 'error',
           });
           return;
         }
-
-        const extractedEventId = eventIdMatch[1];
         setEventId(extractedEventId);
+        
+        console.log('ReviewPage: extracted eventId =', extractedEventId);
 
         const eventResponse = await api.events.getEventById(extractedEventId);
         setEvent(eventResponse);
@@ -140,10 +166,12 @@ const ReviewPage: React.FC = () => {
       setSubmitting(true);
 
       const reviewPayload = {
-        userId: event.author.id,
+        eventId: eventId,
         rating: reviewData.rating,
-        text: reviewData.text.trim(),
+        comment: reviewData.text.trim(),
       };
+      
+      console.log('ReviewPage: sending review payload =', reviewPayload);
 
       await api.reviews.postReview(reviewPayload);
 

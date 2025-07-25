@@ -10,18 +10,11 @@ export const environment = {
     );
   },
 
-  // Получаем имя бота для текущего окружения
   getBotUsername: () => {
-    // Если явно указан в .env — используем его
     if (process.env.VITE_BOT_USERNAME) {
       return process.env.VITE_BOT_USERNAME;
     }
-    // По умолчанию всегда geohod_bot
-    return 'geohodton_bot';
-  },
 
-  // Получаем URL API
-  getApiUrl: () => {
-    return process.env.REACT_APP_API_URL || 'https://app.geohod.ru/api/v1';
+    return 'geohodton_bot';
   },
 };
