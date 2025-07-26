@@ -345,12 +345,9 @@ const EventDetailsPage: React.FC = () => {
                     borderBottom: `1px solid ${theme.palette.divider}`,
                     py: 1.5,
                     px: 0,
-                    width: '100vw',
-                    position: 'relative',
-                    left: '50%',
-                    right: '50%',
-                    ml: '-50vw',
-                    mr: '-50vw',
+                    width: '100%',
+                    maxWidth: '100vw',
+                    boxSizing: 'border-box',
                   }}
                 >
                   <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
@@ -361,6 +358,10 @@ const EventDetailsPage: React.FC = () => {
                       fontSize: 17,
                       fontWeight: 600,
                       color: theme.palette.text.primary,
+                      wordBreak: 'break-word',
+                      overflowWrap: 'anywhere',
+                      maxWidth: '100%',
+                      whiteSpace: 'pre-line',
                     }}
                   >
                     {event.name}
@@ -409,7 +410,9 @@ const EventDetailsPage: React.FC = () => {
                     bgcolor: theme.palette.background.default,
                     py: 1.5,
                     px: 0,
-                    width: '100vw',
+                    width: '100%',
+                    maxWidth: '100vw',
+                    boxSizing: 'border-box',
                   }}
                 >
                   <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, mb: 0.5 }}>
@@ -420,6 +423,10 @@ const EventDetailsPage: React.FC = () => {
                       fontSize: 17,
                       fontWeight: 600,
                       color: theme.palette.text.primary,
+                      wordBreak: 'break-word',
+                      overflowWrap: 'anywhere',
+                      maxWidth: '100%',
+                      whiteSpace: 'pre-line',
                     }}
                   >
                     {event.name}
