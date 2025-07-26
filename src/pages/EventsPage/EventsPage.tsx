@@ -101,7 +101,7 @@ const EventsPage: React.FC = () => {
   return (
     <Box>
       <TopBar showBackButton={false} title="События" />
-      <Box>
+      <Box sx={{ maxWidth: '100vw', overflowX: 'hidden' }}>
         {sortedEvents.map((event) => (
           <EventCard
             key={event.id}
