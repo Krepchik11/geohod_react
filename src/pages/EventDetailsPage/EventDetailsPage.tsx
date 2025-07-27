@@ -114,19 +114,15 @@ const EventDetailsPage: React.FC = () => {
 
         // Загружаем рейтинг автора
         try {
-          console.log('EventDetailsPage: author data:', eventData.author);
-          
           // Пытаемся получить UUID автора через getUserByTelegramId
           let authorId = eventData.author.id;
           try {
             const userResponse = await api.users.getUserByTelegramId(eventData.author.id);
-            console.log('EventDetailsPage: user response for UUID:', userResponse);
             authorId = userResponse.data.id; // UUID из ответа
           } catch (uuidError) {
-            console.log('EventDetailsPage: could not get UUID, using original ID:', eventData.author.id);
+            // Используем оригинальный ID если не удалось получить UUID
           }
-          
-          console.log('EventDetailsPage: using author ID for rating:', authorId);
+
           const ratingResponse = await api.reviews.getUserRating(authorId);
           setAuthorRating(ratingResponse.data);
         } catch (error) {
@@ -324,14 +320,28 @@ const EventDetailsPage: React.FC = () => {
       let authorId = event.author.id;
       try {
         const userResponse = await api.users.getUserByTelegramId(event.author.id);
-        console.log('EventDetailsPage: user response for profile navigation:', userResponse);
         authorId = userResponse.data.id; // UUID из ответа
       } catch (uuidError) {
-        console.log('EventDetailsPage: could not get UUID for navigation, using original ID:', event.author.id);
+        // Используем оригинальный ID если не удалось получить UUID
       }
-      
-      console.log('EventDetailsPage: navigating to author profile with ID:', authorId);
-      navigate(`/profile/${authorId}`);
+
+      // Передаем данные автора через state, чтобы не загружать их заново
+      navigate(`/profile/${authorId}`, {
+        state: {
+          authorData: {
+            id: event.author.id,
+            uuid: authorId,
+            username: event.author.tgUsername,
+            firstName: event.author.firstName,
+            lastName: event.author.lastName,
+            tgImageUrl: event.author.tgImageUrl,
+            imageUrl: event.author.tgImageUrl,
+            name: event.author.firstName,
+            tgFirstName: event.author.firstName,
+            tgLastName: event.author.lastName,
+          },
+        },
+      });
     }
   };
 
@@ -614,15 +624,15 @@ const EventDetailsPage: React.FC = () => {
                   <Avatar
                     src={event.author.tgImageUrl}
                     alt={event.author.firstName}
-                    sx={{ 
-                      width: 48, 
-                      height: 48, 
+                    sx={{
+                      width: 48,
+                      height: 48,
                       mr: 2,
                       cursor: 'pointer',
                       transition: 'opacity 0.2s',
                       '&:hover': {
-                        opacity: 0.8
-                      }
+                        opacity: 0.8,
+                      },
                     }}
                     onClick={handleAuthorProfileClick}
                   />
@@ -651,9 +661,7 @@ const EventDetailsPage: React.FC = () => {
                           marginRight: '6px',
                         }}
                       />
-                      {authorRating !== null
-                        ? authorRating.toFixed(1)
-                        : '0.0'}
+                      {authorRating !== null ? authorRating.toFixed(1) : '0.0'}
                     </Typography>
                   </Box>
                 </Box>

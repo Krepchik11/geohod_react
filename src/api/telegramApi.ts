@@ -195,7 +195,14 @@ export const reviewsApi = {
     const response = await axiosV2.patch(`/reviews/${reviewId}/unhide`);
     return response.data;
   },
-  postReview: async (data: { eventId: string; rating: number; comment: string; authorId?: string; authorImageUrl?: string; authorUsername?: string }) => {
+  postReview: async (data: {
+    eventId: string;
+    rating: number;
+    comment: string;
+    authorId?: string;
+    authorImageUrl?: string;
+    authorUsername?: string;
+  }) => {
     const response = await axiosV2.post(`/reviews`, data);
     return response.data;
   },

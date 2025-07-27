@@ -22,7 +22,7 @@ import {
 } from '@mui/icons-material';
 import settingsIcon from '../../assets/icons/settings.svg';
 import { useUserStore } from '../../store/userStore';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { api, reviewsApi, userSettingsApi } from '../../api/telegramApi';
 import Toast from '../../components/Toast/Toast';
 import visibleIcon from '../../assets/icons/visible.svg';
@@ -82,6 +82,7 @@ const formatDate = (dateString: string) => {
 const ProfilePage: React.FC = () => {
   const theme = useTheme();
   const { userId: urlUserId } = useParams<{ userId?: string }>();
+  const location = useLocation();
   const user = useUserStore((state) => state.user);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [maxParticipants, setMaxParticipants] = React.useState('');
@@ -95,6 +96,9 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const targetUserId = urlUserId || user?.uuid;
   const isOwnProfile = !urlUserId || (user && user.uuid === urlUserId);
+
+  // Получаем данные автора из state, если они были переданы
+  const authorData = location.state?.authorData;
 
   const [reviews, setReviews] = React.useState<Review[]>([]);
   const [page, setPage] = React.useState(0);
@@ -113,95 +117,84 @@ const ProfilePage: React.FC = () => {
   React.useEffect(() => {
     if (!targetUserId) return;
     setLoading(true);
-    
-    // Загружаем данные пользователя
+
     const loadUserData = async () => {
       try {
-        console.log('ProfilePage: loading user data', { targetUserId, isOwnProfile, user });
-        
         if (isOwnProfile) {
           setTargetUser(user);
         } else {
           // Загружаем данные другого пользователя
-          console.log('ProfilePage: loading other user data for ID:', targetUserId);
-                  try {
-          const userResponse = await api.users.getUserById(targetUserId);
-          console.log('ProfilePage: user response:', userResponse);
-          setTargetUser(userResponse.data);
-        } catch (error) {
-          console.error('Error loading user by ID, trying alternative method:', error);
-          
-          // Попробуем получить данные пользователя через getUserByTelegramId
-          try {
-            console.log('ProfilePage: trying getUserByTelegramId for UUID:', targetUserId);
-            const telegramUserResponse = await api.users.getUserByTelegramId(targetUserId);
-            console.log('ProfilePage: telegram user response:', telegramUserResponse);
-            setTargetUser(telegramUserResponse.data);
-          } catch (telegramError) {
-            console.error('Error loading user by Telegram ID, trying events method:', telegramError);
-            
-            // Альтернативный способ - ищем пользователя через события
+
+          // Если у нас есть данные автора из state, используем их
+          if (authorData) {
+            setTargetUser(authorData);
+          } else {
+            // Иначе загружаем данные через API
             try {
-              console.log('ProfilePage: trying to find user through events for ID:', targetUserId);
-              const eventsResponse = await api.events.getAllEvents({ page: 0, size: 50 });
-              console.log('ProfilePage: events response:', eventsResponse);
-              
-              // Сначала попробуем найти по UUID
-              let userEvent = eventsResponse.content?.find((event: any) => {
-                const authorUuid = (event.author as any)?.uuid;
-                return authorUuid === targetUserId;
-              });
-              
-              // Если не нашли по UUID, попробуем найти по числовому ID
-              if (!userEvent) {
-                console.log('ProfilePage: UUID not found, trying to find by numeric ID');
-                // Попробуем получить числовой ID из UUID через getUserByTelegramId
+              const userResponse = await api.users.getUserById(targetUserId);
+              setTargetUser(userResponse.data);
+            } catch (error) {
+              console.error('Error loading user by ID, trying alternative method:', error);
+
+              // Попробуем получить данные пользователя через getUserByTelegramId
+              // Но сначала нужно получить числовой Telegram ID из UUID
+              try {
+                // Попробуем найти пользователя в событиях, чтобы получить его числовой ID
+                const eventsResponse = await api.events.getAllEvents({ page: 0, size: 50 });
+                const userEvent = eventsResponse.content?.find((event: any) => {
+                  const authorUuid = (event.author as any)?.uuid;
+                  return authorUuid === targetUserId;
+                });
+
+                if (userEvent?.author?.id) {
+                  const telegramUserResponse = await api.users.getUserByTelegramId(
+                    userEvent.author.id
+                  );
+                  if (telegramUserResponse.data) {
+                    setTargetUser(telegramUserResponse.data);
+                    return;
+                  }
+                }
+              } catch (telegramError) {
+                console.error(
+                  'Error loading user by Telegram ID, trying events method:',
+                  telegramError
+                );
+
+                // Если не удалось получить через Telegram ID, используем данные из событий напрямую
                 try {
-                  const numericUserResponse = await api.users.getUserByTelegramId(targetUserId);
-                  const numericId = numericUserResponse.data.telegramId || numericUserResponse.data.id;
-                  console.log('ProfilePage: got numeric ID from UUID:', numericId);
-                  
-                  userEvent = eventsResponse.content?.find((event: any) => {
-                    const authorId = event.author?.id;
-                    console.log('ProfilePage: checking event author ID:', { authorId, numericId });
-                    return authorId === numericId;
+                  const eventsResponse = await api.events.getAllEvents({ page: 0, size: 50 });
+                  const userEvent = eventsResponse.content?.find((event: any) => {
+                    const authorUuid = (event.author as any)?.uuid;
+                    return authorUuid === targetUserId;
                   });
-                } catch (numericError) {
-                  console.error('Error getting numeric ID:', numericError);
+
+                  if (userEvent?.author) {
+                    setTargetUser(userEvent.author);
+                  } else {
+                    console.error('User not found in events, targetUserId:', targetUserId);
+                  }
+                } catch (eventsError) {
+                  console.error('Error loading user through events:', eventsError);
                 }
               }
-              
-              if (userEvent?.author) {
-                console.log('ProfilePage: found user through events:', userEvent.author);
-                setTargetUser(userEvent.author);
-              } else {
-                console.error('User not found in events, targetUserId:', targetUserId);
-                console.log('ProfilePage: available events authors:', eventsResponse.content?.map((event: any) => ({
-                  uuid: (event.author as any)?.uuid,
-                  id: event.author?.id,
-                  name: event.author?.name
-                })));
-              }
-            } catch (eventsError) {
-              console.error('Error loading user through events:', eventsError);
             }
           }
         }
-        }
-        
+
         // Загружаем рейтинг
-        console.log('ProfilePage: fetching rating for user ID:', targetUserId, 'type:', typeof targetUserId);
         try {
           const ratingResponse = await reviewsApi.getUserRating(String(targetUserId));
-          console.log('ProfilePage: rating response:', ratingResponse);
           setRating(ratingResponse.data);
         } catch (ratingError) {
-          console.error('ProfilePage: error fetching rating, trying alternative method:', ratingError);
+          console.error(
+            'ProfilePage: error fetching rating, trying alternative method:',
+            ratingError
+          );
           // Если это числовой ID, попробуем получить UUID через getUserByTelegramId
           if (/^\d+$/.test(targetUserId)) {
             try {
               const userResponse = await api.users.getUserByTelegramId(targetUserId);
-              console.log('ProfilePage: got UUID for rating:', userResponse.data.id);
               const ratingResponse = await reviewsApi.getUserRating(userResponse.data.id);
               setRating(ratingResponse.data);
             } catch (uuidError) {
@@ -218,7 +211,7 @@ const ProfilePage: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     loadUserData();
   }, [targetUserId, isOwnProfile, user]);
 
@@ -231,19 +224,20 @@ const ProfilePage: React.FC = () => {
   React.useEffect(() => {
     const loadReviews = async () => {
       if (!targetUserId || loadingReviews || !hasMore) return;
-      console.log('Загружаем отзывы, страница:', page, 'для пользователя ID:', targetUserId, 'тип:', typeof targetUserId);
       setLoadingReviews(true);
-      
+
       let res;
       try {
         res = await reviewsApi.getUserReviews(targetUserId, page, 10);
       } catch (reviewsError) {
-        console.error('ProfilePage: error fetching reviews, trying alternative method:', reviewsError);
+        console.error(
+          'ProfilePage: error fetching reviews, trying alternative method:',
+          reviewsError
+        );
         // Если это числовой ID, попробуем получить UUID через getUserByTelegramId
         if (/^\d+$/.test(targetUserId)) {
           try {
             const userResponse = await api.users.getUserByTelegramId(targetUserId);
-            console.log('ProfilePage: got UUID for reviews:', userResponse.data.id);
             res = await reviewsApi.getUserReviews(userResponse.data.id, page, 10);
           } catch (uuidError) {
             console.error('ProfilePage: could not get UUID for reviews:', uuidError);
@@ -254,12 +248,11 @@ const ProfilePage: React.FC = () => {
         }
       }
       let newReviews = res && Array.isArray(res.data) ? res.data : [];
-      
+
       // Для чужих профилей показываем только видимые отзывы
       if (!isOwnProfile) {
         newReviews = newReviews.filter((review: Review) => !review.isHidden);
       }
-      console.log('Получено отзывов:', newReviews.length);
 
       // Дедупликация отзывов по ID
       setReviews((prev) => {
@@ -434,15 +427,18 @@ const ProfilePage: React.FC = () => {
               cursor: 'pointer',
               transition: 'opacity 0.2s',
               '&:hover': {
-                opacity: 0.8
-              }
-            })
+                opacity: 0.8,
+              },
+            }),
           }}
         />
         <Typography sx={{ fontWeight: 600, fontSize: 20, mt: 1 }}>
-          {targetUser?.first_name || targetUser?.name} {targetUser?.last_name}
+          {targetUser?.tgFirstName || targetUser?.first_name || targetUser?.name}{' '}
+          {targetUser?.tgLastName || targetUser?.last_name}
         </Typography>
-        <Typography sx={{ color: '#8E8E93', fontSize: 15, mb: 1 }}>@{targetUser?.username}</Typography>
+        <Typography sx={{ color: '#8E8E93', fontSize: 15, mb: 1 }}>
+          @{targetUser?.username}
+        </Typography>
         {isOwnProfile && (
           <IconButton
             sx={{
@@ -597,58 +593,58 @@ const ProfilePage: React.FC = () => {
       </Box>
       {isOwnProfile && (
         <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ position: 'relative', pr: 5, fontSize: '14px', fontWeight: '400' }}>
-          Значения по умолчанию для ваших событий:
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField
-              label="Максимум участников"
-              value={maxParticipants}
-              onChange={handleMaxParticipantsChange}
-              placeholder="30"
-              fullWidth
-              type="number"
-              error={!!maxParticipantsError}
-              helperText={maxParticipantsError}
-              inputProps={{ min: 1, max: 99 }}
-            />
-            <TextField
-              label="Ожидаемый размер доната"
-              value={donation}
-              onChange={(e) => setDonation(e.target.value)}
-              placeholder="500 динар"
-              fullWidth
-            />
-            <Button
-              sx={{ mt: 2, backgroundColor: theme.palette.primary.main, color: '#fff' }}
-              onClick={handleApplySettings}
-              fullWidth
-            >
-              Применить
-            </Button>
-          </Box>
-          <Box
-            sx={{
-              position: 'fixed',
-              top: 30,
-              right: 30,
-              zIndex: 10000,
-            }}
-          >
+          <DialogTitle sx={{ position: 'relative', pr: 5, fontSize: '14px', fontWeight: '400' }}>
+            Значения по умолчанию для ваших событий:
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+              <TextField
+                label="Максимум участников"
+                value={maxParticipants}
+                onChange={handleMaxParticipantsChange}
+                placeholder="30"
+                fullWidth
+                type="number"
+                error={!!maxParticipantsError}
+                helperText={maxParticipantsError}
+                inputProps={{ min: 1, max: 99 }}
+              />
+              <TextField
+                label="Ожидаемый размер доната"
+                value={donation}
+                onChange={(e) => setDonation(e.target.value)}
+                placeholder="500 динар"
+                fullWidth
+              />
+              <Button
+                sx={{ mt: 2, backgroundColor: theme.palette.primary.main, color: '#fff' }}
+                onClick={handleApplySettings}
+                fullWidth
+              >
+                Применить
+              </Button>
+            </Box>
             <Box
-              component="img"
-              src="/images/close-popup.svg"
-              alt="Close"
-              onClick={() => setSettingsOpen(false)}
               sx={{
-                width: 50,
-                height: 50,
-                cursor: 'pointer',
+                position: 'fixed',
+                top: 30,
+                right: 30,
+                zIndex: 10000,
               }}
-            />
-          </Box>
-        </DialogContent>
+            >
+              <Box
+                component="img"
+                src="/images/close-popup.svg"
+                alt="Close"
+                onClick={() => setSettingsOpen(false)}
+                sx={{
+                  width: 50,
+                  height: 50,
+                  cursor: 'pointer',
+                }}
+              />
+            </Box>
+          </DialogContent>
         </Dialog>
       )}
     </Box>

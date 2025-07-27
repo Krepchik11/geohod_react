@@ -121,8 +121,8 @@ const TopBar: React.FC<TopBarProps> = ({
         )}
       </Box>
 
-      <NotificationContainer 
-        open={showNotificationsPopup} 
+      <NotificationContainer
+        open={showNotificationsPopup}
         onClose={handleCloseNotifications}
         onNotificationsRead={checkUnreadNotifications}
       />

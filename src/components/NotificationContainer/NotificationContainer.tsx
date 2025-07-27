@@ -12,7 +12,11 @@ interface NotificationContainerProps {
   onNotificationsRead?: () => void;
 }
 
-const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onClose, onNotificationsRead }) => {
+const NotificationContainer: React.FC<NotificationContainerProps> = ({
+  open,
+  onClose,
+  onNotificationsRead,
+}) => {
   const theme = useTheme();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,7 +49,6 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
     }
   }, [loading, hasMore, cursorId]);
 
-
   useEffect(() => {
     if (open) {
       setNotifications([]);
@@ -59,7 +62,12 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
   }, [open, events, fetchEvents]);
 
   useEffect(() => {
-    console.log('useEffect для загрузки уведомлений:', { open, notificationsLength: notifications.length, hasMore, loading });
+    console.log('useEffect для загрузки уведомлений:', {
+      open,
+      notificationsLength: notifications.length,
+      hasMore,
+      loading,
+    });
     if (open && notifications.length === 0 && hasMore && !loading) {
       loadNotifications();
     }
