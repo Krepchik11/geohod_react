@@ -305,6 +305,12 @@ const EventDetailsPage: React.FC = () => {
     }
   };
 
+  const handleAuthorProfileClick = () => {
+    if (event) {
+      navigate(`/profile/${event.author.id}`);
+    }
+  };
+
   return (
     <Box>
       <TopBar
@@ -584,7 +590,17 @@ const EventDetailsPage: React.FC = () => {
                   <Avatar
                     src={event.author.tgImageUrl}
                     alt={event.author.firstName}
-                    sx={{ width: 48, height: 48, mr: 2 }}
+                    sx={{ 
+                      width: 48, 
+                      height: 48, 
+                      mr: 2,
+                      cursor: 'pointer',
+                      transition: 'opacity 0.2s',
+                      '&:hover': {
+                        opacity: 0.8
+                      }
+                    }}
+                    onClick={handleAuthorProfileClick}
                   />
                   <Box>
                     <Typography

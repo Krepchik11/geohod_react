@@ -154,6 +154,7 @@ const TelegramRouter: React.FC = () => {
         <Route path="/event/:id/participants" element={<ParticipantsPage />} />
         <Route path="/notification/:id" element={<NotificationPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/:userId" element={<ProfilePage />} />
         <Route path="/rate-organizer/:id" element={<RateOrganizerPage />} />
         <Route path="/finish-event/:id" element={<FinishEventPage />} />
         <Route path="/edit-event/:id" element={<EditEventPage />} />

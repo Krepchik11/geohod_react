@@ -22,8 +22,8 @@ import {
 } from '@mui/icons-material';
 import settingsIcon from '../../assets/icons/settings.svg';
 import { useUserStore } from '../../store/userStore';
-import { useNavigate } from 'react-router-dom';
-import { reviewsApi, userSettingsApi } from '../../api/telegramApi';
+import { useNavigate, useParams } from 'react-router-dom';
+import { api, reviewsApi, userSettingsApi } from '../../api/telegramApi';
 import Toast from '../../components/Toast/Toast';
 import visibleIcon from '../../assets/icons/visible.svg';
 import invisibleIcon from '../../assets/icons/invisible.svg';
@@ -81,6 +81,7 @@ const formatDate = (dateString: string) => {
 
 const ProfilePage: React.FC = () => {
   const theme = useTheme();
+  const { userId: urlUserId } = useParams<{ userId?: string }>();
   const user = useUserStore((state) => state.user);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [maxParticipants, setMaxParticipants] = React.useState('');
@@ -92,8 +93,8 @@ const ProfilePage: React.FC = () => {
     type: 'success' | 'error';
   }>({ isVisible: false, message: '', type: 'success' });
   const navigate = useNavigate();
-  const userId = user?.uuid;
-  const isOwnProfile = user && user.uuid === userId;
+  const targetUserId = urlUserId || user?.uuid;
+  const isOwnProfile = !urlUserId || (user && user.uuid === urlUserId);
 
   const [reviews, setReviews] = React.useState<Review[]>([]);
   const [page, setPage] = React.useState(0);
@@ -103,33 +104,58 @@ const ProfilePage: React.FC = () => {
 
   const [rating, setRating] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(true);
+  const [targetUser, setTargetUser] = React.useState<any>(null);
 
   const settings = useUserStore((state) => state.settings);
   const setSettings = useUserStore((state) => state.setSettings);
   const fetchSettings = useUserStore((state) => state.fetchSettings);
 
   React.useEffect(() => {
-    if (!user || !user.uuid) return;
+    if (!targetUserId) return;
     setLoading(true);
-    reviewsApi.getUserRating(String(user.uuid)).then((response) => {
-      setRating(response.data);
-      setLoading(false);
-    });
-  }, [user]);
+    
+    // Загружаем данные пользователя
+    const loadUserData = async () => {
+      try {
+        if (isOwnProfile) {
+          setTargetUser(user);
+        } else {
+          // Загружаем данные другого пользователя
+          const userResponse = await api.users.getUserById(targetUserId);
+          setTargetUser(userResponse.data);
+        }
+        
+        // Загружаем рейтинг
+        const ratingResponse = await reviewsApi.getUserRating(String(targetUserId));
+        setRating(ratingResponse.data);
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadUserData();
+  }, [targetUserId, isOwnProfile, user]);
 
   React.useEffect(() => {
     setReviews([]);
     setPage(0);
     setHasMore(true);
-  }, [user]);
+  }, [targetUserId]);
 
   React.useEffect(() => {
     const loadReviews = async () => {
-      if (!user || !user.uuid || loadingReviews || !hasMore) return;
+      if (!targetUserId || loadingReviews || !hasMore) return;
       console.log('Загружаем отзывы, страница:', page);
       setLoadingReviews(true);
-      const res = await reviewsApi.getUserReviews(user.uuid, page, 10);
-      const newReviews = res && Array.isArray(res.data) ? res.data : [];
+      const res = await reviewsApi.getUserReviews(targetUserId, page, 10);
+      let newReviews = res && Array.isArray(res.data) ? res.data : [];
+      
+      // Для чужих профилей показываем только видимые отзывы
+      if (!isOwnProfile) {
+        newReviews = newReviews.filter((review: Review) => !review.isHidden);
+      }
       console.log('Получено отзывов:', newReviews.length);
 
       // Дедупликация отзывов по ID
@@ -144,7 +170,7 @@ const ProfilePage: React.FC = () => {
     };
     loadReviews();
     // eslint-disable-next-line
-  }, [page, user]);
+  }, [page, targetUserId]);
 
   // Intersection Observer для пагинации
   React.useEffect(() => {
@@ -201,7 +227,7 @@ const ProfilePage: React.FC = () => {
         await reviewsApi.hideReview(review.id);
       }
       // После успешного запроса — перезапрашиваем отзывы с первой страницы
-      const res = await reviewsApi.getUserReviews(userId, 0, (page + 1) * 10);
+      const res = await reviewsApi.getUserReviews(targetUserId!, 0, (page + 1) * 10);
       const newReviews = res && Array.isArray(res.data) ? res.data : [];
 
       // Дедупликация отзывов по ID
@@ -294,8 +320,8 @@ const ProfilePage: React.FC = () => {
         }}
       >
         <Avatar
-          src={user.photo_url}
-          alt={user.first_name}
+          src={targetUser?.photo_url || targetUser?.imageUrl}
+          alt={targetUser?.first_name || targetUser?.name}
           sx={{
             width: 120,
             height: 120,
@@ -304,22 +330,24 @@ const ProfilePage: React.FC = () => {
           }}
         />
         <Typography sx={{ fontWeight: 600, fontSize: 20, mt: 1 }}>
-          {user.first_name} {user.last_name}
+          {targetUser?.first_name || targetUser?.name} {targetUser?.last_name}
         </Typography>
-        <Typography sx={{ color: '#8E8E93', fontSize: 15, mb: 1 }}>@{user.username}</Typography>
-        <IconButton
-          sx={{
-            position: 'absolute',
-            right: 16,
-            top: 16,
-            width: 32,
-            height: 32,
-            p: 0,
-          }}
-          onClick={() => setSettingsOpen(true)}
-        >
-          <img src={settingsIcon} alt="Настройки" width={24} height={24} />
-        </IconButton>
+        <Typography sx={{ color: '#8E8E93', fontSize: 15, mb: 1 }}>@{targetUser?.username}</Typography>
+        {isOwnProfile && (
+          <IconButton
+            sx={{
+              position: 'absolute',
+              right: 16,
+              top: 16,
+              width: 32,
+              height: 32,
+              p: 0,
+            }}
+            onClick={() => setSettingsOpen(true)}
+          >
+            <img src={settingsIcon} alt="Настройки" width={24} height={24} />
+          </IconButton>
+        )}
       </Box>
       <Box
         sx={{
@@ -457,7 +485,8 @@ const ProfilePage: React.FC = () => {
         {loadingReviews && <Typography>Загрузка...</Typography>}
         {hasMore && <div ref={loaderRef} style={{ height: 20 }} />}
       </Box>
-      <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="xs" fullWidth>
+      {isOwnProfile && (
+        <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ position: 'relative', pr: 5, fontSize: '14px', fontWeight: '400' }}>
           Значения по умолчанию для ваших событий:
         </DialogTitle>
@@ -510,7 +539,8 @@ const ProfilePage: React.FC = () => {
             />
           </Box>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      )}
     </Box>
   );
 };

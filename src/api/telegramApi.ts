@@ -53,6 +53,10 @@ export const usersApi = {
     const response = await axiosV2.get(`/users/by-tg-id/${telegramId}`);
     return response.data;
   },
+  getUserById: async (userId: string) => {
+    const response = await axiosV2.get(`/users/${userId}`);
+    return response.data;
+  },
 };
 
 export const eventsApi = {
