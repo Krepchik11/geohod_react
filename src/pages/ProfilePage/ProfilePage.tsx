@@ -149,6 +149,7 @@ const ProfilePage: React.FC = () => {
         }
         
         // Загружаем рейтинг
+        console.log('ProfilePage: fetching rating for user ID:', targetUserId, 'type:', typeof targetUserId);
         const ratingResponse = await reviewsApi.getUserRating(String(targetUserId));
         console.log('ProfilePage: rating response:', ratingResponse);
         setRating(ratingResponse.data);
@@ -171,7 +172,7 @@ const ProfilePage: React.FC = () => {
   React.useEffect(() => {
     const loadReviews = async () => {
       if (!targetUserId || loadingReviews || !hasMore) return;
-      console.log('Загружаем отзывы, страница:', page);
+      console.log('Загружаем отзывы, страница:', page, 'для пользователя ID:', targetUserId, 'тип:', typeof targetUserId);
       setLoadingReviews(true);
       const res = await reviewsApi.getUserReviews(targetUserId, page, 10);
       let newReviews = res && Array.isArray(res.data) ? res.data : [];

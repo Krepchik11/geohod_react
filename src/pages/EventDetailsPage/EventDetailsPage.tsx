@@ -114,7 +114,11 @@ const EventDetailsPage: React.FC = () => {
 
         // Загружаем рейтинг автора
         try {
-          const ratingResponse = await api.reviews.getUserRating(eventData.author.id);
+          console.log('EventDetailsPage: author data:', eventData.author);
+          // Используем UUID автора, если он есть, иначе используем числовой ID
+          const authorId = (eventData.author as any).uuid || eventData.author.id;
+          console.log('EventDetailsPage: using author ID for rating:', authorId);
+          const ratingResponse = await api.reviews.getUserRating(authorId);
           setAuthorRating(ratingResponse.data);
         } catch (error) {
           console.error('Error fetching author rating:', error);
@@ -307,7 +311,10 @@ const EventDetailsPage: React.FC = () => {
 
   const handleAuthorProfileClick = () => {
     if (event) {
-      navigate(`/profile/${event.author.id}`);
+      // Используем UUID автора, если он есть, иначе используем числовой ID
+      const authorId = (event.author as any).uuid || event.author.id;
+      console.log('EventDetailsPage: navigating to author profile with ID:', authorId);
+      navigate(`/profile/${authorId}`);
     }
   };
 
