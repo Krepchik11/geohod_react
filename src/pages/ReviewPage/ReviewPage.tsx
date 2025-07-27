@@ -183,6 +183,9 @@ const ReviewPage: React.FC = () => {
         eventId: eventId,
         rating: reviewData.rating,
         comment: reviewData.text.trim(),
+        authorId: user.uuid,
+        authorImageUrl: user.photo_url || null,
+        authorUsername: user.username || null,
       };
 
       console.log('ReviewPage: sending review payload =', reviewPayload);
@@ -265,7 +268,7 @@ const ReviewPage: React.FC = () => {
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Avatar src={event.author?.tgImageUrl} sx={{ width: 40, height: 40, mr: 2 }} />
+            <Avatar src={event.author?.imageUrl} sx={{ width: 40, height: 40, mr: 2 }} />
             <Box>
               <Typography sx={{ color: theme.palette.text.secondary, fontSize: 14 }}>
                 {event.author?.name}

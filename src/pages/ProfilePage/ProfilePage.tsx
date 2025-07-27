@@ -111,8 +111,8 @@ const ProfilePage: React.FC = () => {
   React.useEffect(() => {
     if (!user || !user.uuid) return;
     setLoading(true);
-    reviewsApi.getUserRating(String(user.uuid)).then((rating) => {
-      setRating(rating);
+    reviewsApi.getUserRating(String(user.uuid)).then((response) => {
+      setRating(response.data);
       setLoading(false);
     });
   }, [user]);

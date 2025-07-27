@@ -9,9 +9,10 @@ import { useEventsStore } from '../../store/eventsStore';
 interface NotificationContainerProps {
   open: boolean;
   onClose: () => void;
+  onNotificationsRead?: () => void;
 }
 
-const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onClose }) => {
+const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onClose, onNotificationsRead }) => {
   const theme = useTheme();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -156,7 +157,12 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ open, onC
                 type={notification.type || 'review'}
                 eventTitle={notification.payload || ''}
                 timestamp={notification.createdAt || ''}
-                onViewClick={onClose}
+                onViewClick={() => {
+                  onClose();
+                  if (onNotificationsRead) {
+                    onNotificationsRead();
+                  }
+                }}
                 notificationId={notification.id}
                 eventId={notification.eventId}
               />

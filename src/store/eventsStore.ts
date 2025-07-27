@@ -14,6 +14,7 @@ interface Event {
     username: string;
     name: string;
     imageUrl: string;
+    rating?: number;
   };
 }
 

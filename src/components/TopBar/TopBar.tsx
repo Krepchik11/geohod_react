@@ -20,17 +20,36 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const theme = useTheme();
   const [showNotificationsPopup, setShowNotificationsPopup] = useState(false);
-  // const { hasUnread, markAllAsRead } = useUnreadNotifications();
+  const [hasUnread, setHasUnread] = useState(false);
 
-  const handleNotificationsClick = () => {
+  const checkUnreadNotifications = async () => {
+    try {
+      const response = await api.notifications.getNotifications({ limit: 1, isRead: false });
+      setHasUnread(response.data && response.data.length > 0);
+    } catch (error) {
+      console.error('Error checking unread notifications:', error);
+      setHasUnread(false);
+    }
+  };
+
+  const handleNotificationsClick = async () => {
     setShowNotificationsPopup(true);
     // Отмечаем все уведомления как прочитанные при открытии
-    // markAllAsRead();
+    try {
+      await api.notifications.dismissAllNotifications();
+      setHasUnread(false);
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
   };
 
   const handleCloseNotifications = () => {
     setShowNotificationsPopup(false);
   };
+
+  useEffect(() => {
+    checkUnreadNotifications();
+  }, []);
 
   return (
     <>
@@ -85,7 +104,7 @@ const TopBar: React.FC<TopBarProps> = ({
             }}
           >
             <NotificationsNoneIcon sx={{ fontSize: 20 }} />
-            {/* {hasUnread && (
+            {hasUnread && (
               <Box
                 sx={{
                   position: 'absolute',
@@ -97,23 +116,16 @@ const TopBar: React.FC<TopBarProps> = ({
                   borderRadius: '50%',
                 }}
               />
-            )} */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                width: 8,
-                height: 8,
-                bgcolor: '#FF3B30',
-                borderRadius: '50%',
-              }}
-            />
+            )}
           </IconButton>
         )}
       </Box>
 
-      <NotificationContainer open={showNotificationsPopup} onClose={handleCloseNotifications} />
+      <NotificationContainer 
+        open={showNotificationsPopup} 
+        onClose={handleCloseNotifications}
+        onNotificationsRead={checkUnreadNotifications}
+      />
     </>
   );
 };

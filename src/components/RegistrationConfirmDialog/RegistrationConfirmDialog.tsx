@@ -8,12 +8,14 @@ interface RegistrationConfirmDialogProps {
   open: boolean;
   onClose: () => void;
   event: Event | null;
+  authorRating?: number | null;
 }
 
 const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
   open,
   onClose,
   event,
+  authorRating,
 }) => {
   const theme = useTheme();
 
@@ -57,10 +59,8 @@ const RegistrationConfirmDialog: React.FC<RegistrationConfirmDialogProps> = ({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <StarIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
               <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
-                {event?.author
-                  ? (event.author as any).rating
-                    ? (event.author as any).rating.toFixed(1)
-                    : '0.0'
+                {authorRating !== null && authorRating !== undefined
+                  ? authorRating.toFixed(1)
                   : '0.0'}
               </Typography>
             </Box>

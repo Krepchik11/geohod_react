@@ -18,7 +18,8 @@ import {
   useTheme,
 } from '@mui/material';
 import { Event as EventIcon, PeopleAlt as PeopleAltIcon } from '@mui/icons-material';
-import { api, Event, EventStatus, User } from '../../api';
+import { api } from '../../api/telegramApi';
+import { Event, EventStatus, User } from '../../api';
 import TopBar from '../../components/TopBar/TopBar';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { useUserStore } from '../../store/userStore';
@@ -64,6 +65,7 @@ const EventDetailsPage: React.FC = () => {
   const [unregisterDialogOpen, setUnregisterDialogOpen] = useState(false);
   const [iamParticipant, setIamParticipant] = useState(false);
   const [isPast, setIsPast] = useState(false);
+  const [authorRating, setAuthorRating] = useState<number | null>(null);
   const theme = useTheme();
 
   const isCanceled = event?.status === EventStatus.CANCELED;
@@ -109,6 +111,15 @@ const EventDetailsPage: React.FC = () => {
 
         setIamParticipant(isParticipant);
         setIsPast(isPastEvent);
+
+        // Загружаем рейтинг автора
+        try {
+          const ratingResponse = await api.reviews.getUserRating(eventData.author.id);
+          setAuthorRating(ratingResponse.data);
+        } catch (error) {
+          console.error('Error fetching author rating:', error);
+          setAuthorRating(null);
+        }
       } catch (error) {
         console.error('Error fetching event:', error);
         setError('Ошибка при загрузке события');
@@ -600,8 +611,8 @@ const EventDetailsPage: React.FC = () => {
                           marginRight: '6px',
                         }}
                       />
-                      {(event.author as any).rating
-                        ? (event.author as any).rating.toFixed(1)
+                      {authorRating !== null
+                        ? authorRating.toFixed(1)
                         : '0.0'}
                     </Typography>
                   </Box>
@@ -1029,6 +1040,7 @@ const EventDetailsPage: React.FC = () => {
         open={registrationDialogOpen}
         onClose={() => setRegistrationDialogOpen(false)}
         event={event}
+        authorRating={authorRating}
       />
       <RegistrationErrorDialog
         open={registrationErrorDialogOpen}
@@ -1066,6 +1078,7 @@ const EventDetailsPage: React.FC = () => {
         onClose={() => setUnregisterDialogOpen(false)}
         onUnregister={handleUnregister}
         event={event}
+        authorRating={authorRating}
       />
 
       {canShowFinishButton(event, user) && (

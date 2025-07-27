@@ -191,7 +191,7 @@ export const reviewsApi = {
     const response = await axiosV2.patch(`/reviews/${reviewId}/unhide`);
     return response.data;
   },
-  postReview: async (data: { eventId: string; rating: number; comment: string }) => {
+  postReview: async (data: { eventId: string; rating: number; comment: string; authorId?: string; authorImageUrl?: string; authorUsername?: string }) => {
     const response = await axiosV2.post(`/reviews`, data);
     return response.data;
   },
@@ -222,14 +222,14 @@ export const notificationsApi = {
     const response = await axiosV2.get('/notifications', { params });
     return response.data;
   },
-  // dismissNotification: async (id: number) => {
-  //   const response = await axiosV2.post(`/notifications/${id}/dismiss`);
-  //   return response.data;
-  // },
-  // dismissAllNotifications: async () => {
-  //   const response = await axiosV2.post('/notifications/dismiss-all');
-  //   return response.data;
-  // },
+  dismissNotification: async (id: number) => {
+    const response = await axiosV2.post(`/notifications/${id}/dismiss`);
+    return response.data;
+  },
+  dismissAllNotifications: async () => {
+    const response = await axiosV2.post('/notifications/dismiss-all');
+    return response.data;
+  },
 };
 
 export const api = {
