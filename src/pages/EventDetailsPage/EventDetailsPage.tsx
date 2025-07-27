@@ -115,8 +115,17 @@ const EventDetailsPage: React.FC = () => {
         // Загружаем рейтинг автора
         try {
           console.log('EventDetailsPage: author data:', eventData.author);
-          // Используем UUID автора, если он есть, иначе используем числовой ID
-          const authorId = (eventData.author as any).uuid || eventData.author.id;
+          
+          // Пытаемся получить UUID автора через getUserByTelegramId
+          let authorId = eventData.author.id;
+          try {
+            const userResponse = await api.users.getUserByTelegramId(eventData.author.id);
+            console.log('EventDetailsPage: user response for UUID:', userResponse);
+            authorId = userResponse.data.id; // UUID из ответа
+          } catch (uuidError) {
+            console.log('EventDetailsPage: could not get UUID, using original ID:', eventData.author.id);
+          }
+          
           console.log('EventDetailsPage: using author ID for rating:', authorId);
           const ratingResponse = await api.reviews.getUserRating(authorId);
           setAuthorRating(ratingResponse.data);
@@ -309,10 +318,18 @@ const EventDetailsPage: React.FC = () => {
     }
   };
 
-  const handleAuthorProfileClick = () => {
+  const handleAuthorProfileClick = async () => {
     if (event) {
-      // Используем UUID автора, если он есть, иначе используем числовой ID
-      const authorId = (event.author as any).uuid || event.author.id;
+      // Пытаемся получить UUID автора через getUserByTelegramId
+      let authorId = event.author.id;
+      try {
+        const userResponse = await api.users.getUserByTelegramId(event.author.id);
+        console.log('EventDetailsPage: user response for profile navigation:', userResponse);
+        authorId = userResponse.data.id; // UUID из ответа
+      } catch (uuidError) {
+        console.log('EventDetailsPage: could not get UUID for navigation, using original ID:', event.author.id);
+      }
+      
       console.log('EventDetailsPage: navigating to author profile with ID:', authorId);
       navigate(`/profile/${authorId}`);
     }

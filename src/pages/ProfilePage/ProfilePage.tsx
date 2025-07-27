@@ -150,9 +150,27 @@ const ProfilePage: React.FC = () => {
         
         // Загружаем рейтинг
         console.log('ProfilePage: fetching rating for user ID:', targetUserId, 'type:', typeof targetUserId);
-        const ratingResponse = await reviewsApi.getUserRating(String(targetUserId));
-        console.log('ProfilePage: rating response:', ratingResponse);
-        setRating(ratingResponse.data);
+        try {
+          const ratingResponse = await reviewsApi.getUserRating(String(targetUserId));
+          console.log('ProfilePage: rating response:', ratingResponse);
+          setRating(ratingResponse.data);
+        } catch (ratingError) {
+          console.error('ProfilePage: error fetching rating, trying alternative method:', ratingError);
+          // Если это числовой ID, попробуем получить UUID через getUserByTelegramId
+          if (/^\d+$/.test(targetUserId)) {
+            try {
+              const userResponse = await api.users.getUserByTelegramId(targetUserId);
+              console.log('ProfilePage: got UUID for rating:', userResponse.data.id);
+              const ratingResponse = await reviewsApi.getUserRating(userResponse.data.id);
+              setRating(ratingResponse.data);
+            } catch (uuidError) {
+              console.error('ProfilePage: could not get UUID for rating:', uuidError);
+              setRating(0);
+            }
+          } else {
+            setRating(0);
+          }
+        }
       } catch (error) {
         console.error('Error loading user data:', error);
       } finally {
@@ -174,7 +192,26 @@ const ProfilePage: React.FC = () => {
       if (!targetUserId || loadingReviews || !hasMore) return;
       console.log('Загружаем отзывы, страница:', page, 'для пользователя ID:', targetUserId, 'тип:', typeof targetUserId);
       setLoadingReviews(true);
-      const res = await reviewsApi.getUserReviews(targetUserId, page, 10);
+      
+      let res;
+      try {
+        res = await reviewsApi.getUserReviews(targetUserId, page, 10);
+      } catch (reviewsError) {
+        console.error('ProfilePage: error fetching reviews, trying alternative method:', reviewsError);
+        // Если это числовой ID, попробуем получить UUID через getUserByTelegramId
+        if (/^\d+$/.test(targetUserId)) {
+          try {
+            const userResponse = await api.users.getUserByTelegramId(targetUserId);
+            console.log('ProfilePage: got UUID for reviews:', userResponse.data.id);
+            res = await reviewsApi.getUserReviews(userResponse.data.id, page, 10);
+          } catch (uuidError) {
+            console.error('ProfilePage: could not get UUID for reviews:', uuidError);
+            res = { data: [] };
+          }
+        } else {
+          res = { data: [] };
+        }
+      }
       let newReviews = res && Array.isArray(res.data) ? res.data : [];
       
       // Для чужих профилей показываем только видимые отзывы
