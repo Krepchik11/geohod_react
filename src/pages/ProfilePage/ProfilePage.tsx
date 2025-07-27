@@ -124,40 +124,69 @@ const ProfilePage: React.FC = () => {
         } else {
           // Загружаем данные другого пользователя
           console.log('ProfilePage: loading other user data for ID:', targetUserId);
+                  try {
+          const userResponse = await api.users.getUserById(targetUserId);
+          console.log('ProfilePage: user response:', userResponse);
+          setTargetUser(userResponse.data);
+        } catch (error) {
+          console.error('Error loading user by ID, trying alternative method:', error);
+          
+          // Попробуем получить данные пользователя через getUserByTelegramId
           try {
-            const userResponse = await api.users.getUserById(targetUserId);
-            console.log('ProfilePage: user response:', userResponse);
-            setTargetUser(userResponse.data);
-          } catch (error) {
-            console.error('Error loading user by ID, trying alternative method:', error);
+            console.log('ProfilePage: trying getUserByTelegramId for UUID:', targetUserId);
+            const telegramUserResponse = await api.users.getUserByTelegramId(targetUserId);
+            console.log('ProfilePage: telegram user response:', telegramUserResponse);
+            setTargetUser(telegramUserResponse.data);
+          } catch (telegramError) {
+            console.error('Error loading user by Telegram ID, trying events method:', telegramError);
+            
             // Альтернативный способ - ищем пользователя через события
             try {
-                          console.log('ProfilePage: trying to find user through events for ID:', targetUserId);
-            const eventsResponse = await api.events.getAllEvents({ page: 0, size: 50 });
-            console.log('ProfilePage: events response:', eventsResponse);
-            
-            const userEvent = eventsResponse.content?.find((event: any) => {
-              const authorUuid = (event.author as any)?.uuid;
-              const authorId = event.author?.id;
-              console.log('ProfilePage: checking event author:', { authorUuid, authorId, targetUserId });
-              return authorUuid === targetUserId || authorId === targetUserId;
-            });
-            
-            if (userEvent?.author) {
-              console.log('ProfilePage: found user through events:', userEvent.author);
-              setTargetUser(userEvent.author);
-            } else {
-              console.error('User not found in events, targetUserId:', targetUserId);
-              console.log('ProfilePage: available events authors:', eventsResponse.content?.map((event: any) => ({
-                uuid: (event.author as any)?.uuid,
-                id: event.author?.id,
-                name: event.author?.name
-              })));
-            }
+              console.log('ProfilePage: trying to find user through events for ID:', targetUserId);
+              const eventsResponse = await api.events.getAllEvents({ page: 0, size: 50 });
+              console.log('ProfilePage: events response:', eventsResponse);
+              
+              // Сначала попробуем найти по UUID
+              let userEvent = eventsResponse.content?.find((event: any) => {
+                const authorUuid = (event.author as any)?.uuid;
+                return authorUuid === targetUserId;
+              });
+              
+              // Если не нашли по UUID, попробуем найти по числовому ID
+              if (!userEvent) {
+                console.log('ProfilePage: UUID not found, trying to find by numeric ID');
+                // Попробуем получить числовой ID из UUID через getUserByTelegramId
+                try {
+                  const numericUserResponse = await api.users.getUserByTelegramId(targetUserId);
+                  const numericId = numericUserResponse.data.telegramId || numericUserResponse.data.id;
+                  console.log('ProfilePage: got numeric ID from UUID:', numericId);
+                  
+                  userEvent = eventsResponse.content?.find((event: any) => {
+                    const authorId = event.author?.id;
+                    console.log('ProfilePage: checking event author ID:', { authorId, numericId });
+                    return authorId === numericId;
+                  });
+                } catch (numericError) {
+                  console.error('Error getting numeric ID:', numericError);
+                }
+              }
+              
+              if (userEvent?.author) {
+                console.log('ProfilePage: found user through events:', userEvent.author);
+                setTargetUser(userEvent.author);
+              } else {
+                console.error('User not found in events, targetUserId:', targetUserId);
+                console.log('ProfilePage: available events authors:', eventsResponse.content?.map((event: any) => ({
+                  uuid: (event.author as any)?.uuid,
+                  id: event.author?.id,
+                  name: event.author?.name
+                })));
+              }
             } catch (eventsError) {
               console.error('Error loading user through events:', eventsError);
             }
           }
+        }
         }
         
         // Загружаем рейтинг
