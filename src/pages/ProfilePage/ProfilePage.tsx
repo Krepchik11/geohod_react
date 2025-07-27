@@ -117,16 +117,40 @@ const ProfilePage: React.FC = () => {
     // Загружаем данные пользователя
     const loadUserData = async () => {
       try {
+        console.log('ProfilePage: loading user data', { targetUserId, isOwnProfile, user });
+        
         if (isOwnProfile) {
           setTargetUser(user);
         } else {
           // Загружаем данные другого пользователя
-          const userResponse = await api.users.getUserById(targetUserId);
-          setTargetUser(userResponse.data);
+          console.log('ProfilePage: loading other user data for ID:', targetUserId);
+          try {
+            const userResponse = await api.users.getUserById(targetUserId);
+            console.log('ProfilePage: user response:', userResponse);
+            setTargetUser(userResponse.data);
+          } catch (error) {
+            console.error('Error loading user by ID, trying alternative method:', error);
+            // Альтернативный способ - ищем пользователя через события
+            try {
+              const eventsResponse = await api.events.getAllEvents({ page: 0, size: 50 });
+              const userEvent = eventsResponse.content?.find((event: any) => 
+                event.author?.id === targetUserId
+              );
+              if (userEvent?.author) {
+                console.log('ProfilePage: found user through events:', userEvent.author);
+                setTargetUser(userEvent.author);
+              } else {
+                console.error('User not found in events');
+              }
+            } catch (eventsError) {
+              console.error('Error loading user through events:', eventsError);
+            }
+          }
         }
         
         // Загружаем рейтинг
         const ratingResponse = await reviewsApi.getUserRating(String(targetUserId));
+        console.log('ProfilePage: rating response:', ratingResponse);
         setRating(ratingResponse.data);
       } catch (error) {
         console.error('Error loading user data:', error);
@@ -319,6 +343,7 @@ const ProfilePage: React.FC = () => {
           position: 'relative',
         }}
       >
+        {/* Debug log */}
         <Avatar
           src={targetUser?.photo_url || targetUser?.imageUrl}
           alt={targetUser?.first_name || targetUser?.name}
