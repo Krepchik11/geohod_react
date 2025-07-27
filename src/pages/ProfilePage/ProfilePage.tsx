@@ -132,16 +132,28 @@ const ProfilePage: React.FC = () => {
             console.error('Error loading user by ID, trying alternative method:', error);
             // Альтернативный способ - ищем пользователя через события
             try {
-              const eventsResponse = await api.events.getAllEvents({ page: 0, size: 50 });
-              const userEvent = eventsResponse.content?.find((event: any) => 
-                event.author?.id === targetUserId
-              );
-              if (userEvent?.author) {
-                console.log('ProfilePage: found user through events:', userEvent.author);
-                setTargetUser(userEvent.author);
-              } else {
-                console.error('User not found in events');
-              }
+                          console.log('ProfilePage: trying to find user through events for ID:', targetUserId);
+            const eventsResponse = await api.events.getAllEvents({ page: 0, size: 50 });
+            console.log('ProfilePage: events response:', eventsResponse);
+            
+            const userEvent = eventsResponse.content?.find((event: any) => {
+              const authorUuid = (event.author as any)?.uuid;
+              const authorId = event.author?.id;
+              console.log('ProfilePage: checking event author:', { authorUuid, authorId, targetUserId });
+              return authorUuid === targetUserId || authorId === targetUserId;
+            });
+            
+            if (userEvent?.author) {
+              console.log('ProfilePage: found user through events:', userEvent.author);
+              setTargetUser(userEvent.author);
+            } else {
+              console.error('User not found in events, targetUserId:', targetUserId);
+              console.log('ProfilePage: available events authors:', eventsResponse.content?.map((event: any) => ({
+                uuid: (event.author as any)?.uuid,
+                id: event.author?.id,
+                name: event.author?.name
+              })));
+            }
             } catch (eventsError) {
               console.error('Error loading user through events:', eventsError);
             }
@@ -389,7 +401,13 @@ const ProfilePage: React.FC = () => {
             width: 120,
             height: 120,
             mb: 1,
-            cursor: 'pointer',
+            ...(isOwnProfile && {
+              cursor: 'pointer',
+              transition: 'opacity 0.2s',
+              '&:hover': {
+                opacity: 0.8
+              }
+            })
           }}
         />
         <Typography sx={{ fontWeight: 600, fontSize: 20, mt: 1 }}>
