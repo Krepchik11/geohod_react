@@ -51,7 +51,7 @@ jobs:
         run: npm run build:telegram
         env:
           REACT_APP_TELEGRAM_WEBAPP: true
-          REACT_APP_API_URL: https://dev-app.geohod.ru/api/v1
+          REACT_APP_API_URL: https://dev.geohod.ru/api/v1
           REACT_APP_BOT_USERNAME: geohod_dev_bot
 
       - name: Create deployment package
@@ -126,7 +126,8 @@ jobs:
             podman run -d \
               --name geohod-frontend-production \
               --restart unless-stopped \
-              -p 8080:8080 \
+              -p 80:80 \
+              -p 443:443 \
               -e NODE_ENV=production \
               geohod-frontend:$RELEASE_TAG
 
@@ -176,7 +177,7 @@ jobs:
           host: ${{ secrets.PROD_SERVER_HOST }}
           username: ${{ secrets.DEV_SERVER_USER }}
           key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
-          source: 'build/,scripts/,Dockerfile,nginx.conf,.dockerignore'
+          source: 'build/,scripts/,Dockerfile.dev,nginx-dev.conf,.dockerignore'
           target: '/home/${{ secrets.DEV_SERVER_USER }}/deploy'
           strip_components: 0
 
@@ -191,14 +192,15 @@ jobs:
 
             # Собираем образ с тегом коммита
             COMMIT_TAG="dev-$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
-            podman build -t geohod-frontend:$COMMIT_TAG .
+            podman build -f Dockerfile.dev -t geohod-frontend:$COMMIT_TAG .
             podman tag geohod-frontend:$COMMIT_TAG geohod-frontend:dev
 
             # Запускаем контейнер
             podman run -d \
               --name geohod-frontend-dev \
               --restart unless-stopped \
-              -p 8081:8080 \
+              -p 8080:8080 \
+              -p 8443:8443 \
               -e NODE_ENV=development \
               geohod-frontend:$COMMIT_TAG
 
