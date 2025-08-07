@@ -99,6 +99,8 @@ const ProfilePage: React.FC = () => {
 
   // Получаем данные автора из state, если они были переданы
   const authorData = location.state?.authorData;
+  console.log('ProfilePage: location.state:', location.state);
+  console.log('ProfilePage: authorData from state:', authorData);
 
   const [reviews, setReviews] = React.useState<Review[]>([]);
   const [page, setPage] = React.useState(0);
@@ -127,6 +129,7 @@ const ProfilePage: React.FC = () => {
 
           // Если у нас есть данные автора из state, используем их
           if (authorData) {
+            console.log('ProfilePage: using author data from state:', authorData);
             setTargetUser(authorData);
           } else {
             // Иначе загружаем данные через API

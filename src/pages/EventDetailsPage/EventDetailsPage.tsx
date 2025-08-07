@@ -326,20 +326,24 @@ const EventDetailsPage: React.FC = () => {
       }
 
       // Передаем данные автора через state, чтобы не загружать их заново
+      const authorDataToPass = {
+        id: event.author.id,
+        uuid: authorId,
+        username: event.author.tgUsername,
+        firstName: event.author.firstName,
+        lastName: event.author.lastName,
+        tgImageUrl: event.author.tgImageUrl,
+        imageUrl: event.author.tgImageUrl,
+        name: event.author.firstName,
+        tgFirstName: event.author.firstName,
+        tgLastName: event.author.lastName,
+      };
+
+      console.log('EventDetailsPage: passing author data:', authorDataToPass);
+
       navigate(`/profile/${authorId}`, {
         state: {
-          authorData: {
-            id: event.author.id,
-            uuid: authorId,
-            username: event.author.tgUsername,
-            firstName: event.author.firstName,
-            lastName: event.author.lastName,
-            tgImageUrl: event.author.tgImageUrl,
-            imageUrl: event.author.tgImageUrl,
-            name: event.author.firstName,
-            tgFirstName: event.author.firstName,
-            tgLastName: event.author.lastName,
-          },
+          authorData: authorDataToPass,
         },
       });
     }

@@ -2,53 +2,198 @@ name: Frontend Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - '**'
       - '.github/workflows/frontend-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - development
+      tag:
+        description: 'Tag for the image'
+        required: false
+        default: 'latest'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Build application
+        run: npm run build:telegram
+        env:
+          REACT_APP_TELEGRAM_WEBAPP: true
+          REACT_APP_API_URL: https://app.geohod.ru/api/v1
 
-      - name: Clean old files on server
-        uses: appleboy/ssh-action@master
+      - name: Create deployment package
+        run: |
+          tar -czf deploy.tar.gz build/ scripts/ Dockerfile nginx.conf .dockerignore
+
+      - name: Upload deployment package
+        uses: actions/upload-artifact@v4
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          name: deployment-package
+          path: deploy.tar.gz
+
+  deploy-production:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
+    environment: production
+
+    steps:
+      - name: Download deployment package
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-package
+
+      - name: Extract deployment package
+        run: tar -xzf deploy.tar.gz
+
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.PROD_SERVER_USER }}
+          password: ${{ secrets.PROD_SERVER_PASSWORD }}
+          port: 22
           script: |
-            rm -rf /var/www/client.geohod.ru/*
+            # Создаем рабочую директорию
+            mkdir -p /home/${{ secrets.PROD_SERVER_USER }}/deploy
+            cd /home/${{ secrets.PROD_SERVER_USER }}/deploy
 
-      - name: Copy build files
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: 'build/'
-          target: '/var/www/client.geohod.ru'
-          strip_components: 1
+            # Останавливаем и удаляем старый контейнер
+            podman stop geohod-frontend-production || true
+            podman rm geohod-frontend-production || true
 
-      - name: Set permissions
-        uses: appleboy/ssh-action@master
+            # Удаляем старые образы (оставляем только последние 3)
+            podman images geohod-frontend --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +2 | sort -k2 -r | tail -n +4 | awk '{print $1}' | xargs -r podman rmi || true
+
+      - name: Copy files to production server
+        uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.PROD_SERVER_USER }}
+          password: ${{ secrets.PROD_SERVER_PASSWORD }}
+          source: 'build/,scripts/,Dockerfile,nginx.conf,.dockerignore'
+          target: '/home/${{ secrets.PROD_SERVER_USER }}/deploy'
+          strip_components: 0
+
+      - name: Build and deploy container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.PROD_SERVER_USER }}
+          password: ${{ secrets.PROD_SERVER_PASSWORD }}
           script: |
-            chmod -R 755 /var/www/client.geohod.ru
+            cd /home/${{ secrets.PROD_SERVER_USER }}/deploy
+
+            # Собираем образ с тегом релиза
+            RELEASE_TAG="v$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+            podman build -t geohod-frontend:$RELEASE_TAG .
+            podman tag geohod-frontend:$RELEASE_TAG geohod-frontend:latest
+
+            # Запускаем контейнер
+            podman run -d \
+              --name geohod-frontend-production \
+              --restart unless-stopped \
+              -p 8080:8080 \
+              -e NODE_ENV=production \
+              geohod-frontend:$RELEASE_TAG
+
+            # Проверяем статус
+            podman ps -f name=geohod-frontend-production
+
+            # Очищаем старые файлы
+            rm -rf /home/${{ secrets.PROD_SERVER_USER }}/deploy
+
+  deploy-development:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || github.event.inputs.environment == 'development'
+    environment: development
+
+    steps:
+      - name: Download deployment package
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-package
+
+      - name: Extract deployment package
+        run: tar -xzf deploy.tar.gz
+
+      - name: Deploy to development server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.DEV_SERVER_USER }}
+          password: ${{ secrets.DEV_SERVER_PASSWORD }}
+          port: 22
+          script: |
+            # Создаем рабочую директорию
+            mkdir -p /home/${{ secrets.DEV_SERVER_USER }}/deploy
+            cd /home/${{ secrets.DEV_SERVER_USER }}/deploy
+
+            # Останавливаем и удаляем старый контейнер
+            podman stop geohod-frontend-dev || true
+            podman rm geohod-frontend-dev || true
+
+            # Удаляем старые образы (оставляем только последние 3)
+            podman images geohod-frontend --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +2 | sort -k2 -r | tail -n +4 | awk '{print $1}' | xargs -r podman rmi || true
+
+      - name: Copy files to development server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.DEV_SERVER_USER }}
+          password: ${{ secrets.DEV_SERVER_PASSWORD }}
+          source: 'build/,scripts/,Dockerfile,nginx.conf,.dockerignore'
+          target: '/home/${{ secrets.DEV_SERVER_USER }}/deploy'
+          strip_components: 0
+
+      - name: Build and deploy container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.DEV_SERVER_USER }}
+          password: ${{ secrets.DEV_SERVER_PASSWORD }}
+          script: |
+            cd /home/${{ secrets.DEV_SERVER_USER }}/deploy
+
+            # Собираем образ с тегом коммита
+            COMMIT_TAG="dev-$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+            podman build -t geohod-frontend:$COMMIT_TAG .
+            podman tag geohod-frontend:$COMMIT_TAG geohod-frontend:dev
+
+            # Запускаем контейнер
+            podman run -d \
+              --name geohod-frontend-dev \
+              --restart unless-stopped \
+              -p 8081:8080 \
+              -e NODE_ENV=development \
+              geohod-frontend:$COMMIT_TAG
+
+            # Проверяем статус
+            podman ps -f name=geohod-frontend-dev
+
+            # Очищаем старые файлы
+            rm -rf /home/${{ secrets.DEV_SERVER_USER }}/deploy

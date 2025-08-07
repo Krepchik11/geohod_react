@@ -1,0 +1,23 @@
+[Unit]
+Description=GeoHod Frontend Container
+After=network.target
+Wants=network.target
+
+[Service]
+Type=notify
+ExecStartPre=-/usr/bin/podman rm -f geohod-frontend
+ExecStart=/usr/bin/podman run --name geohod-frontend \
+    --restart unless-stopped \
+    -p 8080:8080 \
+    -e NODE_ENV=production \
+    geohod-frontend:latest
+ExecStop=/usr/bin/podman stop geohod-frontend
+ExecStopPost=/usr/bin/podman rm -f geohod-frontend
+KillMode=none
+Restart=always
+RestartSec=10
+TimeoutStartSec=60
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target 
