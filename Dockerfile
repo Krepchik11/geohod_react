@@ -31,6 +31,9 @@ RUN mkdir -p /etc/nginx/ssl
 # Копируем SSL сертификаты (если есть)
 COPY ssl/ /etc/nginx/ssl/
 
+# Копируем HTTPS конфигурацию (если есть)
+COPY nginx-https.conf /etc/nginx/conf.d/https.conf 2>/dev/null || true
+
 # Создаем пользователя для безопасности
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001

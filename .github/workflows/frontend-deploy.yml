@@ -38,11 +38,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build application
+      - name: Build application for production
+        if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
         run: npm run build:telegram
         env:
           REACT_APP_TELEGRAM_WEBAPP: true
           REACT_APP_API_URL: https://app.geohod.ru/api/v1
+          REACT_APP_BOT_USERNAME: geohod_bot
+
+      - name: Build application for development
+        if: github.ref == 'refs/heads/develop' || github.event.inputs.environment == 'development'
+        run: npm run build:telegram
+        env:
+          REACT_APP_TELEGRAM_WEBAPP: true
+          REACT_APP_API_URL: https://dev-app.geohod.ru/api/v1
+          REACT_APP_BOT_USERNAME: geohod_dev_bot
 
       - name: Create deployment package
         run: |
