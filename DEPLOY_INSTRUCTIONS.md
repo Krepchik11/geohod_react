@@ -21,30 +21,40 @@ sudo ./scripts/setup-server.sh geohod_frontend_dev
 sudo passwd geohod_frontend_dev
 ```
 
-### 2. Настройка GitHub Secrets
+### 2. Настройка SSH ключей
+
+```bash
+# На сервере настройте SSH ключи
+sudo ./scripts/setup-ssh-keys.sh geohod_frontend
+sudo ./scripts/setup-ssh-keys.sh geohod_frontend_dev
+```
+
+### 3. Настройка GitHub Secrets
 
 Добавьте в Settings → Secrets and variables → Actions:
 
-| Имя                    | Значение                                |
-| ---------------------- | --------------------------------------- |
-| `PROD_SERVER_HOST`     | `62.169.22.36`                          |
-| `PROD_SERVER_USER`     | `geohod_frontend`                       |
-| `PROD_SERVER_PASSWORD` | пароль пользователя geohod_frontend     |
-| `DEV_SERVER_USER`      | `geohod_frontend_dev`                   |
-| `DEV_SERVER_PASSWORD`  | пароль пользователя geohod_frontend_dev |
+| Имя                    | Значение                             |
+| ---------------------- | ------------------------------------ |
+| `PROD_SERVER_HOST`     | `62.169.22.36`                       |
+| `PROD_SERVER_USER`     | `geohod_frontend`                    |
+| `PROD_SSH_PRIVATE_KEY` | [приватный ключ geohod_frontend]     |
+| `DEV_SERVER_USER`      | `geohod_frontend_dev`                |
+| `DEV_SSH_PRIVATE_KEY`  | [приватный ключ geohod_frontend_dev] |
 
-### 3. Создание GitHub Environments
+Подробная инструкция: [SSH_KEYS_SETUP.md](SSH_KEYS_SETUP.md)
+
+### 4. Создание GitHub Environments
 
 1. **Environment "production"**:
 
    - Settings → Environments → New environment
    - Имя: `production`
-   - Добавьте секреты: `PROD_SERVER_HOST`, `PROD_SERVER_USER`, `PROD_SERVER_PASSWORD`
+   - Добавьте секреты: `PROD_SERVER_HOST`, `PROD_SERVER_USER`, `PROD_SSH_PRIVATE_KEY`
 
 2. **Environment "development"**:
    - Settings → Environments → New environment
    - Имя: `development`
-   - Добавьте секреты: `PROD_SERVER_HOST`, `DEV_SERVER_USER`, `DEV_SERVER_PASSWORD`
+   - Добавьте секреты: `PROD_SERVER_HOST`, `DEV_SERVER_USER`, `DEV_SSH_PRIVATE_KEY`
 
 ## 🔄 Автоматический деплой
 
