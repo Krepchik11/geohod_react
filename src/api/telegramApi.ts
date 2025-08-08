@@ -4,8 +4,6 @@ import { NotificationResponse } from '../types/notification';
 export const telegramWebApp = window.Telegram?.WebApp;
 export const isTelegramWebApp = Boolean(telegramWebApp);
 
-console.log('dev server');
-
 export const getTelegramUser = () => {
   if (!telegramWebApp?.initDataUnsafe?.user) {
     console.error('Информация о пользователе не доступна');
