@@ -177,7 +177,7 @@ jobs:
           host: ${{ secrets.PROD_SERVER_HOST }}
           username: ${{ secrets.DEV_SERVER_USER }}
           key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
-          source: 'build/,scripts/,Dockerfile.dev,nginx-dev.conf,.dockerignore'
+          source: 'build/,scripts/,Dockerfile.dev,nginx-dev.conf,ssl/,.dockerignore'
           target: '/home/${{ secrets.DEV_SERVER_USER }}/deploy'
           strip_components: 0
 
@@ -201,6 +201,7 @@ jobs:
               --restart unless-stopped \
               -p 8080:8080 \
               -p 8443:8443 \
+              -p 443:443 \
               -e NODE_ENV=development \
               geohod-frontend:$COMMIT_TAG
 
