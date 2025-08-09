@@ -56,7 +56,7 @@ jobs:
 
       - name: Create deployment package
         run: |
-          tar -czf deploy.tar.gz build/ scripts/ Dockerfile nginx.conf .dockerignore
+          tar -czf deploy.tar.gz build/ scripts/ Dockerfile Dockerfile.dev nginx.conf nginx-dev.conf ssl/ .dockerignore
 
       - name: Upload deployment package
         uses: actions/upload-artifact@v4
@@ -104,7 +104,7 @@ jobs:
           host: ${{ secrets.PROD_SERVER_HOST }}
           username: ${{ secrets.PROD_SERVER_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: 'build/,scripts/,Dockerfile,nginx.conf,.dockerignore'
+          source: 'build/,scripts/,Dockerfile,nginx.conf,ssl/,.dockerignore'
           target: '/home/${{ secrets.PROD_SERVER_USER }}/deploy'
           strip_components: 0
 
@@ -127,7 +127,9 @@ jobs:
               --name geohod-frontend-production \
               --restart unless-stopped \
               -p 80:80 \
-              -p 443:443 \
+              -p 8444:443 \
+              -v /etc/letsencrypt/live/client.geohod.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro \
+              -v /etc/letsencrypt/live/client.geohod.ru/privkey.pem:/etc/nginx/ssl/privkey.pem:ro \
               -e NODE_ENV=production \
               geohod-frontend:$RELEASE_TAG
 
@@ -177,7 +179,7 @@ jobs:
           host: ${{ secrets.PROD_SERVER_HOST }}
           username: ${{ secrets.DEV_SERVER_USER }}
           key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
-          source: 'build/,scripts/,Dockerfile.dev,nginx-dev.conf,.dockerignore'
+          source: 'build/,scripts/,Dockerfile.dev,nginx-dev.conf,ssl/,.dockerignore'
           target: '/home/${{ secrets.DEV_SERVER_USER }}/deploy'
           strip_components: 0
 
@@ -195,7 +197,7 @@ jobs:
             podman build -f Dockerfile.dev -t geohod-frontend:$COMMIT_TAG .
             podman tag geohod-frontend:$COMMIT_TAG geohod-frontend:dev
 
-            # Запускаем контейнер
+            # Запускаем контейнер (без хоста 443 тут, чтобы не конфликтовать с продом)
             podman run -d \
               --name geohod-frontend-dev \
               --restart unless-stopped \
