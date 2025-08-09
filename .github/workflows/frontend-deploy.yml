@@ -197,12 +197,11 @@ jobs:
             podman build -f Dockerfile.dev -t geohod-frontend:$COMMIT_TAG .
             podman tag geohod-frontend:$COMMIT_TAG geohod-frontend:dev
 
-            # Запускаем контейнер (без хоста 443 тут, чтобы не конфликтовать с продом)
+            # Запускаем контейнер
             podman run -d \
               --name geohod-frontend-dev \
+              --network host \
               --restart unless-stopped \
-              -p 8080:8080 \
-              -p 8443:8443 \
               -e NODE_ENV=development \
               geohod-frontend:$COMMIT_TAG
 
