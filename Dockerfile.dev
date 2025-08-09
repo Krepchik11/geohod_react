@@ -27,6 +27,6 @@ RUN chown -R nextjs:nodejs /usr/share/nginx/html && \
     mkdir -p /run && \
     chown -R nextjs:nodejs /run
 
-EXPOSE 8080 8443 443
+EXPOSE 8443 443
 
 CMD ["nginx", "-g", "daemon off;"]
