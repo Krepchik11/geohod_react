@@ -22,6 +22,7 @@ systemctl --user stop "${SERVICE_NAME}" || true
 
 echo "--> Setting up SSL certificates..."
 # Run certbot to create certificates if they don't exist
+chmod +x "${STAGING_DIR}/certbot.sh"
 "${STAGING_DIR}/certbot.sh"
 
 echo "--> Setting up systemd user service..."
