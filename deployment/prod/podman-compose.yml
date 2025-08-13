@@ -1,0 +1,30 @@
+services:
+  nginx:
+    image: docker.io/library/nginx:latest
+    container_name: frontend-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot_certs:/etc/letsencrypt
+    networks:
+      - geohod-net
+
+  certbot:
+    image: docker.io/certbot/certbot:latest
+    container_name: frontend-certbot
+    restart: on-failure
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+    command: certonly --webroot --webroot-path=/usr/share/nginx/html --email idemozajedno@yandex.ru --agree-tos --no-eff-email -d app.geohod.ru
+    networks:
+      - geohod-net
+
+volumes:
+  certbot_certs:
+
+networks:
+  geohod-net:

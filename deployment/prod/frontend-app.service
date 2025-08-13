@@ -1,5 +1,5 @@
 [Unit]
-Description=Geohod Backend dev
+Description=Frontend App Service
 Wants=network-online.target
 After=network-online.target
 
@@ -8,9 +8,7 @@ Restart=always
 Type=forking
 TimeoutStartSec=5min
 
-# Set the working directory to where podman-compose.yml is located
-WorkingDirectory=%h/geohod-backend-dev
-
+WorkingDirectory=%h/frontend-app
 ExecStart=/usr/bin/podman-compose -f podman-compose.yml up -d
 ExecStop=/usr/bin/podman-compose -f podman-compose.yml down
 

@@ -7,7 +7,7 @@
   ```bash
   # As root or with sudo
   sudo useradd -m -s /bin/bash geohod
-  sudo mkdir -p /home/geohod/geohod-backend-dev
+  sudo mkdir -p /home/geohod/geohod-backend
   sudo chown -R geohod:geohod /home/geohod
   ```
 - **Enable User Lingering**
@@ -25,4 +25,4 @@
   - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`
   - etc.
 - **Run GitHub Action**
-  - Go to **Actions** -> **Deploy dev** -> **Run workflow**. The first run will set up and start the systemd service automatically.
+  - Go to **Actions** -> **Deploy prod** -> **Run workflow**. The first run will set up and start the systemd service automatically.

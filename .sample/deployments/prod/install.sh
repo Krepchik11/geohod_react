@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-STAGING_DIR="${HOME}/geohod-backend-dev"
-SERVICE_NAME="geohod-backend-dev"
+STAGING_DIR="${HOME}/geohod-backend"
+SERVICE_NAME="geohod-backend"
 IMAGE_TARBALL="${STAGING_DIR}/geohod-backend-image.tar.gz"
 SERVICE_DIR="${HOME}/.config/systemd/user"
 
@@ -21,6 +21,6 @@ systemctl --user daemon-reload
 systemctl --user restart "${SERVICE_NAME}"
 
 echo "--> Cleaning up old images..."
-podman image prune -f --filter "label=stage=dev" --filter "until=24h"
+podman image prune -f --filter "label=stage=prod" --filter "until=24h"
 
 echo "--- Geohod Backend deployment finished ---"
