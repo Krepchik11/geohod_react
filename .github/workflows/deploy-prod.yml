@@ -1,0 +1,59 @@
+name: Deploy Frontend
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    name: Build and Deploy Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build:telegram
+        env:
+          REACT_APP_TELEGRAM_WEBAPP: true
+          REACT_APP_API_URL: https://app.geohod.ru/api/v1
+          REACT_APP_BOT_USERNAME: geohod_bot
+
+      - name: Transfer assets to VPS
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "dist"
+          target: "~/frontend-app"
+
+      - name: Transfer deployment files
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "deployment/prod/*"
+          target: "~/frontend-app"
+          strip_components: 2
+
+      - name: Execute remote setup
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/frontend-app
+            chmod +x install.sh
+            ./install.sh
