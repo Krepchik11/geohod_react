@@ -17,13 +17,20 @@ else
 fi
 # ---
 
+echo "--> Stopping frontend services..."
+systemctl --user stop "${SERVICE_NAME}" || true
+
+echo "--> Setting up SSL certificates..."
+# Run certbot to create certificates if they don't exist
+"${STAGING_DIR}/certbot.sh"
+
 echo "--> Setting up systemd user service..."
 mkdir -p "${SERVICE_DIR}"
 cp "${STAGING_DIR}/${SERVICE_NAME}.service" "${SERVICE_DIR}/"
+systemctl --user daemon-reload
 systemctl --user enable "${SERVICE_NAME}.service"
 
-echo "--> Reloading systemd user daemon and restarting service..."
-systemctl --user daemon-reload
-systemctl --user restart "${SERVICE_NAME}"
+echo "--> Starting frontend services..."
+systemctl --user start "${SERVICE_NAME}"
 
 echo "--- Frontend deployment finished ---"
