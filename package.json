@@ -30,14 +30,9 @@
     "start": "react-scripts start",
     "dev": "vite",
     "build": "react-scripts build",
-    "build:telegram": "set REACT_APP_TELEGRAM_WEBAPP=true && react-scripts build",
-    "deploy": "npm run build:telegram && node deploy.config.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier --write .",
-    "docker:build": "./scripts/build.sh",
-    "docker:deploy": "./scripts/deploy.sh",
-    "docker:cleanup": "./scripts/cleanup.sh"
+    "format": "prettier --write ."
   },
   "eslintConfig": {
     "extends": [
