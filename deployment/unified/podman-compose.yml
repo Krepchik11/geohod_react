@@ -11,8 +11,8 @@ services:
       - ./dist/dev:/usr/share/nginx/html/dev:ro
       - ./dist/prod:/usr/share/nginx/html/prod:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - certbot_certs_dev:/etc/letsencrypt
-      - certbot_certs:/etc/letsencrypt
+      - certbot_certs_dev:/etc/letsencrypt_dev
+      - certbot_certs:/etc/letsencrypt_prod
     networks:
       - geohod-net-dev
       - geohod-net

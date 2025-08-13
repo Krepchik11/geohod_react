@@ -5,12 +5,16 @@ After=network-online.target
 
 [Service]
 Restart=always
+RestartSec=10
 Type=forking
 TimeoutStartSec=5min
+StartLimitIntervalSec=60
+StartLimitBurst=3
 
 WorkingDirectory=%h/frontend-app-unified
 ExecStart=/usr/bin/podman-compose -f podman-compose.yml up -d
 ExecStop=/usr/bin/podman-compose -f podman-compose.yml down
+ExecReload=/usr/bin/podman-compose -f podman-compose.yml restart
 
 [Install]
 WantedBy=default.target

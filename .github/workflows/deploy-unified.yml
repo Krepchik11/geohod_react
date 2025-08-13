@@ -46,8 +46,8 @@ jobs:
           host: ${{ vars.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "build"
-          target: "~/frontend-app-unified/dist/dev"
+          source: "build/"
+          target: "~/frontend-app-unified/dist/dev/"
           strip_components: 1
 
       - name: Build Production
@@ -65,8 +65,8 @@ jobs:
           host: ${{ vars.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "build"
-          target: "~/frontend-app-unified/dist/prod"
+          source: "build/"
+          target: "~/frontend-app-unified/dist/prod/"
           strip_components: 1
 
       - name: Transfer unified deployment files
@@ -76,7 +76,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "deployment/unified/*"
-          target: "~/frontend-app-unified"
+          target: "~/frontend-app-unified/"
           strip_components: 2
 
       - name: Execute remote setup

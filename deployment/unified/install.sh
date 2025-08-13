@@ -22,6 +22,12 @@ done
 echo "--> Stopping frontend services..."
 systemctl --user stop "${SERVICE_NAME}" || true
 
+# Wait a moment for services to stop
+sleep 5
+
+echo "--> Cleaning up existing containers..."
+podman-compose -f "${STAGING_DIR}/podman-compose.yml" down || true
+
 echo "--> Setting up SSL certificates..."
 # Run certbot to create certificates if they don't exist
 chmod +x "${STAGING_DIR}/certbot.sh"

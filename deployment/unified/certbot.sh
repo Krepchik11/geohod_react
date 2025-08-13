@@ -4,19 +4,21 @@ set -euo pipefail
 EMAIL="idemozajedno@yandex.ru"
 DOMAINS=("dev.geohod.ru" "app.geohod.ru")
 CERTS_VOLUMES=("certbot_certs_dev" "certbot_certs")
+MOUNT_PATHS=("/etc/letsencrypt_dev" "/etc/letsencrypt_prod")
 CERTBOT_IMAGE="docker.io/certbot/certbot:latest"
 
 # Process each domain
 for i in "${!DOMAINS[@]}"; do
     DOMAIN="${DOMAINS[$i]}"
     CERTS_VOLUME="${CERTS_VOLUMES[$i]}"
+    MOUNT_PATH="${MOUNT_PATHS[$i]}"
     
     # Check if certificates already exist by checking the directory directly
     if podman volume inspect "$CERTS_VOLUME" >/dev/null 2>&1; then
-        if podman run --rm -v "$CERTS_VOLUME:/etc/letsencrypt" \
+        if podman run --rm -v "$CERTS_VOLUME:$MOUNT_PATH" \
             --entrypoint /bin/sh \
             "$CERTBOT_IMAGE" \
-            -c "test -d /etc/letsencrypt/live/$DOMAIN" >/dev/null 2>&1; then
+            -c "test -d $MOUNT_PATH/live/$DOMAIN" >/dev/null 2>&1; then
             echo "Certificates already exist for $DOMAIN"
             continue
         fi
@@ -32,7 +34,7 @@ for i in "${!DOMAINS[@]}"; do
 
     podman run --rm \
         --network host \
-        -v "$CERTS_VOLUME:/etc/letsencrypt" \
+        -v "$CERTS_VOLUME:$MOUNT_PATH" \
         "$CERTBOT_IMAGE" \
         certonly --standalone \
         --email "$EMAIL" \
@@ -48,3 +50,5 @@ for i in "${!DOMAINS[@]}"; do
         exit 1
     fi
 done
+
+echo "All certificates processed successfully!"
