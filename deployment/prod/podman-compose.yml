@@ -1,4 +1,13 @@
 services:
+  certbot:
+    image: docker.io/certbot/certbot:latest
+    container_name: frontend-certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; certbot certonly --standalone --email idemozajedno@yandex.ru --agree-tos --no-eff-email -d app.geohod.ru; while :; do certbot renew; sleep 12h & wait $!; done;'"
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+    network_mode: host
+    restart: on-failure
+
   nginx:
     image: docker.io/library/nginx:latest
     container_name: frontend-nginx
@@ -14,17 +23,6 @@ services:
       - geohod-net
     depends_on:
       - certbot
-
-  certbot:
-    image: docker.io/certbot/certbot:latest
-    container_name: frontend-certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $!; done;'"
-    volumes:
-      - ./dist:/usr/share/nginx/html
-      - certbot_certs:/etc/letsencrypt
-    networks:
-      - geohod-net
-    command: certonly --webroot --webroot-path=/usr/share/nginx/html --email idemozajedno@yandex.ru --agree-tos --no-eff-email -d app.geohod.ru
 
 volumes:
   certbot_certs:
