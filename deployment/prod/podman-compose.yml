@@ -3,8 +3,10 @@ services:
     image: docker.io/certbot/certbot:latest
     container_name: frontend-certbot
     entrypoint: >
-      /bin/sh -c "trap exit TERM;
-      certbot renew --cert-name app.geohod.ru;
+      /bin/sh -c "trap exit TERM; 
+      if [ ! -d /etc/letsencrypt/live/app.geohod.ru ]; then
+        certbot certonly --standalone --email idemozajedno@yandex.ru --agree-tos --no-eff-email -d app.geohod.ru;
+      fi;
       while :; do certbot renew; sleep 12h & wait $!; done;"
     volumes:
       - certbot_certs:/etc/letsencrypt
