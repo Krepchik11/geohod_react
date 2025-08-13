@@ -3,7 +3,7 @@ services:
     image: docker.io/library/nginx:latest
     container_name: frontend-nginx-unified
     restart: always
-    command: /bin/sh -c "while [ ! -f /etc/letsencrypt/live/dev.geohod.ru/fullchain.pem ] || [ ! -f /etc/letsencrypt/live/app.geohod.ru/fullchain.pem ]; do echo 'Waiting for certificates...'; sleep 2; done; nginx -g 'daemon off;'"
+    command: /bin/sh -c "while [ ! -f /etc/letsencrypt_dev/live/dev.geohod.ru/fullchain.pem ] || [ ! -f /etc/letsencrypt_prod/live/app.geohod.ru/fullchain.pem ]; do echo 'Waiting for certificates...'; sleep 2; done; nginx -g 'daemon off;'"
     ports:
       - "80:80"
       - "443:443"
