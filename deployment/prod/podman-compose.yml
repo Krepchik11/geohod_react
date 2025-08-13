@@ -2,7 +2,10 @@ services:
   certbot:
     image: docker.io/certbot/certbot:latest
     container_name: frontend-certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; certbot certonly --standalone --email idemozajedno@yandex.ru --agree-tos --no-eff-email -d app.geohod.ru; while :; do certbot renew; sleep 12h & wait $!; done;'"
+    entrypoint: >
+      /bin/sh -c "trap exit TERM;
+      certbot renew --cert-name app.geohod.ru;
+      while :; do certbot renew; sleep 12h & wait $!; done;"
     volumes:
       - certbot_certs:/etc/letsencrypt
     network_mode: host
@@ -23,6 +26,12 @@ services:
       - geohod-net
     depends_on:
       - certbot
+    entrypoint: >
+      /bin/sh -c "while [ ! -f /etc/letsencrypt/live/app.geohod.ru/fullchain.pem ]; do
+        echo 'Cert awaiting...';
+        sleep 5;
+      done;
+      nginx -g 'daemon off;'"
 
 volumes:
   certbot_certs:
