@@ -12,5 +12,5 @@ export const getBotUrl = (): string => {
 };
 
 export const getRegistrationLink = (eventId: string): string => {
-  return `${getBotUrl()}?startapp=registration_${eventId}`;
+  return `${getBotUrl()}/app?startapp=registration_${eventId}`;
 };
