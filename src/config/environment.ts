@@ -11,8 +11,8 @@ export const environment = {
   },
 
   getBotUsername: () => {
-    if (process.env.VITE_BOT_USERNAME) {
-      return process.env.VITE_BOT_USERNAME;
+    if (process.env.REACT_APP_BOT_USERNAME) {
+      return process.env.REACT_APP_BOT_USERNAME;
     }
 
     return 'geohodton_bot';
