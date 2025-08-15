@@ -64,6 +64,13 @@ export const useUserStore = create<UserState>((set) => ({
       }
       const backendUser = await usersApi.getUserByTelegramId(userData.id);
       set({ user: { ...userData, uuid: backendUser.data.id }, error: null });
+      
+      try {
+        const { fetchSettings } = useUserStore.getState();
+        await fetchSettings();
+      } catch (settingsError) {
+        console.error('Error fetching user settings during init:', settingsError);
+      }
     } catch (error) {
       console.error('Error in initUser:', error);
       set({ error: 'Ошибка при получении данных пользователя' });

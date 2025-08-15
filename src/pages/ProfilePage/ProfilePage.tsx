@@ -297,10 +297,6 @@ const ProfilePage: React.FC = () => {
   }, [hasMore, loadingReviews]);
 
   React.useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  React.useEffect(() => {
     if (settings) {
       setMaxParticipants(
         settings.defaultMaxParticipants === null ? '' : String(settings.defaultMaxParticipants)
